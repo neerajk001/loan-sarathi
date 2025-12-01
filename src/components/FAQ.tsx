@@ -65,14 +65,14 @@ const FAQ = () => {
   });
 
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50 py-24 relative overflow-hidden">
+    <div className="bg-gradient-to-b from-white to-gray-50 py-12 relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-20 right-0 w-72 h-72 bg-blue-100/40 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-0 w-72 h-72 bg-indigo-100/40 rounded-full blur-3xl" />
       
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 border border-blue-200">
             <HelpCircle className="w-4 h-4" />
             GOT QUESTIONS?
@@ -179,7 +179,7 @@ const FAQ = () => {
         )}
 
         {/* Contact CTA */}
-        <div className="mt-16 bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+        <div className="mt-8 bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
           {/* Decorative */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />

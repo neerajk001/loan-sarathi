@@ -26,9 +26,9 @@ const Features = () => {
   ];
 
   return (
-    <div className="py-20 bg-white">
+    <div className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-8">
           <span className="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold mb-4 tracking-wide">
             WHY CHOOSE US
           </span>

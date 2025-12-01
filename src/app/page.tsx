@@ -1,8 +1,10 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
+import FeaturedPartners from '@/components/FeaturedPartners';
 import Partners from '@/components/Partners';
 import Features from '@/components/Features';
 import Products from '@/components/Products';
+import InsuranceProducts from '@/components/InsuranceProducts';
 import Process from '@/components/Process';
 import Calculator from '@/components/Calculator';
 import Testimonials from '@/components/Testimonials';
@@ -11,14 +13,17 @@ import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="bg-white">
       <Navbar />
       <Hero />
+      <FeaturedPartners />
       <Partners />
-      <Features />
+      
       <Products />
+      <InsuranceProducts />
       <Process />
       <Calculator />
+      <Features />
       <Testimonials />
       <FAQ />
       <Footer />

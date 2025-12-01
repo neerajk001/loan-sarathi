@@ -84,14 +84,14 @@ const Testimonials = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white py-24 relative overflow-hidden">
+    <div className="bg-gradient-to-b from-gray-50 to-white py-12 relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 border border-blue-200">
             <BadgeCheck className="w-4 h-4" />
             VERIFIED SUCCESS STORIES

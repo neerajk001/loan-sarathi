@@ -5,7 +5,7 @@ import { CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
 const Hero = () => {
   return (
     <div className="relative bg-gradient-to-br from-blue-50 to-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 lg:pt-20 lg:pb-28">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 lg:pt-10 lg:pb-14">
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
           
           {/* Left Content */}

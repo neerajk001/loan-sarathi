@@ -90,9 +90,9 @@ const Calculator = () => {
   }, [btIncome, outstanding, btExistingEmi, btTenure]);
 
   return (
-    <div id="calculators" className="py-20 bg-blue-900">
+    <div id="calculators" className="py-10 bg-blue-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-white sm:text-4xl">Plan Your Finances Smartly</h2>
           <p className="mt-4 text-blue-200">Use our tools to estimate your payments instantly.</p>
         </div>

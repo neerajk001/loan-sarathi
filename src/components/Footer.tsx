@@ -4,9 +4,9 @@ import { ShieldCheck, Facebook, Twitter, Instagram, Linkedin } from 'lucide-reac
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-950 text-white pt-16 pb-8">
+    <footer className="bg-blue-950 text-white pt-8 pb-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-6">
           <div>
             <div className="flex items-center gap-3 mb-6">
               <img src="/logo.png" alt="Loan Sarathi Logo" className="h-20 w-auto bg-white rounded-md p-1" />

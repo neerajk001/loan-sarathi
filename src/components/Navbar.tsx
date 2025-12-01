@@ -138,6 +138,7 @@ const Navbar = () => {
 
           {/* Center: Navigation Links */}
           <div className="hidden md:flex items-center justify-center space-x-8 flex-1 px-8">
+            <Link href="/products" className={`${isActive('/products')} whitespace-nowrap transition-colors`}>Products</Link>
             <Link href="/about" className={`${isActive('/about')} whitespace-nowrap transition-colors`}>About Us</Link>
             <Link href="/calculator" className={`${isActive('/calculator')} whitespace-nowrap transition-colors`}>Calculators</Link>
             <Link href="/track-status" className={`${isActive('/track-status')} whitespace-nowrap transition-colors`}>Track Status</Link>

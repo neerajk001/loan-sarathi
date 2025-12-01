@@ -1,82 +1,81 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { Building2, Home, FileText, CreditCard, Wallet, ArrowRight } from 'lucide-react';
+import { Heart, Shield, Car, Plane, Bike, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-const Products = () => {
+const InsuranceProducts = () => {
   const router = useRouter();
 
   const products = [
     {
-      id: 'personal-loan',
-      title: 'Personal Loan',
-      subtitle: 'Up to ₹50 Lakhs',
-      tag: '@10.49% ROI',
-      icon: <Wallet className="h-8 w-8 text-blue-600" />,
-      applyHref: '/apply?type=personal',
-      detailsHref: '/products/personal-loan',
+      id: 'health-insurance',
+      title: 'Health Insurance',
+      subtitle: 'Up to ₹1Cr cover',
+      tag: 'Cashless',
+      icon: <Heart className="h-8 w-8 text-rose-600" />,
+      applyHref: '/apply-insurance?type=health',
+      detailsHref: '/insurance/health-insurance',
+      color: 'rose',
+      bg: 'bg-rose-50',
+      text: 'text-rose-600',
+      tagBg: 'bg-rose-100'
+    },
+    {
+      id: 'term-life-insurance',
+      title: 'Term Life',
+      subtitle: 'Tax benefits 80C',
+      tag: '₹10Cr+',
+      icon: <Shield className="h-8 w-8 text-blue-600" />,
+      applyHref: '/apply-insurance?type=term-life',
+      detailsHref: '/insurance/term-life-insurance',
       color: 'blue',
       bg: 'bg-blue-50',
       text: 'text-blue-600',
       tagBg: 'bg-blue-100'
     },
     {
-      id: 'business-loan',
-      title: 'Business Loan',
-      subtitle: 'Quick Approval',
-      tag: 'Up to ₹2 Cr',
-      icon: <Building2 className="h-8 w-8 text-purple-600" />,
-      applyHref: '/apply?type=business',
-      detailsHref: '/products/business-loan',
-      color: 'purple',
-      bg: 'bg-purple-50',
-      text: 'text-purple-600',
-      tagBg: 'bg-purple-100'
-    },
-    {
-      id: 'home-loan',
-      title: 'Home Loan',
-      subtitle: 'Up to ₹5 Cr',
-      tag: 'Low Interest',
-      icon: <Home className="h-8 w-8 text-green-600" />,
-      applyHref: '/apply?type=home',
-      detailsHref: '/products/home-loan',
+      id: 'car-insurance',
+      title: 'Car Insurance',
+      subtitle: 'Instant policy',
+      tag: 'Zero Dep',
+      icon: <Car className="h-8 w-8 text-green-600" />,
+      applyHref: '/apply-insurance?type=car',
+      detailsHref: '/insurance/car-insurance',
       color: 'green',
       bg: 'bg-green-50',
       text: 'text-green-600',
       tagBg: 'bg-green-100'
     },
     {
-      id: 'loan-against-property',
-      title: 'Loan Against Property',
-      subtitle: 'Unlock Value',
-      tag: 'High Amount',
-      icon: <FileText className="h-8 w-8 text-orange-600" />,
-      applyHref: '/apply?type=lap',
-      detailsHref: '/products/loan-against-property',
+      id: 'travel-insurance',
+      title: 'Travel Insurance',
+      subtitle: 'Medical cover',
+      tag: 'Worldwide',
+      icon: <Plane className="h-8 w-8 text-purple-600" />,
+      applyHref: '/apply-insurance?type=travel',
+      detailsHref: '/insurance/travel-insurance',
+      color: 'purple',
+      bg: 'bg-purple-50',
+      text: 'text-purple-600',
+      tagBg: 'bg-purple-100'
+    },
+    {
+      id: 'bike-insurance',
+      title: 'Bike Insurance',
+      subtitle: 'Third party',
+      tag: 'Comprehensive',
+      icon: <Bike className="h-8 w-8 text-orange-600" />,
+      applyHref: '/apply-insurance?type=bike',
+      detailsHref: '/insurance/bike-insurance',
       color: 'orange',
       bg: 'bg-orange-50',
       text: 'text-orange-600',
       tagBg: 'bg-orange-100'
     },
-    {
-      id: 'credit-card',
-      title: 'Credit Cards',
-      subtitle: 'Lifetime Free',
-      tag: 'Instant',
-      icon: <CreditCard className="h-8 w-8 text-rose-600" />,
-      applyHref: '/apply?type=cc',
-      detailsHref: '/products/credit-card',
-      color: 'rose',
-      bg: 'bg-rose-50',
-      text: 'text-rose-600',
-      tagBg: 'bg-rose-100'
-    },
   ];
 
   const handleCardClick = (e: React.MouseEvent, href: string) => {
-    // Prevent navigation if the click originated from the Apply button
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
@@ -84,11 +83,11 @@ const Products = () => {
   };
 
   return (
-    <div id="products" className="py-12 bg-white">
+    <div id="insurance" className="py-12 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900">
-            Choose from our wide range of loan products
+            Comprehensive protection for you and your family
           </h2>
         </div>
 
@@ -122,7 +121,7 @@ const Products = () => {
               {/* Apply Button */}
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Stop bubble to parent div
+                  e.stopPropagation();
                   router.push(product.applyHref);
                 }}
                 className={`mt-auto px-6 py-2 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 flex items-center gap-1 ${
@@ -143,4 +142,5 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default InsuranceProducts;
+
