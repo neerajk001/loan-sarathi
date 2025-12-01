@@ -126,7 +126,7 @@ const Calculator = () => {
             </button>
           </div>
 
-          <div className="p-8 md:p-12">
+          <div className="p-6 md:p-12">
             {/* EMI Calculator */}
             {activeTab === 'emi' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">

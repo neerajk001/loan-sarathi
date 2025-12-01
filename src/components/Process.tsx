@@ -27,7 +27,7 @@ const Process = () => {
           {/* Connecting Line with Gradient */}
           <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-blue-200 via-blue-100 to-orange-200 -translate-y-1/2 z-0 rounded-full" />
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-4 lg:gap-8 relative z-10">
             {steps.map((step, index) => {
               const Icon = step.icon;
               return (

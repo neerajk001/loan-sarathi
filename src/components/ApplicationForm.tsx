@@ -163,7 +163,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       </div>
 
       {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-12 bg-white">
+      <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-white">
         
         {/* Step 1: Personal Details */}
         {showPersonalDetails && (
@@ -827,11 +827,11 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
             {/* Personal Details Review */}
             <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-              <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
-                <h4 className="font-bold text-gray-900">{isBusinessLoan || isHomeLoan || isLAP ? 'Basic Details' : 'Personal Details'}</h4>
-                <button onClick={() => setCurrentStep(1)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+              <div className="bg-gray-50 px-4 md:px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                <h4 className="font-bold text-gray-900 text-sm md:text-base">{isBusinessLoan || isHomeLoan || isLAP ? 'Basic Details' : 'Personal Details'}</h4>
+                <button onClick={() => setCurrentStep(1)} className="text-blue-600 text-xs md:text-sm font-medium hover:underline">Edit</button>
               </div>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+              <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                 <ReviewField label="Full Name" value={formData.fullName} />
                 <ReviewField label="Mobile Number" value={formData.mobileNumber} />
                 <ReviewField label="Email Address" value={formData.email} />

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut, Info, Calculator, Activity, CheckCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
@@ -15,6 +15,23 @@ const Navbar = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const isActive = (path: string) => {
     return pathname === path ? 'text-blue-600 font-bold' : 'text-gray-600 hover:text-orange-600 font-medium';
@@ -72,18 +89,21 @@ const Navbar = () => {
 
     if (session) {
       return (
-        <div className="px-3 py-2 flex justify-between items-center">
+        <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-sm">
+            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-base border border-blue-200">
               {session.user?.name?.[0]?.toUpperCase()}
             </div>
-            <span className="font-medium text-gray-900">{session.user?.name}</span>
+            <div>
+              <p className="font-bold text-gray-900 text-sm">{session.user?.name}</p>
+              <p className="text-xs text-gray-500">{session.user?.email}</p>
+            </div>
           </div>
           <button 
             onClick={() => signOut()}
-            className="text-orange-600 font-medium text-sm px-3 py-1 bg-orange-50 rounded-md"
+            className="text-red-500 hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition-colors"
           >
-            Logout
+            <LogOut className="h-5 w-5" />
           </button>
         </div>
       );
@@ -92,14 +112,14 @@ const Navbar = () => {
     return (
       <Link 
         href="/login" 
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-700"
+        className="flex items-center justify-center gap-3 w-full px-4 py-3.5 rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-all"
       >
         <img 
           src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
           alt="Google" 
           className="w-5 h-5" 
         />
-        <span className="font-medium">Login with Google</span>
+        <span className="font-semibold text-gray-700">Login with Google</span>
       </Link>
     );
   };
@@ -110,7 +130,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-24">
           
           {/* Left: Logo */}
-          <div className="shrink-0 flex items-center cursor-pointer">
+          <div className="shrink-0 flex items-center cursor-pointer z-50 relative">
             <Link href="/" className="flex items-center">
               <img src="/logo.png" alt="Loan Sarathi Logo" className="h-40 w-auto object-contain" />
             </Link>
@@ -132,10 +152,10 @@ const Navbar = () => {
           </div> 
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center z-50 relative">
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-600 hover:text-orange-600 focus:outline-none p-2"
+              className="text-gray-600 hover:text-orange-600 focus:outline-none p-2 rounded-full hover:bg-orange-50 transition-colors"
             >
               {isOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
             </button>
@@ -143,17 +163,66 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
-          <div className="px-4 pt-4 pb-6 space-y-2">
-            <Link href="/about" className={`block px-3 py-2.5 rounded-lg text-base ${pathname === '/about' ? 'text-blue-600 font-bold bg-blue-50' : 'font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50'}`}>About Us</Link>
-            <Link href="/calculator" className={`block px-3 py-2.5 rounded-lg text-base ${pathname === '/calculator' ? 'text-blue-600 font-bold bg-blue-50' : 'font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50'}`}>Calculators</Link>
-            <Link href="/track-status" className={`block px-3 py-2.5 rounded-lg text-base ${pathname === '/track-status' ? 'text-blue-600 font-bold bg-blue-50' : 'font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50'}`}>Track Status</Link>
-            <Link href="/check-eligibility" className="block px-3 py-2.5 rounded-lg text-base font-medium text-white bg-orange-600 hover:bg-orange-700">Check Eligibility</Link>
-            
-            <div className="border-t border-gray-100 my-2 pt-2">
+        <div className="md:hidden fixed inset-x-0 top-24 bottom-0 bg-white z-40 overflow-y-auto border-t border-gray-100 animate-in slide-in-from-top-5 duration-200">
+          <div className="flex flex-col h-full">
+            <div className="p-6 space-y-6">
+              {/* Menu Items */}
+              <div className="space-y-2">
+                <Link 
+                  href="/about" 
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                    ${pathname === '/about' 
+                      ? 'bg-blue-50 text-blue-900 font-bold' 
+                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                >
+                  <Info className={`h-6 w-6 ${pathname === '/about' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  About Us
+                </Link>
+
+                <Link 
+                  href="/calculator" 
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                    ${pathname === '/calculator' 
+                      ? 'bg-blue-50 text-blue-900 font-bold' 
+                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                >
+                  <Calculator className={`h-6 w-6 ${pathname === '/calculator' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  Calculators
+                </Link>
+
+                <Link 
+                  href="/track-status" 
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                    ${pathname === '/track-status' 
+                      ? 'bg-blue-50 text-blue-900 font-bold' 
+                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                >
+                  <Activity className={`h-6 w-6 ${pathname === '/track-status' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  Track Status
+                </Link>
+              </div>
+
+              {/* CTA Button */}
+              <Link 
+                href="/check-eligibility" 
+                className="flex items-center justify-center gap-2 w-full bg-orange-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-md"
+              >
+                <CheckCircle className="h-5 w-5" />
+                Check Eligibility
+              </Link>
+            </div>
+
+            {/* Footer Section */}
+            <div className="mt-auto p-6 border-t border-gray-100 bg-gray-50/50">
               {renderMobileAuthSection()}
+              
+              <div className="mt-6 text-center">
+                <p className="text-xs text-gray-400">
+                  &copy; {new Date().getFullYear()} Loan Sarathi. All rights reserved.
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ const ProductCard = ({ product }: { product: any }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="relative group bg-blue-50 rounded-2xl p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-black overflow-hidden flex flex-col">
+    <div className="relative group bg-blue-50 rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-black overflow-hidden flex flex-col">
        {/* Decorative Gradient Overlay */}
        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-orange-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 

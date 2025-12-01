@@ -5,7 +5,7 @@ import { CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
 const Hero = () => {
   return (
     <div className="relative bg-gradient-to-br from-blue-50 to-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 lg:pt-20 lg:pb-28">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 lg:pt-20 lg:pb-28">
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
           
           {/* Left Content */}
@@ -26,10 +26,10 @@ const Hero = () => {
             
             <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/apply" className="bg-orange-600 text-white px-8 py-3.5 rounded-md font-bold text-lg hover:bg-orange-700 transition-colors shadow-lg shadow-orange-200 text-center">
+                <Link href="/apply" className="w-full sm:w-auto bg-orange-600 text-white px-8 py-3.5 rounded-md font-bold text-lg hover:bg-orange-700 transition-colors shadow-lg shadow-orange-200 text-center">
                   Apply Now
                 </Link>
-                <button className="bg-white text-blue-900 border-2 border-blue-900 px-8 py-3.5 rounded-md font-bold text-lg hover:bg-blue-50 transition-colors">
+                <button className="w-full sm:w-auto bg-white text-blue-900 border-2 border-blue-900 px-8 py-3.5 rounded-md font-bold text-lg hover:bg-blue-50 transition-colors">
                   Talk to an Expert
                 </button>
               </div>

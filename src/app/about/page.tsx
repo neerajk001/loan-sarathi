@@ -22,10 +22,10 @@ const AboutPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         
         {/* Intro & What We Do */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mb-20 lg:mb-24 items-start">
           <div>
             <h2 className="text-3xl font-bold text-blue-900 mb-6">Our Role as "Sarathi"</h2>
             <p className="text-gray-600 leading-relaxed mb-6">

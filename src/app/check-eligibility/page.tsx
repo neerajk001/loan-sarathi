@@ -65,7 +65,7 @@ const CheckEligibility = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[600px]">
             
             {/* Left Column: Inputs (7 cols) */}
-            <div className="lg:col-span-7 p-8 md:p-12 flex flex-col justify-center space-y-8">
+            <div className="lg:col-span-7 p-6 md:p-12 flex flex-col justify-center space-y-8">
               <div className="space-y-6">
                 <div className="group">
                   <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3 group-hover:text-orange-600 transition-colors">
