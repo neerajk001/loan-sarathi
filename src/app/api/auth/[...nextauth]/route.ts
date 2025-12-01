@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-const ADMIN_EMAIL = "workwithneeraj.01@gmail.com";
+const ADMIN_EMAILS = ["workwithneeraj.01@gmail.com", "shashichanyal@gmail.com"];
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -30,10 +30,10 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name || (profile as any)?.name;
         token.picture = user.image || (profile as any)?.picture;
         // Set role based on email
-        token.role = token.email === ADMIN_EMAIL ? "admin" : "user";
+        token.role = (token.email && ADMIN_EMAILS.includes(token.email)) ? "admin" : "user";
       }
       // Ensure role is always set correctly
-      if (token.email === ADMIN_EMAIL) {
+      if (token.email && ADMIN_EMAILS.includes(token.email)) {
         token.role = "admin";
       }
       return token;

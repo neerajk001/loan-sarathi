@@ -16,7 +16,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
       // Check email directly if role isn't populated yet
-      const isAdmin = session.user.role === 'admin' || session.user.email === 'workwithneeraj.01@gmail.com';
+      const adminEmails = ['workwithneeraj.01@gmail.com', 'shashichanyal@gmail.com'];
+      const isAdmin = session.user.role === 'admin' || (session.user.email && adminEmails.includes(session.user.email));
       
       if (isAdmin) {
         router.replace('/admin'); // Use replace to prevent back navigation
