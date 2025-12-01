@@ -1,0 +1,960 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Building2, IndianRupee, Wallet, Briefcase, Store, Home, FileText } from 'lucide-react';
+
+interface ApplicationFormProps {
+  loanType?: string;
+}
+
+const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
+  const router = useRouter();
+  const isBusinessLoan = loanType === 'business';
+  const isHomeLoan = loanType === 'home';
+  const isLAP = loanType === 'lap';
+  
+  // Define steps based on loan type
+  let steps = [
+    { id: 1, title: 'Personal Details' },
+    { id: 2, title: 'Employment Info' },
+    { id: 3, title: 'Loan Requirement' },
+    { id: 4, title: 'Review & Submit' },
+  ];
+
+  if (isBusinessLoan) {
+    steps = [
+      { id: 1, title: 'Basic Details' },
+      { id: 2, title: 'Employment Info' },
+      { id: 3, title: 'Business Details' },
+      { id: 4, title: 'Loan Requirement' },
+      { id: 5, title: 'Review & Submit' },
+    ];
+  } else if (isHomeLoan) {
+    steps = [
+      { id: 1, title: 'Basic Details' },
+      { id: 2, title: 'Employment Info' },
+      { id: 3, title: 'Property Details' },
+      { id: 4, title: 'Review & Submit' },
+    ];
+  } else if (isLAP) {
+    steps = [
+      { id: 1, title: 'Basic Details' },
+      { id: 2, title: 'Employment Info' },
+      { id: 3, title: 'Property Info' },
+      { id: 4, title: 'Review & Submit' },
+    ];
+  }
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    // Personal Details
+    fullName: 'neeraj kushwaha',
+    mobileNumber: '7972531164',
+    email: 'admin@sellwell.com',
+    pincode: '401209',
+    dob: '',
+    city: '',
+    panCard: '',
+    // Employment Info
+    employmentType: 'salaried',
+    monthlyIncome: '',
+    employerName: '',
+    existingEmi: '',
+    // Business Details
+    businessType: '',
+    turnover: '',
+    yearsInBusiness: '',
+    gstRegistered: 'yes',
+    // Property Details (Home Loan & LAP)
+    propertyCost: '', // Also used for Market Value in LAP
+    propertyLoanType: '', 
+    propertyCity: '',
+    propertyStatus: '',
+    // LAP Specific
+    propertyType: '', // Residential, Commercial, Industrial
+    occupancyStatus: '', // Self Occupied, Rented
+    // Loan Requirement
+    loanAmount: '',
+    tenure: '',
+    loanPurpose: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleNext = () => {
+    if (currentStep < steps.length) setCurrentStep(currentStep + 1);
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const handleClose = () => {
+    router.push('/');
+  };
+
+  // Determine which step is active
+  const showPersonalDetails = currentStep === 1;
+  const showEmploymentInfo = currentStep === 2;
+  const showBusinessDetails = isBusinessLoan && currentStep === 3;
+  const showPropertyDetails = isHomeLoan && currentStep === 3;
+  const showLAPDetails = isLAP && currentStep === 3;
+  const showLoanRequirement = (isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && currentStep === 3);
+  const showReview = (isBusinessLoan && currentStep === 5) || ((isHomeLoan || isLAP) && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && currentStep === 4);
+
+  // Dynamic Title
+  const getTitle = () => {
+    if (isBusinessLoan) return 'Business Loan Application';
+    if (isHomeLoan) return 'Home Loan Application';
+    if (isLAP) return 'Loan Against Property';
+    return 'Personal Loan Application';
+  };
+
+  return (
+    <div className="bg-white w-full rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-500">
+      {/* Close Button */}
+      <button 
+        onClick={handleClose}
+        className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 hover:text-gray-800 transition-colors z-20"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      {/* Header Section */}
+      <div className="bg-gray-50 border-b border-gray-200 px-4 py-4 md:px-8">
+         <div className="max-w-4xl mx-auto text-center mb-4">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+              {getTitle()}
+            </h1>
+         </div>
+
+        {/* Progress Bar */}
+        <div className="flex items-center justify-between max-w-3xl mx-auto relative">
+          {steps.map((step) => (
+            <div key={step.id} className={`flex flex-col items-center relative z-10 ${isBusinessLoan ? 'w-1/5' : 'w-1/4'}`}>
+              <div 
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-sm
+                  ${step.id <= currentStep 
+                    ? 'bg-blue-900 text-white scale-110 ring-2 ring-white' 
+                    : 'bg-white border-2 border-gray-200 text-gray-400'}`}
+              >
+                {step.id < currentStep ? <Check className="h-4 w-4" /> : step.id}
+              </div>
+              <span className={`text-[9px] md:text-[10px] mt-2 font-semibold text-center tracking-wide uppercase w-full
+                ${step.id <= currentStep ? 'text-blue-900' : 'text-gray-400'}`}>
+                {step.title}
+              </span>
+            </div>
+          ))}
+          {/* Progress Line */}
+          <div className="absolute top-4 left-0 w-full h-0.5 bg-gray-200 -z-0">
+             <div 
+               className="h-full bg-blue-900 transition-all duration-500"
+               style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+             />
+          </div>
+        </div>
+      </div>
+
+      {/* Form Content */}
+      <div className="flex-1 overflow-y-auto p-6 md:p-12 bg-white">
+        
+        {/* Step 1: Personal Details */}
+        {showPersonalDetails && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">{isBusinessLoan || isHomeLoan || isLAP ? 'Basic Details' : 'Personal Details'}</h3>
+                <p className="text-gray-500 text-sm mt-1">Please provide your basic personal information</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
+                Special Offer: Rates start @9.99%
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Full Name (as per ID) <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                  placeholder="Enter full name" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Mobile Number (10 digits) <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="tel" 
+                  name="mobileNumber"
+                  value={formData.mobileNumber}
+                  onChange={handleInputChange}
+                  maxLength={10}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                  placeholder="9876543210" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                  placeholder="email@example.com" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Current Pincode <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  name="pincode"
+                  value={formData.pincode}
+                  onChange={handleInputChange}
+                  maxLength={6}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                  placeholder="400001" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Date of Birth <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="date" 
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-900 font-medium" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  City of Residence <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white font-medium"
+                >
+                  <option value="">Select your city</option>
+                  <option value="Mumbai">Mumbai</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Bangalore">Bangalore</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Chennai">Chennai</option>
+                  <option value="Kolkata">Kolkata</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Ahmedabad">Ahmedabad</option>
+                </select>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  PAN Card Number <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  name="panCard"
+                  value={formData.panCard}
+                  onChange={handleInputChange}
+                  maxLength={10}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 uppercase font-medium tracking-wide" 
+                  placeholder="ABCDE1234F" 
+                />
+                <p className="text-xs text-gray-500 mt-1">We need this to check your credit score for better rates</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Employment Info */}
+        {showEmploymentInfo && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Employment Info</h3>
+                <p className="text-gray-500 text-sm mt-1">Tell us about your work to check eligibility</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
+                Starting @9.99%
+              </span>
+            </div>
+
+            <div className="space-y-6">
+              {/* Employment Type Selection */}
+              <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+                <label className="block text-sm font-bold text-gray-900 mb-4">
+                  Select Your Employment Status <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-1 gap-4">
+                   <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
+                     ${formData.employmentType === 'salaried' 
+                       ? 'border-blue-600 bg-white shadow-sm' 
+                       : 'border-transparent bg-white/50 hover:bg-white'}`}>
+                     <input 
+                       type="radio" 
+                       name="employmentType" 
+                       value="salaried"
+                       checked={formData.employmentType === 'salaried'}
+                       onChange={handleInputChange}
+                       className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+                     />
+                     <div className="ml-4">
+                       <span className="block text-base font-bold text-gray-900">Salaried Employee</span>
+                       <span className="text-sm text-gray-500">I receive a fixed monthly salary</span>
+                     </div>
+                   </label>
+
+                   <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
+                     ${formData.employmentType === 'self-employed' 
+                       ? 'border-blue-600 bg-white shadow-sm' 
+                       : 'border-transparent bg-white/50 hover:bg-white'}`}>
+                     <input 
+                       type="radio" 
+                       name="employmentType" 
+                       value="self-employed"
+                       checked={formData.employmentType === 'self-employed'}
+                       onChange={handleInputChange}
+                       className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+                     />
+                     <div className="ml-4">
+                       <span className="block text-base font-bold text-gray-900">Self-Employed</span>
+                       <span className="text-sm text-gray-500">Business Owner, Professional, Freelancer</span>
+                     </div>
+                   </label>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="space-y-2">
+                   <label className="block text-sm font-semibold text-gray-700">
+                     Monthly Net Income (₹) <span className="text-red-500">*</span>
+                   </label>
+                   <div className="relative">
+                     <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                     <input 
+                       type="number" 
+                       name="monthlyIncome"
+                       value={formData.monthlyIncome}
+                       onChange={handleInputChange}
+                       className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                       placeholder="E.g., 50000 (Min. 15000)" 
+                     />
+                   </div>
+                 </div>
+
+                 <div className="space-y-2">
+                   <label className="block text-sm font-semibold text-gray-700">
+                     Employer Name / Business Name <span className="text-red-500">*</span>
+                   </label>
+                   <div className="relative">
+                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                     <input 
+                       type="text" 
+                       name="employerName"
+                       value={formData.employerName}
+                       onChange={handleInputChange}
+                       className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                       placeholder="E.g., TCS or Your Business Name" 
+                     />
+                   </div>
+                 </div>
+
+                 <div className="space-y-2 md:col-span-2">
+                   <label className="block text-sm font-semibold text-gray-700">
+                     Total Existing Monthly EMI (₹) <span className="text-red-500">*</span>
+                   </label>
+                   <div className="relative">
+                     <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                     <input 
+                       type="number" 
+                       name="existingEmi"
+                       value={formData.existingEmi}
+                       onChange={handleInputChange}
+                       className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                       placeholder="E.g., 15000 or enter 0 if none" 
+                     />
+                   </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 (Business Only): Business Details */}
+        {showBusinessDetails && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Business Details</h3>
+                <p className="text-gray-500 text-sm mt-1">Quick approval</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
+                Starting @9.99%
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Type of Business/Firm <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Store className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <select 
+                    name="businessType"
+                    value={formData.businessType}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="proprietorship">Proprietorship</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="private_ltd">Private Limited</option>
+                    <option value="llp">LLP</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Annual Net Turnover (₹) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="turnover"
+                    value={formData.turnover}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 5000000" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Years in Business <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="yearsInBusiness"
+                    value={formData.yearsInBusiness}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 3" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  GST Registered? <span className="text-red-500">*</span>
+                </label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <label className={`flex-1 flex items-center p-3 rounded-xl border cursor-pointer transition-all
+                    ${formData.gstRegistered === 'yes' 
+                      ? 'border-blue-600 bg-blue-50 text-blue-900' 
+                      : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="gstRegistered" 
+                      value="yes"
+                      checked={formData.gstRegistered === 'yes'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 font-medium">Yes</span>
+                  </label>
+                  <label className={`flex-1 flex items-center p-3 rounded-xl border cursor-pointer transition-all
+                    ${formData.gstRegistered === 'no' 
+                      ? 'border-blue-600 bg-blue-50 text-blue-900' 
+                      : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="gstRegistered" 
+                      value="no"
+                      checked={formData.gstRegistered === 'no'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 font-medium">No</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 (Home Loan Only): Property Details */}
+        {showPropertyDetails && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Property Details</h3>
+                <p className="text-gray-500 text-sm mt-1">Low interest rates</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
+                Starting @8.50%
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Estimated Property Cost (₹) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Home className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="propertyCost"
+                    value={formData.propertyCost}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 8000000" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Loan Type <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  name="propertyLoanType"
+                  value={formData.propertyLoanType}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                >
+                  <option value="">Select type</option>
+                  <option value="new_purchase">New Purchase</option>
+                  <option value="resale">Resale Property</option>
+                  <option value="construction">Construction</option>
+                  <option value="plot">Plot Purchase</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Property City <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  name="propertyCity"
+                  value={formData.propertyCity}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                  placeholder="E.g., Pune" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Property Status <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-1 gap-3">
+                  <label className={`flex items-center p-3 rounded-xl border cursor-pointer transition-all
+                    ${formData.propertyStatus === 'ready' 
+                      ? 'border-blue-600 bg-blue-50 text-blue-900' 
+                      : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="propertyStatus" 
+                      value="ready"
+                      checked={formData.propertyStatus === 'ready'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 font-medium">Ready to Move</span>
+                  </label>
+                  <label className={`flex items-center p-3 rounded-xl border cursor-pointer transition-all
+                    ${formData.propertyStatus === 'construction' 
+                      ? 'border-blue-600 bg-blue-50 text-blue-900' 
+                      : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="propertyStatus" 
+                      value="construction"
+                      checked={formData.propertyStatus === 'construction'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 font-medium">Under Construction</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 (LAP Only): Property Info */}
+        {showLAPDetails && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Property Info</h3>
+                <p className="text-gray-500 text-sm mt-1">Unlock value from your property</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
+                Low Interest Rates
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Type of Property <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <select 
+                    name="propertyType"
+                    value={formData.propertyType}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="plot">Plot / Land</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Current Market Value (₹) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="propertyCost"
+                    value={formData.propertyCost}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 15000000" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Property City <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  name="propertyCity"
+                  value={formData.propertyCity}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                  placeholder="E.g., Mumbai" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Property Usage/Status <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-1 gap-3">
+                  <label className={`flex items-center p-3 rounded-xl border cursor-pointer transition-all
+                    ${formData.occupancyStatus === 'self' 
+                      ? 'border-blue-600 bg-blue-50 text-blue-900' 
+                      : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="occupancyStatus" 
+                      value="self"
+                      checked={formData.occupancyStatus === 'self'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 font-medium">Self Occupied</span>
+                  </label>
+                  <label className={`flex items-center p-3 rounded-xl border cursor-pointer transition-all
+                    ${formData.occupancyStatus === 'rented' 
+                      ? 'border-blue-600 bg-blue-50 text-blue-900' 
+                      : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="occupancyStatus" 
+                      value="rented"
+                      checked={formData.occupancyStatus === 'rented'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 font-medium">Rented Out</span>
+                  </label>
+                  <label className={`flex items-center p-3 rounded-xl border cursor-pointer transition-all
+                    ${formData.occupancyStatus === 'vacant' 
+                      ? 'border-blue-600 bg-blue-50 text-blue-900' 
+                      : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="occupancyStatus" 
+                      value="vacant"
+                      checked={formData.occupancyStatus === 'vacant'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 font-medium">Vacant</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3/4: Loan Requirement */}
+        {showLoanRequirement && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Loan Requirement</h3>
+                <p className="text-gray-500 text-sm mt-1">Tell us about your loan needs</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
+                Starting @9.99%
+              </span>
+            </div>
+
+            {/* Info Box */}
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-blue-800 text-sm font-medium">
+              Specify the funds you need and the timeline for repayment.
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Required Loan Amount (₹) <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="number" 
+                  name="loanAmount"
+                  value={formData.loanAmount}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                  placeholder="E.g., 5,00,000" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Desired Tenure (Years) <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  name="tenure"
+                  value={formData.tenure}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                >
+                  <option value="">Select tenure</option>
+                  <option value="1">1 Year</option>
+                  <option value="2">2 Years</option>
+                  <option value="3">3 Years</option>
+                  <option value="4">4 Years</option>
+                  <option value="5">5 Years</option>
+                  <option value="7">7 Years</option>
+                  <option value="10">10 Years</option>
+                  <option value="15">15 Years</option>
+                </select>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Purpose of Loan <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  name="loanPurpose"
+                  value={formData.loanPurpose}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                >
+                  <option value="">Select purpose</option>
+                  <option value="personal">Personal Use</option>
+                  <option value="medical">Medical Emergency</option>
+                  <option value="wedding">Wedding / Event</option>
+                  <option value="business">Business Expansion</option>
+                  <option value="working_capital">Working Capital</option>
+                  <option value="equipment">Equipment Purchase</option>
+                  <option value="debt_consolidation">Debt Consolidation</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4/5: Review & Submit */}
+        {showReview && (
+          <div className="space-y-6 max-w-4xl mx-auto pb-20">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto animate-bounce mb-4">
+                <ShieldCheck className="h-10 w-10 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">Review Your Application</h3>
+              <p className="text-gray-500">Please verify your details before final submission</p>
+            </div>
+
+            {/* Personal Details Review */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+              <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                <h4 className="font-bold text-gray-900">{isBusinessLoan || isHomeLoan || isLAP ? 'Basic Details' : 'Personal Details'}</h4>
+                <button onClick={() => setCurrentStep(1)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <ReviewField label="Full Name" value={formData.fullName} />
+                <ReviewField label="Mobile Number" value={formData.mobileNumber} />
+                <ReviewField label="Email Address" value={formData.email} />
+                <ReviewField label="Pincode" value={formData.pincode} />
+                <ReviewField label="Date of Birth" value={formData.dob} />
+                <ReviewField label="City" value={formData.city} />
+                <ReviewField label="PAN Card" value={formData.panCard} />
+              </div>
+            </div>
+
+            {/* Employment Info Review */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+              <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                <h4 className="font-bold text-gray-900">Employment Info</h4>
+                <button onClick={() => setCurrentStep(2)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <ReviewField label="Employment Type" value={formData.employmentType} className="capitalize" />
+                <ReviewField label="Monthly Income" value={`₹${formData.monthlyIncome || '0'}`} />
+                <ReviewField label="Employer Name" value={formData.employerName} />
+                <ReviewField label="Existing EMI" value={`₹${formData.existingEmi || '0'}`} />
+              </div>
+            </div>
+
+            {/* Business Details Review (Business Loan Only) */}
+            {isBusinessLoan && (
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                  <h4 className="font-bold text-gray-900">Business Details</h4>
+                  <button onClick={() => setCurrentStep(3)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <ReviewField label="Business Type" value={formData.businessType} className="capitalize" />
+                  <ReviewField label="Annual Turnover" value={`₹${formData.turnover || '0'}`} />
+                  <ReviewField label="Years in Business" value={formData.yearsInBusiness} />
+                  <ReviewField label="GST Registered" value={formData.gstRegistered} className="capitalize" />
+                </div>
+              </div>
+            )}
+
+            {/* Property Details Review (Home Loan Only) */}
+            {isHomeLoan && (
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                  <h4 className="font-bold text-gray-900">Property Details</h4>
+                  <button onClick={() => setCurrentStep(3)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <ReviewField label="Estimated Cost" value={`₹${formData.propertyCost || '0'}`} />
+                  <ReviewField label="Loan Type" value={formData.propertyLoanType} className="capitalize" />
+                  <ReviewField label="Property City" value={formData.propertyCity} />
+                  <ReviewField label="Property Status" value={formData.propertyStatus} className="capitalize" />
+                </div>
+              </div>
+            )}
+
+            {/* LAP Details Review (LAP Only) */}
+            {isLAP && (
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                  <h4 className="font-bold text-gray-900">Property Info</h4>
+                  <button onClick={() => setCurrentStep(3)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <ReviewField label="Property Type" value={formData.propertyType} className="capitalize" />
+                  <ReviewField label="Market Value" value={`₹${formData.propertyCost || '0'}`} />
+                  <ReviewField label="City" value={formData.propertyCity} />
+                  <ReviewField label="Occupancy Status" value={formData.occupancyStatus} className="capitalize" />
+                </div>
+              </div>
+            )}
+
+            {/* Loan Requirement Review */}
+            {(!isHomeLoan) && (
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                  <h4 className="font-bold text-gray-900">Loan Requirement</h4>
+                  <button onClick={() => setCurrentStep(isBusinessLoan ? 4 : 3)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <ReviewField label="Required Loan Amount" value={`₹${formData.loanAmount || '0'}`} />
+                  <ReviewField label="Desired Tenure" value={formData.tenure ? `${formData.tenure} Years` : '-'} />
+                  <ReviewField label="Purpose of Loan" value={formData.loanPurpose} className="capitalize" />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer Actions - Sticky Bottom */}
+      <div className="border-t border-gray-100 bg-white p-3 md:p-4 z-20">
+        <div className="flex justify-between max-w-4xl mx-auto">
+          <button 
+            onClick={handleBack}
+            disabled={currentStep === 1}
+            className={`flex items-center px-6 py-2.5 rounded-lg font-bold transition-all text-sm
+              ${currentStep === 1 
+                ? 'text-gray-300 cursor-not-allowed' 
+                : 'text-gray-600 hover:text-blue-900 hover:bg-gray-100'}`}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </button>
+
+          <button 
+            onClick={handleNext}
+            className="flex items-center bg-blue-900 text-white px-8 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+          >
+            {currentStep === steps.length ? 'Submit Application' : 'Next Step'}
+            {currentStep !== steps.length && <ChevronRight className="h-4 w-4 ml-1.5" />}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ReviewField = ({ label, value, className = '' }: { label: string, value: string, className?: string }) => (
+  <div>
+    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">{label}</p>
+    <p className={`text-base font-semibold text-gray-900 ${className}`}>{value || '-'}</p>
+  </div>
+);
+
+export default ApplicationForm;
