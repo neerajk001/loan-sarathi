@@ -1,5 +1,6 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+export const dynamic = 'force-dynamic';
+import React, { useState, useEffect, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
@@ -8,7 +9,7 @@ import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-const DetailedCalculator = () => {
+const DetailedCalculatorContent = () => {
   const searchParams = useSearchParams();
   // Determine initial tab
   const getInitialTab = () => {
@@ -826,4 +827,10 @@ const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suff
   </div>
 );
 
-export default DetailedCalculator;
+export default function DetailedCalculator() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+      <DetailedCalculatorContent />
+    </Suspense>
+  );
+}

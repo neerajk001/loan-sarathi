@@ -1,11 +1,12 @@
 'use client';
-import React from 'react';
+export const dynamic = 'force-dynamic';
+import React, { Suspense } from 'react';
 import ApplicationForm from '@/components/ApplicationForm';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { X } from 'lucide-react';
 
-export default function ApplyPage() {
+function ApplyPageContent() {
   const searchParams = useSearchParams();
   const loanType = searchParams.get('type') || 'personal';
 
@@ -20,5 +21,13 @@ export default function ApplyPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ApplyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
+      <ApplyPageContent />
+    </Suspense>
   );
 }
