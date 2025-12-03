@@ -83,9 +83,9 @@ const InsuranceProducts = () => {
   };
 
   return (
-    <div id="insurance" className="py-12 bg-slate-50">
+    <div id="insurance" className="py-6 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-900">
             Comprehensive protection for you and your family
           </h2>

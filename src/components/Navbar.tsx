@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, X, User, LogOut, Info, Calculator, Activity, CheckCircle } from 'lucide-react';
+import { Menu, X, User, LogOut, Info, Calculator, Activity, CheckCircle, Home, Shield, FileText, Phone, Wallet } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
@@ -132,18 +132,21 @@ const Navbar = () => {
           {/* Left: Logo */}
           <div className="shrink-0 flex items-center cursor-pointer z-50 relative">
             <Link href="/" className="flex items-center">
-              <img src="/logo.png" alt="Loan Sarathi Logo" className="h-40 w-auto object-contain" />
+              <img src="/logo.jpeg" alt="Loan Sarathi Logo" className="h-12 w-auto object-contain" />
             </Link>
           </div>
 
           {/* Center: Navigation Links */}
-          <div className="hidden md:flex items-center justify-center space-x-8 flex-1 px-8">
-            <Link href="/products" className={`${isActive('/products')} whitespace-nowrap transition-colors`}>Products</Link>
+          <div className="hidden md:flex items-center justify-center space-x-6 flex-1 px-4">
+            <Link href="/" className={`${isActive('/')} whitespace-nowrap transition-colors`}>Home</Link>
             <Link href="/about" className={`${isActive('/about')} whitespace-nowrap transition-colors`}>About Us</Link>
-            <Link href="/calculator" className={`${isActive('/calculator')} whitespace-nowrap transition-colors`}>Calculators</Link>
-            <Link href="/track-status" className={`${isActive('/track-status')} whitespace-nowrap transition-colors`}>Track Status</Link>
-            <Link href="/check-eligibility" className="bg-orange-600 text-white px-5 py-2 rounded-full font-medium hover:bg-orange-700 transition-colors shadow-sm whitespace-nowrap text-sm">
-              Check Eligibility
+            <Link href="/products" className={`${isActive('/products')} whitespace-nowrap transition-colors`}>Loans</Link>
+            <Link href="/products#insurance" className="text-gray-600 hover:text-orange-600 font-medium whitespace-nowrap transition-colors">Insurance</Link>
+            <Link href="/calculator" className={`${isActive('/calculator')} whitespace-nowrap transition-colors`}>Calculator</Link>
+            <Link href="/articles" className={`${isActive('/articles')} whitespace-nowrap transition-colors`}>Articles</Link>
+            <Link href="/contact-us" className={`${isActive('/contact-us')} whitespace-nowrap transition-colors`}>Contact Us</Link>
+            <Link href="/consultancy" className="bg-orange-600 text-white px-5 py-2 rounded-full font-medium hover:bg-orange-700 transition-colors shadow-sm whitespace-nowrap text-sm">
+              Get Free Consultancy
             </Link>
           </div>
 
@@ -172,6 +175,17 @@ const Navbar = () => {
               {/* Menu Items */}
               <div className="space-y-2">
                 <Link 
+                  href="/" 
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                    ${pathname === '/' 
+                      ? 'bg-blue-50 text-blue-900 font-bold' 
+                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                >
+                  <Home className={`h-6 w-6 ${pathname === '/' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  Home
+                </Link>
+
+                <Link 
                   href="/about" 
                   className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
                     ${pathname === '/about' 
@@ -183,35 +197,65 @@ const Navbar = () => {
                 </Link>
 
                 <Link 
-                  href="/calculator" 
+                  href="/products" 
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                    ${pathname === '/products' 
+                      ? 'bg-blue-50 text-blue-900 font-bold' 
+                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                >
+                  <Wallet className={`h-6 w-6 ${pathname === '/products' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  Loans
+                </Link>
+
+                <Link 
+                  href="/products#insurance" 
+                  className="flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all text-gray-600 font-medium hover:bg-gray-50"
+                >
+                  <Shield className="h-6 w-6 text-gray-400" />
+                  Insurance
+                </Link>
+
+                <Link 
+                  href="/calculator"               
                   className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
                     ${pathname === '/calculator' 
                       ? 'bg-blue-50 text-blue-900 font-bold' 
                       : 'text-gray-600 font-medium hover:bg-gray-50'}`}
                 >
                   <Calculator className={`h-6 w-6 ${pathname === '/calculator' ? 'text-blue-600' : 'text-gray-400'}`} />
-                  Calculators
+                  Calculator
                 </Link>
 
                 <Link 
-                  href="/track-status" 
+                  href="/articles" 
                   className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
-                    ${pathname === '/track-status' 
+                    ${pathname === '/articles' 
                       ? 'bg-blue-50 text-blue-900 font-bold' 
                       : 'text-gray-600 font-medium hover:bg-gray-50'}`}
                 >
-                  <Activity className={`h-6 w-6 ${pathname === '/track-status' ? 'text-blue-600' : 'text-gray-400'}`} />
-                  Track Status
+                  <FileText className={`h-6 w-6 ${pathname === '/articles' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  Articles
+                </Link>
+
+                <Link 
+                  href="/contact-us" 
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                    ${pathname === '/contact-us' 
+                      ? 'bg-blue-50 text-blue-900 font-bold' 
+                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                >
+                  <Phone className={`h-6 w-6 ${pathname === '/contact-us' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  Contact Us
                 </Link>
               </div>
 
               {/* CTA Button */}
               <Link 
-                href="/check-eligibility" 
+                href="/consultancy" 
                 className="flex items-center justify-center gap-2 w-full bg-orange-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-md"
               >
-                <CheckCircle className="h-5 w-5" />
-                Check Eligibility
+                <CheckCircle className="h-5 w-5" /> 
+                Get Free Consultancy
               </Link>
             </div>
 

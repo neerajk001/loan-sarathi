@@ -12,9 +12,9 @@ const Process = () => {
   ];
 
   return (
-    <div id="process" className="py-12 bg-slate-50">
+    <div id="process" className="py-6 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
             How It Works
           </span>

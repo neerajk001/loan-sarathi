@@ -65,7 +65,7 @@ const FAQ = () => {
   });
 
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50 py-12 relative overflow-hidden">
+    <div className="bg-gradient-to-b from-white to-gray-50 py-6 relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-20 right-0 w-72 h-72 bg-blue-100/40 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-0 w-72 h-72 bg-indigo-100/40 rounded-full blur-3xl" />

@@ -15,7 +15,7 @@ const FeaturedPartners = () => {
       buttonClass: "bg-yellow-400 text-blue-900 hover:bg-yellow-300",
       logoText: "POONAWALLA FINCORP",
       logoColor: "text-blue-700",
-      icon: <Zap className="w-6 h-6 text-yellow-400" />,
+      icon: <Zap className="w-5 h-5 text-yellow-400" />,
       highlightText: "text-yellow-400"
     },
     {
@@ -29,7 +29,7 @@ const FeaturedPartners = () => {
       buttonClass: "bg-white text-orange-600 hover:bg-gray-50",
       logoText: "InCred finance",
       logoColor: "text-orange-600",
-      icon: <BadgeCheck className="w-6 h-6 text-white" />,
+      icon: <BadgeCheck className="w-5 h-5 text-white" />,
       highlightText: "text-white"
     }
   ];
@@ -40,28 +40,28 @@ const FeaturedPartners = () => {
         {offers.map((offer) => (
           <div 
             key={offer.id} 
-            className={`rounded-2xl p-6 md:p-8 ${offer.wrapperClass} shadow-lg transition-transform duration-300 hover:-translate-y-1`}
+            className={`rounded-2xl p-4 md:p-5 ${offer.wrapperClass} shadow-lg transition-transform duration-300 hover:-translate-y-1`}
           >
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
               
               {/* Left Content */}
-              <div className="flex items-start gap-6 w-full md:w-auto">
-                <div className="hidden sm:flex shrink-0 w-14 h-14 bg-white/10 rounded-xl items-center justify-center backdrop-blur-sm">
+              <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="hidden sm:flex shrink-0 w-10 h-10 bg-white/10 rounded-lg items-center justify-center backdrop-blur-sm">
                   {offer.icon}
                 </div>
                 
                 <div className="text-center sm:text-left flex-1">
-                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-2">
-                    <h3 className="text-lg font-semibold text-white/90">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
+                    <h3 className="text-sm font-semibold text-white/90">
                       {offer.partnerName}
                     </h3>
                     <span className={`hidden sm:inline-block w-1 h-1 rounded-full bg-white/40`}></span>
-                    <span className={`text-lg font-bold ${offer.highlightText}`}>
+                    <span className={`text-sm font-bold ${offer.highlightText}`}>
                       {offer.productType}
                     </span>
                   </div>
                   
-                  <div className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-3 tracking-tight">
                     {offer.amount}
                   </div>
                   
@@ -69,7 +69,7 @@ const FeaturedPartners = () => {
                     {offer.tags.map((tag, i) => (
                       <span 
                         key={i} 
-                        className="bg-white/20 backdrop-blur-md text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/10"
+                        className="bg-white/20 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-md border border-white/10"
                       >
                         {tag}
                       </span>
@@ -79,16 +79,16 @@ const FeaturedPartners = () => {
               </div>
 
               {/* Right Content - Actions */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto min-w-[280px]">
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto min-w-[240px]">
                 <Link 
                   href="/apply" 
-                  className={`${offer.buttonClass} w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm`}
+                  className={`${offer.buttonClass} w-full sm:w-auto px-5 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm`}
                 >
-                  Apply Now <ArrowRight className="w-4 h-4" />
+                  Apply Now <ArrowRight className="w-3 h-3" />
                 </Link>
                 
-                <div className="w-full sm:w-auto bg-white py-3.5 px-6 rounded-xl flex items-center justify-center shadow-sm min-w-[140px]">
-                  <span className={`font-bold text-xs uppercase tracking-wider ${offer.logoColor}`}>
+                <div className="w-full sm:w-auto bg-white py-2.5 px-4 rounded-lg flex items-center justify-center shadow-sm min-w-[120px]">
+                  <span className={`font-bold text-[10px] uppercase tracking-wider ${offer.logoColor}`}>
                     {offer.logoText}
                   </span>
                 </div>
