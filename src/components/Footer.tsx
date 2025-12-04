@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-6">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <img src="/logo.jpeg" alt="Loan Sarathi Logo" className="h-12 w-auto bg-white rounded-md p-1" />
+              <img src="/3d.jpeg" alt="Loan Sarathi Logo" className="h-16 w-auto bg-white  " />
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed">
               Your trusted partner for all financial needs. We make borrowing simple, transparent, and fast.
