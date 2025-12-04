@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Calculator as CalculatorIcon, TrendingUp, Wallet, Calendar, Percent, IndianRupee, ArrowRight, Sparkles, PiggyBank, Target, Clock, RefreshCw, Percent as PercentIcon, Plus, Trash2 } from 'lucide-react';
+import { Calculator as CalculatorIcon, TrendingUp, Wallet, Calendar, Percent, IndianRupee, ArrowRight, Sparkles, PiggyBank, Target, Clock, RefreshCw, Percent as PercentIcon, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -14,16 +14,16 @@ const DetailedCalculatorContent = () => {
   // Determine initial tab
   const getInitialTab = () => {
     const tab = searchParams.get('tab');
-    if (tab === 'balance' || tab === 'part-payment') return tab;
+    if (tab === 'balance' || tab === 'part-payment' || tab === 'eligibility') return tab;
     return 'emi';
   };
   
-  const [activeTab, setActiveTab] = useState<'emi' | 'balance' | 'part-payment'>(getInitialTab());
+  const [activeTab, setActiveTab] = useState<'emi' | 'balance' | 'part-payment' | 'eligibility'>(getInitialTab());
 
   // Update activeTab if searchParams change
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'balance' || tab === 'part-payment' || tab === 'emi') {
+    if (tab === 'balance' || tab === 'part-payment' || tab === 'eligibility' || tab === 'emi') {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -39,6 +39,11 @@ const DetailedCalculatorContent = () => {
   const [totalPayment, setTotalPayment] = useState(0);
   const [chartData, setChartData] = useState<any[]>([]);
   const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
+
+  // Eligibility Calculator State
+  const [income, setIncome] = useState(50000);
+  const [existingEmi, setExistingEmi] = useState(0);
+  const [eligibleAmount, setEligibleAmount] = useState(0);
 
   // Balance Transfer State
   const [btIncome, setBtIncome] = useState(100000);
@@ -133,6 +138,24 @@ const DetailedCalculatorContent = () => {
     }
     setAmortizationSchedule(yearlySchedule);
   };
+
+  // Eligibility Calculation
+  useEffect(() => {
+    const foir = 0.50;
+    const maxMonthlyEmi = (income * foir) - existingEmi;
+    
+    // Calculate Loan Amount for this Max EMI
+    // Formula: P = (E * ( (1+r)^n - 1 ) ) / ( r * (1+r)^n )
+    const r = 10.5 / 12 / 100; // Standard rate for estimation
+    const n = 60; // 5 years standard
+
+    let loan = 0;
+    if (maxMonthlyEmi > 0) {
+      loan = maxMonthlyEmi * ( (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n)) );
+    }
+
+    setEligibleAmount(Math.round(Math.max(0, loan)));
+  }, [income, existingEmi]);
 
   // Balance Transfer Calculation
   useEffect(() => {
@@ -272,17 +295,15 @@ const DetailedCalculatorContent = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 border border-blue-200">
-            <CalculatorIcon className="w-4 h-4" />
-            FINANCIAL TOOLS
-          </span>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             {activeTab === 'emi' && 'EMI Calculator'}
+            {activeTab === 'eligibility' && 'Loan Eligibility Calculator'}
             {activeTab === 'balance' && 'Balance Transfer Calculator'}
             {activeTab === 'part-payment' && 'Part Payment Calculator'}
           </h1>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
             {activeTab === 'emi' && 'Plan your loan with precise calculations and detailed payment breakdown'}
+            {activeTab === 'eligibility' && 'Check how much loan amount you are eligible for based on your income'}
             {activeTab === 'balance' && 'Calculate your eligibility and savings for balance transfer'}
             {activeTab === 'part-payment' && 'See how much you can save by making part payments'}
           </p>
@@ -290,24 +311,35 @@ const DetailedCalculatorContent = () => {
 
         {/* Tabs */}
         <div className="flex justify-center mb-12">
-          <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex overflow-x-auto">
+          <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex overflow-x-auto max-w-full">
             <button
               onClick={() => setActiveTab('emi')}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === 'emi'
-                  ? 'bg-gray-900 text-white shadow-md'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-blue-900 text-white shadow-md'
+                  : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'
               }`}
             >
               <CalculatorIcon className="w-4 h-4" />
               EMI Calculator
             </button>
             <button
+              onClick={() => setActiveTab('eligibility')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
+                activeTab === 'eligibility'
+                  ? 'bg-blue-900 text-white shadow-md'
+                  : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              Check Eligibility
+            </button>
+            <button
               onClick={() => setActiveTab('balance')}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === 'balance'
-                  ? 'bg-gray-900 text-white shadow-md'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-blue-900 text-white shadow-md'
+                  : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'
               }`}
             >
               <RefreshCw className="w-4 h-4" />
@@ -317,8 +349,8 @@ const DetailedCalculatorContent = () => {
               onClick={() => setActiveTab('part-payment')}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === 'part-payment'
-                  ? 'bg-gray-900 text-white shadow-md'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-blue-900 text-white shadow-md'
+                  : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'
               }`}
             >
               <PercentIcon className="w-4 h-4" />
@@ -332,40 +364,61 @@ const DetailedCalculatorContent = () => {
           <div className="grid grid-cols-12 gap-4 md:gap-6">
             
             {/* Main Calculator Input - Large Card */}
-            <div className="col-span-12 lg:col-span-7 bg-white border border-gray-900 rounded-3xl p-6 md:p-8 shadow-sm">
+            <div className="col-span-12 lg:col-span-7 bg-blue-50/30 border border-blue-100 rounded-3xl p-6 md:p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
-                  <CalculatorIcon className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                  <CalculatorIcon className="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Loan Details</h2>
+                  <h2 className="text-xl font-bold text-blue-900">Loan Details</h2>
                   <p className="text-gray-500 text-sm">Adjust the values to calculate EMI</p>
                 </div>
               </div>
 
               <div className="space-y-8">
                 {/* Loan Amount */}
-                <SliderInput label="Loan Amount" value={loanAmount} setValue={setLoanAmount} min={100000} max={10000000} step={10000} prefix="₹" />
+                <SliderInput 
+                  label="Loan Amount" 
+                  value={loanAmount} 
+                  setValue={setLoanAmount} 
+                  min={100000} 
+                  max={10000000} 
+                  step={10000} 
+                  prefix="₹"
+                  description="The principal amount you want to borrow"
+                />
                 {/* Interest Rate */}
-                <SliderInput label="Interest Rate (p.a.)" value={interestRate} setValue={setInterestRate} min={5} max={20} step={0.1} suffix="%" />
+                <SliderInput 
+                  label="Interest Rate (p.a.)" 
+                  value={interestRate} 
+                  setValue={setInterestRate} 
+                  min={5} 
+                  max={20} 
+                  step={0.1} 
+                  suffix="%"
+                  description="Annual interest rate charged by the lender"
+                />
                 {/* Tenure */}
                 <div className="space-y-4">
-                   <div className="flex justify-between items-center">
-                    <label className="flex items-center gap-2 text-gray-700 font-medium">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      Loan Tenure
-                    </label>
+                   <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <label className="flex items-center gap-2 text-gray-700 font-medium mb-1">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        Loan Tenure
+                      </label>
+                      <p className="text-xs text-gray-500 font-semibold mt-0.5 ml-6">Duration over which you will repay the loan</p>
+                    </div>
                     <div className="flex items-center gap-3">
                       <div className="flex bg-gray-100 rounded-xl p-1">
                         <button 
                           onClick={() => setTenureType('years')}
-                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${tenureType === 'years' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500'}`}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${tenureType === 'years' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-500'}`}
                         >
                           Years
                         </button>
                         <button 
                           onClick={() => setTenureType('months')}
-                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${tenureType === 'months' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500'}`}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${tenureType === 'months' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-500'}`}
                         >
                           Months
                         </button>
@@ -375,7 +428,7 @@ const DetailedCalculatorContent = () => {
                           type="number" 
                           value={tenure}
                           onChange={(e) => setTenure(Number(e.target.value))}
-                          className="bg-transparent text-center w-full focus:outline-none font-bold text-gray-900"
+                          className="bg-transparent text-center w-full focus:outline-none font-bold text-blue-900"
                         />
                       </div>
                     </div>
@@ -387,7 +440,7 @@ const DetailedCalculatorContent = () => {
                     step="1" 
                     value={tenure} 
                     onChange={(e) => setTenure(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-orange-600"
                   />
                   <div className="flex justify-between text-xs text-gray-400 mt-2">
                     <span>1 {tenureType === 'years' ? 'Year' : 'Month'}</span>
@@ -397,43 +450,66 @@ const DetailedCalculatorContent = () => {
               </div>
             </div>
 
-            {/* EMI Result - Featured Card */}
-            <div className="col-span-12 lg:col-span-5 bg-gray-900 border border-gray-900 rounded-3xl p-6 md:p-8 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              
-              <div className="relative">
-                <div className="flex items-center gap-2 text-gray-400 text-sm font-medium mb-2">
-                  <Sparkles className="w-4 h-4" />
-                  MONTHLY EMI
-                </div>
-                <div className="text-5xl md:text-6xl font-bold mb-6">
-                  ₹{formatCurrency(emi)}
-                </div>
+            {/* Right Column Wrapper */}
+            <div className="col-span-12 lg:col-span-5 flex flex-col gap-4 md:gap-6">
+              {/* EMI Result - Featured Card */}
+              <div className="bg-blue-900 border border-blue-900 rounded-3xl p-5 md:p-6 text-white relative overflow-hidden h-fit">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-white/5 rounded-2xl p-4">
-                    <div className="text-gray-400 text-xs font-medium mb-1">Total Interest</div>
-                    <div className="text-xl font-bold">₹{formatCurrency(totalInterest)}</div>
+                <div className="relative">
+                  <div className="flex items-center gap-2 text-blue-200 text-xs font-bold uppercase tracking-wider mb-1">
+                    <Sparkles className="w-3 h-3" />
+                    MONTHLY EMI
                   </div>
-                  <div className="bg-white/5 rounded-2xl p-4">
-                    <div className="text-gray-400 text-xs font-medium mb-1">Total Payment</div>
-                    <div className="text-xl font-bold">₹{formatCurrency(totalPayment)}</div>
+                  <div className="text-3xl md:text-4xl font-bold mb-3">
+                    ₹{formatCurrency(emi)}
                   </div>
-                </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-white/10 rounded-xl p-2.5">
+                      <div className="text-blue-200 text-[10px] uppercase font-bold mb-0.5">Total Interest</div>
+                      <div className="text-base font-bold">₹{formatCurrency(totalInterest)}</div>
+                    </div>
+                    <div className="bg-white/10 rounded-xl p-2.5">
+                      <div className="text-blue-200 text-[10px] uppercase font-bold mb-0.5">Total Payment</div>
+                      <div className="text-base font-bold">₹{formatCurrency(totalPayment)}</div>
+                    </div>
+                  </div>
 
-                <Link 
-                  href="/apply"
-                  className="flex items-center justify-center gap-2 w-full bg-white text-gray-900 py-4 rounded-2xl font-bold hover:bg-gray-100 transition-colors"
-                >
-                  Apply for this Loan
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
+                  <Link 
+                    href="/apply"
+                    className="flex items-center justify-center gap-2 w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition-colors shadow-lg text-sm"
+                  >
+                    Apply for this Loan
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Eligibility Check CTA */}
+              <div className="flex-1 bg-blue-900 border border-blue-900 rounded-3xl p-5 md:p-6 text-white relative overflow-hidden min-h-[200px] flex flex-col justify-center">
+                <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-3">
+                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                       <Wallet className="w-5 h-5 text-white" />
+                     </div>
+                     <h3 className="text-lg font-bold">Check Eligibility</h3>
+                  </div>
+                  <p className="text-blue-200 text-sm mb-4">Find out how much loan you can get based on your income.</p>
+                  <button 
+                    onClick={() => setActiveTab('eligibility')}
+                    className="inline-flex items-center gap-2 text-white font-semibold hover:text-orange-200 transition-colors text-sm"
+                  >
+                    Check Now <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Donut Chart Card */}
-            <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-white border border-gray-900 rounded-3xl p-6 shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-4">Payment Breakdown</h3>
+            <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-orange-50/30 border border-orange-100 rounded-3xl p-6 shadow-sm">
+              <h3 className="font-bold text-blue-900 mb-4">Payment Breakdown</h3>
               
               <div className="h-48 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -449,93 +525,76 @@ const DetailedCalculatorContent = () => {
                       stroke="none"
                     >
                       {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={index === 0 ? '#1e3a8a' : '#ea580c'} />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                  <div className="text-2xl font-bold text-gray-900">{principalPercentage}%</div>
+                  <div className="text-2xl font-bold text-blue-900">{principalPercentage}%</div>
                   <div className="text-xs text-gray-500">Principal</div>
                 </div>
               </div>
 
               <div className="flex justify-center gap-6 mt-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-blue-900"></div>
                   <span className="text-sm text-gray-600">Principal ({principalPercentage}%)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-orange-600"></div>
                   <span className="text-sm text-gray-600">Interest ({interestPercentage}%)</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Stats Cards */}
-            <div className="col-span-6 md:col-span-3 lg:col-span-2 bg-white border border-gray-900 rounded-3xl p-5 flex flex-col justify-between">
-              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
-                <PiggyBank className="w-5 h-5 text-gray-600" />
+            <div className="col-span-6 md:col-span-3 lg:col-span-2 bg-blue-50/40 border border-blue-100 rounded-3xl p-5 flex flex-col justify-between">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <PiggyBank className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">₹{formatCurrency(loanAmount)}</div>
-                <div className="text-sm text-gray-500">Principal</div>
+                <div className="text-2xl font-bold text-blue-900">₹{formatCurrency(loanAmount)}</div>
+                <div className="text-sm text-gray-600">Principal</div>
               </div>
             </div>
 
-            <div className="col-span-6 md:col-span-3 lg:col-span-2 bg-white border border-gray-900 rounded-3xl p-5 flex flex-col justify-between">
-              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
-                <TrendingUp className="w-5 h-5 text-gray-600" />
+            <div className="col-span-6 md:col-span-3 lg:col-span-2 bg-orange-50/40 border border-orange-100 rounded-3xl p-5 flex flex-col justify-between">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <TrendingUp className="w-5 h-5 text-orange-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">{interestRate}%</div>
-                <div className="text-sm text-gray-500">Interest Rate</div>
+                <div className="text-2xl font-bold text-blue-900">{interestRate}%</div>
+                <div className="text-sm text-gray-600">Interest Rate</div>
               </div>
             </div>
 
-            <div className="col-span-6 md:col-span-6 lg:col-span-2 bg-white border border-gray-900 rounded-3xl p-5 flex flex-col justify-between">
-              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
-                <Clock className="w-5 h-5 text-gray-600" />
+            <div className="col-span-6 md:col-span-6 lg:col-span-2 bg-blue-50/40 border border-blue-100 rounded-3xl p-5 flex flex-col justify-between">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <Clock className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">{tenure} {tenureType === 'years' ? 'Yrs' : 'Mo'}</div>
-                <div className="text-sm text-gray-500">Tenure</div>
+                <div className="text-2xl font-bold text-blue-900">{tenure} {tenureType === 'years' ? 'Yrs' : 'Mo'}</div>
+                <div className="text-sm text-gray-600">Tenure</div>
               </div>
             </div>
 
-            <div className="col-span-6 md:col-span-6 lg:col-span-2 bg-white border border-gray-900 rounded-3xl p-5 flex flex-col justify-between">
-              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
-                <Target className="w-5 h-5 text-gray-600" />
+            <div className="col-span-6 md:col-span-6 lg:col-span-2 bg-orange-50/40 border border-orange-100 rounded-3xl p-5 flex flex-col justify-between">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <Target className="w-5 h-5 text-orange-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">₹{formatCurrency(totalInterest)}</div>
-                <div className="text-sm text-gray-500">Total Interest</div>
+                <div className="text-2xl font-bold text-blue-900">₹{formatCurrency(totalInterest)}</div>
+                <div className="text-sm text-gray-600">Total Interest</div>
               </div>
             </div>
 
-            {/* Eligibility Check CTA */}
-            <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-gray-900 border border-gray-900 rounded-3xl p-6 text-white relative overflow-hidden">
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
-              <div className="relative">
-                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-4">
-                  <Wallet className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">Check Eligibility</h3>
-                <p className="text-gray-400 text-sm mb-4">Find out how much loan you can get based on your income</p>
-                <Link 
-                  href="/check-eligibility"
-                  className="inline-flex items-center gap-2 text-white font-semibold hover:text-gray-300 transition-colors"
-                >
-                  Check Now <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
 
             {/* Amortization Schedule */}
-            <div className="col-span-12 bg-white border border-gray-900 rounded-3xl p-6 md:p-8 shadow-sm">
+            <div className="col-span-12 bg-gray-50 border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Repayment Schedule</h3>
+                  <h3 className="text-xl font-bold text-blue-900">Repayment Schedule</h3>
                   <p className="text-gray-500 text-sm">Year-wise breakdown of your loan payments</p>
                 </div>
               </div>
@@ -552,14 +611,14 @@ const DetailedCalculatorContent = () => {
                   </thead>
                   <tbody>
                     {amortizationSchedule.slice(0, 5).map((row, index) => (
-                      <tr key={index} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                      <tr key={index} className="border-b border-gray-50 hover:bg-blue-50/30 transition-colors">
                         <td className="py-4 px-4">
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-gray-100 rounded-lg font-bold text-gray-700 text-sm">
+                          <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-50 rounded-lg font-bold text-blue-900 text-sm">
                             {row.year}
                           </span>
                         </td>
                         <td className="text-right py-4 px-4 font-medium text-gray-900">₹{formatCurrency(row.principal)}</td>
-                        <td className="text-right py-4 px-4 font-medium text-amber-600">₹{formatCurrency(row.interest)}</td>
+                        <td className="text-right py-4 px-4 font-medium text-orange-600">₹{formatCurrency(row.interest)}</td>
                         <td className="text-right py-4 px-4 font-bold text-blue-600">₹{formatCurrency(row.balance)}</td>
                       </tr>
                     ))}
@@ -569,7 +628,7 @@ const DetailedCalculatorContent = () => {
 
               {amortizationSchedule.length > 5 && (
                 <div className="text-center mt-6">
-                  <button className="text-blue-600 font-semibold text-sm hover:text-blue-700 transition-colors">
+                  <button className="text-orange-600 font-semibold text-sm hover:text-orange-700 transition-colors">
                     View Full Schedule ({amortizationSchedule.length} years)
                   </button>
                 </div>
@@ -578,26 +637,133 @@ const DetailedCalculatorContent = () => {
           </div>
         )}
 
-        {/* Balance Transfer View */}
-        {activeTab === 'balance' && (
+        {/* Eligibility Calculator View */}
+        {activeTab === 'eligibility' && (
           <div className="grid grid-cols-12 gap-4 md:gap-6">
-            {/* BT Inputs Card */}
-            <div className="col-span-12 lg:col-span-6 bg-white border border-gray-900 rounded-3xl p-6 md:p-8 shadow-sm">
+            <div className="col-span-12 lg:col-span-7 bg-blue-50/30 border border-blue-100 rounded-3xl p-6 md:p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
-                  <RefreshCw className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                  <CheckCircle2 className="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Balance Transfer Details</h2>
-                  <p className="text-gray-500 text-sm">Enter details to check your benefits</p>
+                  <h2 className="text-xl font-bold text-blue-900">Check Eligibility</h2>
+                  <p className="text-gray-500 text-sm">Enter your details to check loan eligibility</p>
                 </div>
               </div>
 
               <div className="space-y-8">
-                <SliderInput label="Monthly Income" value={btIncome} setValue={setBtIncome} min={20000} max={500000} step={1000} prefix="₹" />
-                <SliderInput label="BT Loan Amount Outstanding" value={outstanding} setValue={setOutstanding} min={100000} max={5000000} step={10000} prefix="₹" />
-                <SliderInput label="Existing EMI" value={btExistingEmi} setValue={setBtExistingEmi} min={0} max={200000} step={500} prefix="₹" />
-                <SliderInput label="Desired Tenure (Years)" value={btTenure} setValue={setBtTenure} min={1} max={30} step={1} suffix=" Years" />
+                <SliderInput 
+                  label="Monthly Income" 
+                  value={income} 
+                  setValue={setIncome} 
+                  min={15000} 
+                  max={500000} 
+                  step={1000} 
+                  prefix="₹"
+                  description="Your total monthly net income after all deductions"
+                />
+                <SliderInput 
+                  label="Existing EMIs" 
+                  value={existingEmi} 
+                  setValue={setExistingEmi} 
+                  min={0} 
+                  max={200000} 
+                  step={1000} 
+                  prefix="₹"
+                  description="Total monthly EMIs for all your existing loans"
+                />
+                <div className="bg-white/50 p-4 rounded-xl text-sm text-gray-600 border border-blue-50">
+                  *Estimated based on standard bank policies (50% FOIR). Actual eligibility may vary.
+                </div>
+              </div>
+            </div>
+
+            <div className="col-span-12 lg:col-span-5">
+              <div className="bg-blue-900 border border-blue-900 rounded-3xl p-6 text-white relative overflow-hidden h-full flex flex-col justify-center">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                
+                <div className="relative text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                    <Sparkles className="w-3 h-3" />
+                    You are eligible for
+                  </div>
+                  <div className="text-5xl font-bold mb-6">
+                    ₹{formatCurrency(eligibleAmount)}
+                  </div>
+                  
+                  <p className="text-blue-200 text-sm mb-8 max-w-xs mx-auto">
+                    Based on your income and existing obligations, this is the estimated loan amount you can borrow.
+                  </p>
+
+                  <Link 
+                    href="/apply"
+                    className="flex items-center justify-center gap-2 w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors shadow-lg"
+                  >
+                    Check Offers
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Balance Transfer View */}
+        {activeTab === 'balance' && (
+          <div className="grid grid-cols-12 gap-4 md:gap-6">
+            {/* BT Inputs Card */}
+            <div className="col-span-12 lg:col-span-6 bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-lg">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
+                  <RefreshCw className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Balance Transfer Details</h2>
+                  <p className="text-gray-600 text-sm">Enter details to check your benefits</p>
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <SliderInput 
+                  label="Monthly Income" 
+                  value={btIncome} 
+                  setValue={setBtIncome} 
+                  min={20000} 
+                  max={500000} 
+                  step={1000} 
+                  prefix="₹"
+                  description="Your total monthly net income after deductions"
+                />
+                <SliderInput 
+                  label="BT Loan Amount Outstanding" 
+                  value={outstanding} 
+                  setValue={setOutstanding} 
+                  min={100000} 
+                  max={5000000} 
+                  step={10000} 
+                  prefix="₹"
+                  description="Current outstanding balance on your existing loan"
+                />
+                <SliderInput 
+                  label="Existing EMI" 
+                  value={btExistingEmi} 
+                  setValue={setBtExistingEmi} 
+                  min={0} 
+                  max={200000} 
+                  step={500} 
+                  prefix="₹"
+                  description="Total monthly EMI you are currently paying"
+                />
+                <SliderInput 
+                  label="Desired Tenure (Years)" 
+                  value={btTenure} 
+                  setValue={setBtTenure} 
+                  min={1} 
+                  max={30} 
+                  step={1} 
+                  suffix=" Years"
+                  description="Loan tenure you want for the balance transfer"
+                />
               </div>
             </div>
 
@@ -616,28 +782,28 @@ const DetailedCalculatorContent = () => {
 
               <div className="grid grid-cols-2 gap-4 md:gap-6">
                  {/* Max EMI Capacity */}
-                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
-                   <div className="text-sm text-gray-500 font-medium mb-2">Max EMI Capacity</div>
-                   <div className="text-2xl font-bold text-gray-900 mb-1">₹{formatCurrency(btMaxEmi)}</div>
-                   <div className="text-xs text-blue-600 font-medium">New EMI Amount</div>
+                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                   <div className="text-sm text-gray-600 font-semibold mb-2">Max EMI Capacity</div>
+                   <div className="text-2xl font-bold text-blue-900 mb-1">₹{formatCurrency(btMaxEmi)}</div>
+                   <div className="text-xs text-blue-600 font-semibold">New EMI Amount</div>
                  </div>
 
                  {/* Per Lakh EMI */}
-                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
-                   <div className="text-sm text-gray-500 font-medium mb-2">Per Lakh EMI</div>
-                   <div className="text-2xl font-bold text-gray-900 mb-1">₹{formatCurrency(btPerLakhEmi)}</div>
-                   <div className="text-xs text-blue-600 font-medium">@ 10.50% for {btTenure} Years</div>
+                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                   <div className="text-sm text-gray-600 font-semibold mb-2">Per Lakh EMI</div>
+                   <div className="text-2xl font-bold text-blue-900 mb-1">₹{formatCurrency(btPerLakhEmi)}</div>
+                   <div className="text-xs text-orange-600 font-semibold">@ 10.50% for {btTenure} Years</div>
                  </div>
 
                  {/* Max Loan Amount */}
-                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm col-span-2">
+                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow col-span-2">
                    <div className="flex justify-between items-end">
                      <div>
-                       <div className="text-sm text-gray-500 font-medium mb-2">Max Loan Eligibility</div>
+                       <div className="text-sm text-gray-600 font-semibold mb-2">Max Loan Eligibility</div>
                        <div className="text-3xl font-bold text-gray-900">₹{formatCurrency(btMaxLoan)}</div>
-                       <div className="text-xs text-blue-600 font-medium mt-1">Total eligible amount based on your income</div>
+                       <div className="text-xs text-blue-600 font-semibold mt-1">Total eligible amount based on your income</div>
                      </div>
-                     <Link href="/apply" className="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition-colors">
+                     <Link href="/apply" className="bg-gradient-to-r from-blue-600 to-orange-600 text-white p-3 rounded-xl hover:shadow-lg transition-all">
                         <ArrowRight className="w-6 h-6" />
                      </Link>
                    </div>
@@ -653,21 +819,48 @@ const DetailedCalculatorContent = () => {
             
             {/* Inputs Column */}
             <div className="col-span-12 lg:col-span-7 space-y-6">
-               <div className="bg-white border border-gray-900 rounded-3xl p-6 md:p-8 shadow-sm">
+               <div className="bg-blue-50/30 border border-blue-100 rounded-3xl p-6 md:p-8 shadow-sm">
                  <div className="flex items-center gap-3 mb-8">
-                   <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                   <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
                      <PercentIcon className="w-6 h-6 text-blue-600" />
                    </div>
                    <div>
-                     <h2 className="text-xl font-bold text-gray-900">Loan Details</h2>
+                     <h2 className="text-xl font-bold text-blue-900">Loan Details</h2>
                      <p className="text-gray-500 text-sm">Input your current loan status</p>
                    </div>
                  </div>
 
                  <div className="space-y-6">
-                   <SliderInput label="Loan Amount (₹)" value={ppLoanAmount} setValue={setPpLoanAmount} min={100000} max={10000000} step={10000} prefix="₹" />
-                   <SliderInput label="Interest Rate (%)" value={ppInterestRate} setValue={setPpInterestRate} min={8} max={21} step={0.1} suffix="%" />
-                   <SliderInput label="Outstanding Tenure (Years)" value={ppTenure} setValue={setPpTenure} min={1} max={30} step={1} suffix=" Years" />
+                   <SliderInput 
+                     label="Loan Amount (₹)" 
+                     value={ppLoanAmount} 
+                     setValue={setPpLoanAmount} 
+                     min={100000} 
+                     max={10000000} 
+                     step={10000} 
+                     prefix="₹"
+                     description="Current outstanding principal amount on your loan"
+                   />
+                   <SliderInput 
+                     label="Interest Rate (%)" 
+                     value={ppInterestRate} 
+                     setValue={setPpInterestRate} 
+                     min={8} 
+                     max={21} 
+                     step={0.1} 
+                     suffix="%"
+                     description="Annual interest rate on your existing loan"
+                   />
+                   <SliderInput 
+                     label="Outstanding Tenure (Years)" 
+                     value={ppTenure} 
+                     setValue={setPpTenure} 
+                     min={1} 
+                     max={30} 
+                     step={1} 
+                     suffix=" Years"
+                     description="Remaining loan tenure in years"
+                   />
                  </div>
                </div>
 
@@ -798,12 +991,17 @@ const DetailedCalculatorContent = () => {
 };
 
 // Helper Component
-const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suffix = '' }: any) => (
+const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suffix = '', description = '' }: any) => (
   <div>
-    <div className="flex justify-between items-center mb-4">
-      <label className="flex items-center gap-2 text-gray-700 font-medium">
-        {label}
-      </label>
+    <div className="flex justify-between items-start mb-4">
+      <div className="flex-1">
+        <label className="flex items-center gap-2 text-gray-700 font-medium mb-1">
+          {label}
+        </label>
+        {description && (
+          <p className="text-xs text-gray-500 font-semibold mt-0.5">{description}</p>
+        )}
+      </div>
       <div className="bg-gray-100 px-4 py-2 rounded-xl border border-gray-200 flex items-center gap-1">
         {prefix && <span className="font-bold text-gray-900">{prefix}</span>}
         <input

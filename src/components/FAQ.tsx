@@ -65,7 +65,7 @@ const FAQ = () => {
   });
 
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50 py-6 relative overflow-hidden">
+    <div className="bg-gradient-to-br from-white/80 via-slate-50/90 to-blue-50/25 py-6 relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-20 right-0 w-72 h-72 bg-blue-100/40 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-0 w-72 h-72 bg-indigo-100/40 rounded-full blur-3xl" />
@@ -121,9 +121,9 @@ const FAQ = () => {
           {filteredFaqs.map((faq, index) => (
             <div 
               key={faq.id} 
-              className={`bg-white border border-gray-900 rounded-2xl overflow-hidden transition-all duration-300 ${
-                openIndex === index ? 'shadow-lg' : 'shadow-sm hover:shadow-md'
-              }`}
+              className={`bg-gradient-to-br from-white to-blue-50/20 border-2 ${
+                openIndex === index ? 'border-blue-300 shadow-xl' : 'border-gray-200 shadow-sm hover:shadow-lg hover:border-blue-200'
+              } rounded-2xl overflow-hidden transition-all duration-300`}
             >
               <button
                 onClick={() => toggleFAQ(index)}
@@ -179,33 +179,33 @@ const FAQ = () => {
         )}
 
         {/* Contact CTA */}
-        <div className="mt-8 bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-          {/* Decorative */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
+        <div className="mt-12 bg-gradient-to-br from-blue-50 via-white to-orange-50/30 rounded-3xl p-8 md:p-12 text-center border-2 border-blue-100 shadow-xl relative overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-200/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-200/20 rounded-full blur-3xl" />
           
           <div className="relative">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-6">
-              <MessageCircle className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-100 to-orange-100 rounded-2xl mb-6 shadow-md">
+              <MessageCircle className="w-8 h-8 text-blue-600" />
             </div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
               Still have questions?
             </h3>
-            <p className="text-gray-400 mb-8 max-w-md mx-auto">
+            <p className="text-gray-600 mb-8 max-w-md mx-auto text-base">
               Can&apos;t find the answer you&apos;re looking for? Our team is here to help you.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a 
                 href="tel:+919876543210" 
-                className="flex items-center gap-3 bg-white text-gray-900 px-6 py-3.5 rounded-full font-semibold hover:bg-gray-100 transition-colors shadow-lg"
+                className="flex items-center gap-3 bg-white text-gray-900 px-6 py-3.5 rounded-full font-semibold hover:bg-blue-50 hover:text-blue-600 transition-all shadow-md hover:shadow-lg border-2 border-gray-200 hover:border-blue-300"
               >
                 <Phone className="w-5 h-5" />
                 +91 98765 43210
               </a>
               <a 
                 href="mailto:support@loansarathi.com" 
-                className="flex items-center gap-3 bg-white/10 backdrop-blur-sm text-white px-6 py-3.5 rounded-full font-semibold hover:bg-white/20 transition-colors border border-white/20"
+                className="flex items-center gap-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white px-6 py-3.5 rounded-full font-semibold hover:from-blue-700 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
               >
                 <Mail className="w-5 h-5" />
                 Email Support

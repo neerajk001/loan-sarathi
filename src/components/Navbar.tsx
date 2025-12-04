@@ -34,6 +34,12 @@ const Navbar = () => {
   }, [isOpen]);
 
   const isActive = (path: string) => {
+    if (path === '/loan') {
+      return pathname === '/loan' || pathname.startsWith('/loan/') ? 'text-blue-600 font-bold' : 'text-gray-600 hover:text-orange-600 font-medium';
+    }
+    if (path === '/insurance') {
+      return pathname === '/insurance' || pathname.startsWith('/insurance/') ? 'text-blue-600 font-bold' : 'text-gray-600 hover:text-orange-600 font-medium';
+    }
     return pathname === path ? 'text-blue-600 font-bold' : 'text-gray-600 hover:text-orange-600 font-medium';
   };
 
@@ -140,11 +146,33 @@ const Navbar = () => {
           <div className="hidden md:flex items-center justify-center space-x-6 flex-1 px-4">
             <Link href="/" className={`${isActive('/')} whitespace-nowrap transition-colors`}>Home</Link>
             <Link href="/about" className={`${isActive('/about')} whitespace-nowrap transition-colors`}>About Us</Link>
-            <Link href="/products" className={`${isActive('/products')} whitespace-nowrap transition-colors`}>Loans</Link>
-            <Link href="/products#insurance" className="text-gray-600 hover:text-orange-600 font-medium whitespace-nowrap transition-colors">Insurance</Link>
+            <Link href="/loan" className={`${isActive('/loan')} whitespace-nowrap transition-colors`}>Loans</Link>
+            <Link href="/insurance" className={`${isActive('/insurance')} whitespace-nowrap transition-colors`}>Insurance</Link>
             <Link href="/calculator" className={`${isActive('/calculator')} whitespace-nowrap transition-colors`}>Calculator</Link>
-            <Link href="/articles" className={`${isActive('/articles')} whitespace-nowrap transition-colors`}>Articles</Link>
-            <Link href="/contact-us" className={`${isActive('/contact-us')} whitespace-nowrap transition-colors`}>Contact Us</Link>
+            <Link 
+              href={pathname === '/' ? '#articles' : '/#articles'} 
+              className="text-gray-600 hover:text-orange-600 font-medium whitespace-nowrap transition-colors"
+              onClick={(e) => {
+                if (pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('articles')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              Articles
+            </Link>
+            <Link 
+              href={pathname === '/' ? '#contact-us' : '/#contact-us'} 
+              className="text-gray-600 hover:text-orange-600 font-medium whitespace-nowrap transition-colors"
+              onClick={(e) => {
+                if (pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('contact-us')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              Contact Us
+            </Link>
             <Link href="/consultancy" className="bg-orange-600 text-white px-5 py-2 rounded-full font-medium hover:bg-orange-700 transition-colors shadow-sm whitespace-nowrap text-sm">
               Get Free Consultancy
             </Link>
@@ -197,21 +225,24 @@ const Navbar = () => {
                 </Link>
 
                 <Link 
-                  href="/products" 
+                  href="/loan" 
                   className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
-                    ${pathname === '/products' 
+                    ${pathname === '/loan' || pathname.startsWith('/loan/')
                       ? 'bg-blue-50 text-blue-900 font-bold' 
                       : 'text-gray-600 font-medium hover:bg-gray-50'}`}
                 >
-                  <Wallet className={`h-6 w-6 ${pathname === '/products' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <Wallet className={`h-6 w-6 ${pathname === '/loan' || pathname.startsWith('/loan/') ? 'text-blue-600' : 'text-gray-400'}`} />
                   Loans
                 </Link>
 
                 <Link 
-                  href="/products#insurance" 
-                  className="flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all text-gray-600 font-medium hover:bg-gray-50"
+                  href="/insurance" 
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                    ${pathname === '/insurance' || pathname.startsWith('/insurance/')
+                      ? 'bg-blue-50 text-blue-900 font-bold' 
+                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
                 >
-                  <Shield className="h-6 w-6 text-gray-400" />
+                  <Shield className={`h-6 w-6 ${pathname === '/insurance' || pathname.startsWith('/insurance/') ? 'text-blue-600' : 'text-gray-400'}`} />
                   Insurance
                 </Link>
 
@@ -227,24 +258,30 @@ const Navbar = () => {
                 </Link>
 
                 <Link 
-                  href="/articles" 
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
-                    ${pathname === '/articles' 
-                      ? 'bg-blue-50 text-blue-900 font-bold' 
-                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                  href={pathname === '/' ? '#articles' : '/#articles'} 
+                  className="flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all text-gray-600 font-medium hover:bg-gray-50"
+                  onClick={(e) => {
+                    if (pathname === '/') {
+                      e.preventDefault();
+                      document.getElementById('articles')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                 >
-                  <FileText className={`h-6 w-6 ${pathname === '/articles' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <FileText className="h-6 w-6 text-gray-400" />
                   Articles
                 </Link>
 
                 <Link 
-                  href="/contact-us" 
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
-                    ${pathname === '/contact-us' 
-                      ? 'bg-blue-50 text-blue-900 font-bold' 
-                      : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                  href={pathname === '/' ? '#contact-us' : '/#contact-us'} 
+                  className="flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all text-gray-600 font-medium hover:bg-gray-50"
+                  onClick={(e) => {
+                    if (pathname === '/') {
+                      e.preventDefault();
+                      document.getElementById('contact-us')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                 >
-                  <Phone className={`h-6 w-6 ${pathname === '/contact-us' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <Phone className="h-6 w-6 text-gray-400" />
                   Contact Us
                 </Link>
               </div>

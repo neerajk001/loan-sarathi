@@ -35,7 +35,7 @@ const FeaturedPartners = () => {
   ];
 
   return (
-    <div className="py-8 bg-white">
+    <div className="py-8 bg-gradient-to-br from-slate-50/80 to-white/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
         {offers.map((offer) => (
           <div 

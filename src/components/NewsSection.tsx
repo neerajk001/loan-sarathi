@@ -167,7 +167,7 @@ const NewsSection = () => {
   };
 
   return (
-    <div className="py-16 bg-slate-50 border-t border-gray-200">
+    <div id="articles" className="py-16 bg-gradient-to-br from-slate-50/90 to-blue-50/30 border-t border-gray-200 scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
           <div>
@@ -212,7 +212,7 @@ const NewsSection = () => {
             {articles.map((article) => (
               <div 
                 key={article.id} 
-                className="flex-none w-[260px] md:w-[300px] bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden snap-start hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full"
+                className="flex-none w-[260px] md:w-[300px] bg-gradient-to-br from-white to-blue-50/30 rounded-xl shadow-md border-2 border-blue-100 overflow-hidden snap-start hover:shadow-xl hover:-translate-y-2 hover:border-orange-200 transition-all duration-300 group flex flex-col h-full"
               >
                 <div className="h-40 overflow-hidden relative shrink-0">
                   <img 

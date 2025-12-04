@@ -83,7 +83,7 @@ const InsuranceProducts = () => {
   };
 
   return (
-    <div id="insurance" className="py-6 bg-slate-50">
+    <div id="insurance" className="py-6 bg-gradient-to-br from-orange-50/25 to-slate-50/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-900">
@@ -96,15 +96,33 @@ const InsuranceProducts = () => {
             <div 
               key={product.id}
               onClick={(e) => handleCardClick(e, product.detailsHref)}
-              className="group flex flex-col items-center text-center p-6 bg-white border border-gray-200 rounded-3xl hover:shadow-xl hover:border-transparent transition-all duration-300 hover:-translate-y-1 cursor-pointer relative"
+              className={`group flex flex-col items-center text-center p-6 rounded-3xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer relative border-2 ${
+                product.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200' :
+                product.color === 'purple' ? 'bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200' :
+                product.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200' :
+                product.color === 'orange' ? 'bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200' :
+                'bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-200'
+              }`}
             >
               {/* Top Tag */}
-              <div className={`px-4 py-1 rounded-full text-[10px] md:text-xs font-bold mb-6 ${product.tagBg} ${product.text}`}>
+              <div className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-bold mb-6 shadow-sm ${
+                product.color === 'blue' ? 'bg-blue-200 text-blue-800' :
+                product.color === 'purple' ? 'bg-purple-200 text-purple-800' :
+                product.color === 'green' ? 'bg-green-200 text-green-800' :
+                product.color === 'orange' ? 'bg-orange-200 text-orange-800' :
+                'bg-rose-200 text-rose-800'
+              }`}>
                 {product.tag}
               </div>
 
               {/* Icon Box */}
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 ${product.bg}`}>
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 shadow-md ${
+                product.color === 'blue' ? 'bg-white border-2 border-blue-300' :
+                product.color === 'purple' ? 'bg-white border-2 border-purple-300' :
+                product.color === 'green' ? 'bg-white border-2 border-green-300' :
+                product.color === 'orange' ? 'bg-white border-2 border-orange-300' :
+                'bg-white border-2 border-rose-300'
+              }`}>
                 {product.icon}
               </div>
 

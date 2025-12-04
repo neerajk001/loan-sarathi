@@ -12,9 +12,6 @@ const AboutPage = () => {
       {/* Hero/Header */}
       <div className="bg-blue-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-200 rounded-full text-xs font-semibold mb-3 tracking-wide border border-orange-500/30">
-            WHO WE ARE
-          </span>
           <h1 className="text-2xl md:text-3xl font-bold mb-3">About Loan Sarathi</h1>
           <p className="text-base text-blue-100 max-w-2xl mx-auto leading-relaxed">
             Your trusted financial guide partnering with leading banks and NBFCs to deliver transparent, fast, and reliable loan solutions.

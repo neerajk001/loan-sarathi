@@ -7,7 +7,7 @@ const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (    
-    <div className="relative bg-linear-to-br from-blue-50 to-white overflow-hidden">
+    <div className="relative overflow-hidden">
       {/* Modal Overlay */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -52,12 +52,13 @@ const Hero = () => {
           <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-7 lg:text-left">
             
             <h1 className="text-4xl tracking-tight font-extrabold text-blue-900 sm:text-5xl md:text-6xl lg:text-6xl">
-              <span className="block">The Right Loan,</span>
-              <span className="block text-orange-600">Faster.</span>
+              <span className="block">Empowering your</span>
+              <span className="block">dreams with simple</span>
+              <span className="block text-orange-600">smart financing.</span>
             </h1>
             
             <p className="mt-4 text-lg text-gray-600 sm:mt-5 max-w-lg mx-auto lg:mx-0">
-              Compare offers from top Banks & NBFCs. We handle the paperwork, facilitate the process, and get you the funds with zero hassle.
+              Find the best loan options in just a few simple steps. Check your eligibility instantly, calculate your EMIs, and compare interest savings with our part-payment tools — all in one place.
             </p>
             
             <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
@@ -85,6 +86,10 @@ const Hero = () => {
                   <Clock className="h-5 w-5 text-blue-900" />
                   <span>Quick Approval</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-blue-900" />
+                  <span>1+Cr Disbursement</span>
+                </div>
               </div>
             </div>
           </div>
@@ -100,17 +105,6 @@ const Hero = () => {
                   alt="Financial Growth" 
                   className="relative rounded-2xl shadow-2xl border-4 border-white transform hover:scale-105 transition-transform duration-500 object-cover h-[400px] w-full"
                 />
-                
-                {/* Floating Stats Card */}
-                <div className="absolute -bottom-5 -left-5 bg-white p-3 rounded-xl shadow-lg border border-gray-100 hidden sm:flex items-center gap-3 animate-bounce-slow">
-                  <div className="bg-green-100 p-2.5 rounded-full">
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-500 font-medium">Disbursed Amount</p>
-                    <p className="text-base font-bold text-gray-900">₹500 Cr+</p>
-                  </div>
-                </div>
              </div>
           </div>
           

@@ -26,7 +26,7 @@ const Features = () => {
   ];
 
   return (
-    <div className="py-6 bg-white">
+    <div className="py-6 bg-gradient-to-br from-white/90 to-blue-50/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-6">
           <span className="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold mb-4 tracking-wide">
@@ -42,13 +42,13 @@ const Features = () => {
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (
-            <div key={index} className="group bg-blue-50 rounded-2xl p-6 border border-black shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-14 h-14 bg-blue-100/50 rounded-xl flex items-center justify-center mb-5 group-hover:bg-orange-50 transition-colors duration-300">
+            <div key={index} className="group bg-gradient-to-br from-white to-blue-50/30 rounded-2xl p-6 border-2 border-blue-100 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:border-orange-200">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-orange-100 rounded-xl flex items-center justify-center mb-5 group-hover:from-orange-100 group-hover:to-blue-100 transition-all duration-300 shadow-sm">
                 <div className="transition-transform duration-300 group-hover:scale-110">
                   {feature.icon}
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-900 transition-colors">{feature.title}</h3>
+              <h3 className="text-lg font-bold text-blue-900 mb-3 group-hover:text-orange-600 transition-colors">{feature.title}</h3>
               <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
             </div>
           ))}

@@ -4,7 +4,7 @@ import { ShieldCheck, Facebook, Twitter, Instagram, Linkedin } from 'lucide-reac
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-950 text-white pt-8 pb-4">
+    <footer id="contact-us" className="bg-blue-950 text-white pt-8 pb-4 scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-6">
           <div>

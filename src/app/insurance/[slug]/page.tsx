@@ -241,20 +241,24 @@ export default function InsuranceDetailPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Get Insured Now</h3>
-              <p className="text-gray-500 text-sm mb-6">Protect what matters most in a few simple steps.</p>
+              <p className="text-gray-500 text-sm mb-6">Protect what matters most in 4 simple steps.</p>
               
               <div className="space-y-4 mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">1</div>
-                  <span className="text-sm font-medium text-gray-600">Enter Details</span>
+                  <span className="text-sm font-medium text-gray-600">Fill The Form</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">2</div>
-                  <span className="text-sm font-medium text-gray-600">Compare Plans</span>
+                  <span className="text-sm font-medium text-gray-600">Login</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">3</div>
-                  <span className="text-sm font-medium text-gray-600">Get Policy Instantly</span>
+                  <span className="text-sm font-medium text-gray-600">Approval</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">4</div>
+                  <span className="text-sm font-medium text-gray-600">Disbursement</span>
                 </div>
               </div>
 

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { Building2, Home, FileText, CreditCard, Wallet, ArrowRight } from 'lucide-react';
+import { Building2, Home, FileText, GraduationCap, Wallet, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const Products = () => {
@@ -15,7 +15,7 @@ const Products = () => {
       tag: '@10.49% ROI',
       icon: <Wallet className="h-8 w-8 text-blue-600" />,
       applyHref: '/apply?type=personal',
-      detailsHref: '/products/personal-loan',
+      detailsHref: '/loan/personal-loan',
       color: 'blue',
       bg: 'bg-blue-50',
       text: 'text-blue-600',
@@ -28,7 +28,7 @@ const Products = () => {
       tag: 'Up to ₹2 Cr',
       icon: <Building2 className="h-8 w-8 text-purple-600" />,
       applyHref: '/apply?type=business',
-      detailsHref: '/products/business-loan',
+      detailsHref: '/loan/business-loan',
       color: 'purple',
       bg: 'bg-purple-50',
       text: 'text-purple-600',
@@ -41,7 +41,7 @@ const Products = () => {
       tag: 'Low Interest',
       icon: <Home className="h-8 w-8 text-green-600" />,
       applyHref: '/apply?type=home',
-      detailsHref: '/products/home-loan',
+      detailsHref: '/loan/home-loan',
       color: 'green',
       bg: 'bg-green-50',
       text: 'text-green-600',
@@ -54,24 +54,24 @@ const Products = () => {
       tag: 'High Amount',
       icon: <FileText className="h-8 w-8 text-orange-600" />,
       applyHref: '/apply?type=lap',
-      detailsHref: '/products/loan-against-property',
+      detailsHref: '/loan/loan-against-property',
       color: 'orange',
       bg: 'bg-orange-50',
       text: 'text-orange-600',
       tagBg: 'bg-orange-100'
     },
     {
-      id: 'credit-card',
-      title: 'Credit Cards',
-      subtitle: 'Lifetime Free',
-      tag: 'Instant',
-      icon: <CreditCard className="h-8 w-8 text-rose-600" />,
-      applyHref: '/apply?type=cc',
-      detailsHref: '/products/credit-card',
-      color: 'rose',
-      bg: 'bg-rose-50',
-      text: 'text-rose-600',
-      tagBg: 'bg-rose-100'
+      id: 'education-loan',
+      title: 'Education Loan',
+      subtitle: 'Study Abroad',
+      tag: 'Low Interest',
+      icon: <GraduationCap className="h-8 w-8 text-indigo-600" />,
+      applyHref: '/apply?type=education',
+      detailsHref: '/loan/education-loan',
+      color: 'indigo',
+      bg: 'bg-indigo-50',
+      text: 'text-indigo-600',
+      tagBg: 'bg-indigo-100'
     },
   ];
 
@@ -84,7 +84,7 @@ const Products = () => {
   };
 
   return (
-    <div id="products" className="py-6 bg-white">
+    <div id="products" className="py-6 bg-gradient-to-br from-blue-50/30 to-white/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-900">
@@ -97,15 +97,33 @@ const Products = () => {
             <div 
               key={product.id}
               onClick={(e) => handleCardClick(e, product.detailsHref)}
-              className="group flex flex-col items-center text-center p-6 bg-white border border-gray-200 rounded-3xl hover:shadow-xl hover:border-transparent transition-all duration-300 hover:-translate-y-1 cursor-pointer relative"
+              className={`group flex flex-col items-center text-center p-6 rounded-3xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer relative border-2 ${
+                product.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200' :
+                product.color === 'purple' ? 'bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200' :
+                product.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200' :
+                product.color === 'orange' ? 'bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200' :
+                'bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-200'
+              }`}
             >
               {/* Top Tag */}
-              <div className={`px-4 py-1 rounded-full text-[10px] md:text-xs font-bold mb-6 ${product.tagBg} ${product.text}`}>
+              <div className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-bold mb-6 shadow-sm ${
+                product.color === 'blue' ? 'bg-blue-200 text-blue-800' :
+                product.color === 'purple' ? 'bg-purple-200 text-purple-800' :
+                product.color === 'green' ? 'bg-green-200 text-green-800' :
+                product.color === 'orange' ? 'bg-orange-200 text-orange-800' :
+                'bg-indigo-200 text-indigo-800'
+              }`}>
                 {product.tag}
               </div>
 
               {/* Icon Box */}
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 ${product.bg}`}>
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 shadow-md ${
+                product.color === 'blue' ? 'bg-white border-2 border-blue-300' :
+                product.color === 'purple' ? 'bg-white border-2 border-purple-300' :
+                product.color === 'green' ? 'bg-white border-2 border-green-300' :
+                product.color === 'orange' ? 'bg-white border-2 border-orange-300' :
+                'bg-white border-2 border-indigo-300'
+              }`}>
                 {product.icon}
               </div>
 
@@ -130,7 +148,7 @@ const Products = () => {
                   product.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
                   product.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
                   product.color === 'orange' ? 'bg-orange-600 hover:bg-orange-700' :
-                  'bg-rose-600 hover:bg-rose-700'
+                  'bg-indigo-600 hover:bg-indigo-700'
                 }`}
               >
                 Apply <ArrowRight className="w-3 h-3" />
