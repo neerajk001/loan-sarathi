@@ -1,8 +1,10 @@
 'use client';
-import React from 'react';
-import { Star, TrendingUp, Clock, BadgeCheck } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Star, TrendingUp, Clock, BadgeCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Testimonials = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const testimonials = [
     {
@@ -112,10 +114,18 @@ const Testimonials = () => {
         {/* Horizontal Scrolling Cards */}
         <div className="relative">
           <div 
+            ref={scrollContainerRef}
             className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory scroll-smooth hide-scrollbar"
             style={{ 
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
+            }}
+            onScroll={(e) => {
+              const container = e.currentTarget;
+              const scrollLeft = container.scrollLeft;
+              const cardWidth = 320; // w-[320px] + gap-4 (16px) = 336px total
+              const newIndex = Math.round(scrollLeft / (cardWidth + 16));
+              setCurrentIndex(newIndex);
             }}
           >
             {testimonials.map((testimonial) => (
@@ -123,6 +133,59 @@ const Testimonials = () => {
                 <TestimonialCard testimonial={testimonial} />
               </div>
             ))}
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <button
+              onClick={() => {
+                const container = scrollContainerRef.current;
+                if (container) {
+                  const cardWidth = 320;
+                  const gap = 16;
+                  const newIndex = Math.max(0, currentIndex - 1);
+                  container.scrollTo({
+                    left: newIndex * (cardWidth + gap),
+                    behavior: 'smooth'
+                  });
+                  setCurrentIndex(newIndex);
+                }
+              }}
+              disabled={currentIndex === 0}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${
+                currentIndex === 0
+                  ? 'bg-white border-2 border-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50'
+              }`}
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            
+            <button
+              onClick={() => {
+                const container = scrollContainerRef.current;
+                if (container) {
+                  const cardWidth = 320;
+                  const gap = 16;
+                  const newIndex = Math.min(testimonials.length - 1, currentIndex + 1);
+                  container.scrollTo({
+                    left: newIndex * (cardWidth + gap),
+                    behavior: 'smooth'
+                  });
+                  setCurrentIndex(newIndex);
+                }
+              }}
+              disabled={currentIndex >= testimonials.length - 1}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${
+                currentIndex >= testimonials.length - 1
+                  ? 'bg-white border-2 border-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50'
+              }`}
+              aria-label="Next testimonial"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
           </div>
         </div>
 

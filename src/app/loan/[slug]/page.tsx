@@ -181,16 +181,16 @@ export default function LoanDetailPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative h-[400px] w-full">
-        <div className="absolute inset-0">
+      <div className="relative h-[500px] w-full bg-gradient-to-br from-blue-50 to-orange-50/30 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center">
           <img 
             src={product.heroImage} 
             alt={product.title} 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         </div>
         <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-6">
-          <Link href="/loan" className="text-black flex items-center justify-center w-10 h-10 bg-yellow-400 border-2 border-black rounded-full font-semibold hover:bg-yellow-500 transition-colors">
+          <Link href="/loan" className="text-black flex items-center justify-center w-10 h-10 bg-yellow-400 border-2 border-black rounded-full font-semibold hover:bg-yellow-500 transition-colors shadow-md">
             <ArrowLeft className="w-5 h-5" />
           </Link>
         </div>
