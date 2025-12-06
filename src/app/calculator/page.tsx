@@ -1118,14 +1118,14 @@ const DetailedCalculatorContent = () => {
         {activeTab === 'balance' && (
           <div className="grid grid-cols-12 gap-4 md:gap-6">
             {/* BT Inputs Card */}
-            <div className="col-span-12 lg:col-span-6 bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-lg">
+            <div className="col-span-12 lg:col-span-6 bg-gradient-to-br from-blue-50 to-orange-50/30 border-2 border-blue-200 rounded-3xl p-6 md:p-8 shadow-lg">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-orange-600 rounded-2xl flex items-center justify-center shadow-md">
                   <RefreshCw className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Balance Transfer Details</h2>
-                  <p className="text-gray-600 text-sm">Enter details to check your benefits</p>
+                  <h2 className="text-xl font-bold text-blue-900">Balance Transfer Details</h2>
+                  <p className="text-orange-700 text-sm font-medium">Enter details to check your benefits</p>
                 </div>
               </div>
 
@@ -1177,39 +1177,39 @@ const DetailedCalculatorContent = () => {
             <div className="col-span-12 lg:col-span-6 space-y-6">
               
               {/* Top Summary Card */}
-              <div className="bg-gray-900 text-white rounded-3xl p-6 md:p-8 relative overflow-hidden">
-                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-3xl p-6 md:p-8 relative overflow-hidden border-2 border-orange-500/20">
+                 <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                  <div className="relative">
-                   <div className="text-gray-400 text-sm font-bold mb-2">NET IN HAND</div>
+                   <div className="text-orange-300 text-sm font-bold mb-2">NET IN HAND</div>
                    <div className="text-4xl font-bold mb-1">₹{formatCurrency(btNetInHand)}</div>
-                   <p className="text-gray-400 text-sm">Amount available after Balance Transfer</p>
+                   <p className="text-blue-200 text-sm">Amount available after Balance Transfer</p>
                  </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 md:gap-6">
                  {/* Max EMI Capacity */}
-                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-                   <div className="text-sm text-gray-600 font-semibold mb-2">Max EMI Capacity</div>
+                 <div className="bg-blue-50 border-2 border-blue-200 rounded-3xl p-6 shadow-lg hover:shadow-xl hover:border-blue-300 transition-all">
+                   <div className="text-sm text-blue-700 font-semibold mb-2">Max EMI Capacity</div>
                    <div className="text-2xl font-bold text-blue-900 mb-1">₹{formatCurrency(btMaxEmi)}</div>
                    <div className="text-xs text-blue-600 font-semibold">New EMI Amount</div>
                  </div>
 
                  {/* Per Lakh EMI */}
-                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-                   <div className="text-sm text-gray-600 font-semibold mb-2">Per Lakh EMI</div>
-                   <div className="text-2xl font-bold text-blue-900 mb-1">₹{formatCurrency(btPerLakhEmi)}</div>
-                   <div className="text-xs text-orange-600 font-semibold">@ 10.50% for {btTenure} Years</div>
+                 <div className="bg-orange-50 border-2 border-orange-200 rounded-3xl p-6 shadow-lg hover:shadow-xl hover:border-orange-300 transition-all">
+                   <div className="text-sm text-orange-700 font-semibold mb-2">Per Lakh EMI</div>
+                   <div className="text-2xl font-bold text-orange-600 mb-1">₹{formatCurrency(btPerLakhEmi)}</div>
+                   <div className="text-xs text-orange-700 font-semibold">@ 10.50% for {btTenure} Years</div>
                  </div>
 
                  {/* Max Loan Amount */}
-                 <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow col-span-2">
+                 <div className="bg-gradient-to-br from-blue-900 to-blue-800 border-2 border-orange-500/30 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all col-span-2">
                    <div className="flex justify-between items-end">
                      <div>
-                       <div className="text-sm text-gray-600 font-semibold mb-2">Max Loan Eligibility</div>
-                       <div className="text-3xl font-bold text-gray-900">₹{formatCurrency(btMaxLoan)}</div>
-                       <div className="text-xs text-blue-600 font-semibold mt-1">Total eligible amount based on your income</div>
+                       <div className="text-sm text-orange-300 font-semibold mb-2">Max Loan Eligibility</div>
+                       <div className="text-3xl font-bold text-white">₹{formatCurrency(btMaxLoan)}</div>
+                       <div className="text-xs text-blue-200 font-semibold mt-1">Total eligible amount based on your income</div>
                      </div>
-                     <Link href="/apply" className="bg-gradient-to-r from-blue-600 to-orange-600 text-white p-3 rounded-xl hover:shadow-lg transition-all">
+                     <Link href="/apply" className="bg-gradient-to-r from-orange-600 to-orange-500 text-white p-3 rounded-xl hover:shadow-lg hover:from-orange-700 hover:to-orange-600 transition-all">
                         <ArrowRight className="w-6 h-6" />
                      </Link>
                    </div>
