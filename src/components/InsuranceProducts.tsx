@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { Heart, Shield, Car, Plane, Bike, ArrowRight } from 'lucide-react';
+import { Heart, Shield, Car, Bike, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const InsuranceProducts = () => {
@@ -48,19 +48,6 @@ const InsuranceProducts = () => {
       tagBg: 'bg-green-100'
     },
     {
-      id: 'travel-insurance',
-      title: 'Travel Insurance',
-      subtitle: 'Medical cover',
-      tag: 'Worldwide',
-      icon: <Plane className="h-8 w-8 text-purple-600" />,
-      applyHref: '/apply-insurance?type=travel',
-      detailsHref: '/insurance/travel-insurance',
-      color: 'purple',
-      bg: 'bg-purple-50',
-      text: 'text-purple-600',
-      tagBg: 'bg-purple-100'
-    },
-    {
       id: 'bike-insurance',
       title: 'Bike Insurance',
       subtitle: 'Third party',
@@ -91,14 +78,13 @@ const InsuranceProducts = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {products.map((product) => (
             <div 
               key={product.id}
               onClick={(e) => handleCardClick(e, product.detailsHref)}
               className={`group flex flex-col items-center text-center p-6 rounded-3xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer relative border-2 ${
                 product.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200' :
-                product.color === 'purple' ? 'bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200' :
                 product.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200' :
                 product.color === 'orange' ? 'bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200' :
                 'bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-200'
@@ -107,7 +93,6 @@ const InsuranceProducts = () => {
               {/* Top Tag */}
               <div className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-bold mb-6 shadow-sm ${
                 product.color === 'blue' ? 'bg-blue-200 text-blue-800' :
-                product.color === 'purple' ? 'bg-purple-200 text-purple-800' :
                 product.color === 'green' ? 'bg-green-200 text-green-800' :
                 product.color === 'orange' ? 'bg-orange-200 text-orange-800' :
                 'bg-rose-200 text-rose-800'
@@ -118,7 +103,6 @@ const InsuranceProducts = () => {
               {/* Icon Box */}
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 shadow-md ${
                 product.color === 'blue' ? 'bg-white border-2 border-blue-300' :
-                product.color === 'purple' ? 'bg-white border-2 border-purple-300' :
                 product.color === 'green' ? 'bg-white border-2 border-green-300' :
                 product.color === 'orange' ? 'bg-white border-2 border-orange-300' :
                 'bg-white border-2 border-rose-300'
@@ -144,7 +128,6 @@ const InsuranceProducts = () => {
                 }}
                 className={`mt-auto px-6 py-2 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 flex items-center gap-1 ${
                   product.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' :
-                  product.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
                   product.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
                   product.color === 'orange' ? 'bg-orange-600 hover:bg-orange-700' :
                   'bg-rose-600 hover:bg-rose-700'

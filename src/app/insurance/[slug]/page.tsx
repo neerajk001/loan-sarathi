@@ -10,7 +10,7 @@ import { ArrowLeft, CheckCircle, ShieldCheck, Clock, BadgeCheck, ArrowRight } fr
 const insuranceDetails: Record<string, any> = {
   'health-insurance': {
     title: 'Health Insurance',
-    heroImage: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/insurance/health.png',
     description: 'Secure your family’s health with our comprehensive health insurance plans. Get cashless treatment at top hospitals and coverage for pre & post-hospitalization expenses.',
     features: [
       'Cashless treatment at 10,000+ hospitals',
@@ -36,7 +36,7 @@ const insuranceDetails: Record<string, any> = {
   },
   'term-life-insurance': {
     title: 'Term Life Insurance',
-    heroImage: 'https://images.unsplash.com/photo-1518133835878-5a93cc3f89e5?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/insurance/term_life.png',
     description: 'Ensure your family’s financial security with our pure protection term insurance plans. High life cover at affordable premiums with tax saving benefits.',
     features: [
       'Life cover up to ₹10 Crores+',
@@ -62,7 +62,7 @@ const insuranceDetails: Record<string, any> = {
   },
   'car-insurance': {
     title: 'Car Insurance',
-    heroImage: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/insurance/car.png',
     description: 'Protect your car against accidents, theft, and natural calamities. Choose from Comprehensive, Third-Party, or Zero Depreciation plans.',
     features: [
       'Zero Depreciation Cover',
@@ -85,34 +85,9 @@ const insuranceDetails: Record<string, any> = {
     ],
     applyLink: '/apply-insurance?type=car'
   },
-  'travel-insurance': {
-    title: 'Travel Insurance',
-    heroImage: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=2000',
-    description: 'Travel worry-free with our international and domestic travel insurance. Covers medical emergencies, flight delays, baggage loss, and more.',
-    features: [
-      'Worldwide coverage including USA/Canada',
-      'Medical emergency hospitalization',
-      'Trip cancellation & delay cover',
-      'Loss of passport & baggage',
-      'Covid-19 coverage included',
-      '24x7 Global Assistance'
-    ],
-    eligibility: [
-      'Valid Passport for International travel',
-      'Age: 3 months to 85 years',
-      'Trip duration details',
-      'Destination country details'
-    ],
-    documents: [
-      'Passport Copy',
-      'Visa Copy (if available)',
-      'Ticket details'
-    ],
-    applyLink: '/apply-insurance?type=travel'
-  },
   'bike-insurance': {
     title: 'Bike Insurance',
-    heroImage: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/insurance/bike.png',
     description: 'Ride with confidence. Get comprehensive two-wheeler insurance covering damage, theft, and third-party liability at best premiums.',
     features: [
       'Comprehensive & Third-Party plans',
@@ -168,14 +143,11 @@ export default function InsuranceDetailPage() {
             alt={product.title} 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-12">
-          <Link href="/" className="text-white/80 hover:text-white flex items-center gap-2 mb-6 w-fit bg-black/20 px-4 py-2 rounded-full backdrop-blur-sm transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Home
+        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-6">
+          <Link href="/" className="text-black flex items-center justify-center w-10 h-10 bg-yellow-400 border-2 border-black rounded-full font-semibold hover:bg-yellow-500 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{product.title}</h1>
-          <p className="text-lg text-gray-200 max-w-2xl">{product.description}</p>
         </div>
       </div>
 

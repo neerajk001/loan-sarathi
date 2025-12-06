@@ -10,10 +10,10 @@ export default function ConsultancyPage() {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
-        <div className="grid lg:grid-cols-12 gap-6 items-start">
+        <div className="grid lg:grid-cols-2 gap-6 items-stretch">
           
           {/* Left Content */}
-          <div className="lg:col-span-7">
+          <div className="flex flex-col">
             <h1 className="text-2xl md:text-3xl font-bold text-blue-900 mb-4">
               Get Expert Financial Advice, <span className="text-orange-600">Absolutely Free.</span>
             </h1>
@@ -22,7 +22,7 @@ export default function ConsultancyPage() {
               Our team of financial experts is here to guide you through your loan journey. Fill out the form to request a callback and get personalized consultancy.
             </p>
             
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Why Consult with Us?</h3>
               
               <div className="space-y-4">
@@ -60,8 +60,8 @@ export default function ConsultancyPage() {
           </div>
 
           {/* Right Form */}
-          <div className="lg:col-span-5">
-            <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-5 sticky top-24">
+          <div className="flex flex-col">
+            <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-5 flex-1">
               <h3 className="text-lg font-bold text-blue-900 mb-3">Request Free Consultancy</h3>
               <form className="space-y-3">
                 <div>

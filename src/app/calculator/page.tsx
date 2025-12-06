@@ -4,10 +4,12 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Calculator as CalculatorIcon, TrendingUp, Wallet, Calendar, Percent, IndianRupee, ArrowRight, Sparkles, PiggyBank, Target, Clock, RefreshCw, Percent as PercentIcon, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Calculator as CalculatorIcon, TrendingUp, Wallet, Calendar, Percent, IndianRupee, ArrowRight, Sparkles, PiggyBank, Target, Clock, RefreshCw, Percent as PercentIcon, Plus, Trash2, CheckCircle2, ChevronDown, ChevronRight, ChevronLeft, Minus, Download } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const DetailedCalculatorContent = () => {
   const searchParams = useSearchParams();
@@ -39,6 +41,22 @@ const DetailedCalculatorContent = () => {
   const [totalPayment, setTotalPayment] = useState(0);
   const [chartData, setChartData] = useState<any[]>([]);
   const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
+  const [expandedYears, setExpandedYears] = useState<number[]>([]);
+
+  // EMI Pagination
+  const [emiCurrentPage, setEmiCurrentPage] = useState(1);
+  const emiItemsPerPage = 5; // Show 5 years per page
+  
+  // Calculate pagination values for EMI
+  const emiTotalPages = Math.ceil(amortizationSchedule.length / emiItemsPerPage);
+  const emiStartIndex = (emiCurrentPage - 1) * emiItemsPerPage;
+  const emiEndIndex = emiStartIndex + emiItemsPerPage;
+  const emiCurrentData = amortizationSchedule.slice(emiStartIndex, emiEndIndex);
+
+  // Reset to page 1 when schedule changes
+  useEffect(() => {
+    setEmiCurrentPage(1);
+  }, [amortizationSchedule.length]);
 
   // Eligibility Calculator State
   const [income, setIncome] = useState(50000);
@@ -78,6 +96,21 @@ const DetailedCalculatorContent = () => {
     schedule: [] as any[]
   });
 
+  // Part Payment Pagination
+  const [ppCurrentPage, setPpCurrentPage] = useState(1);
+  const ppItemsPerPage = 12;
+  
+  // Calculate pagination values
+  const ppTotalPages = Math.ceil(ppResults.schedule.length / ppItemsPerPage);
+  const ppStartIndex = (ppCurrentPage - 1) * ppItemsPerPage;
+  const ppEndIndex = ppStartIndex + ppItemsPerPage;
+  const ppCurrentData = ppResults.schedule.slice(ppStartIndex, ppEndIndex);
+
+  // Reset to page 1 when schedule changes
+  useEffect(() => {
+    setPpCurrentPage(1);
+  }, [ppResults.schedule.length]);
+
   // EMI Calculation
   useEffect(() => {
     calculateEMI();
@@ -111,32 +144,183 @@ const DetailedCalculatorContent = () => {
       { name: 'Interest', value: Math.round(totalInt) },
     ]);
 
-    // Generate Amortization Schedule
+    // Generate Amortization Schedule with monthly breakdown
     let balance = principal;
-    const yearlySchedule = [];
+    const yearlySchedule: any[] = [];
     let currentYearInterest = 0;
     let currentYearPrincipal = 0;
+    let currentYearMonths: any[] = [];
+    let totalPrincipalPaid = 0;
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    // Calculate start year (current year)
+    const startYear = new Date().getFullYear();
     
     for (let i = 1; i <= numberOfMonths; i++) {
       const interestForMonth = balance * ratePerMonth;
       const principalForMonth = monthlyEmi - interestForMonth;
       balance -= principalForMonth;
+      totalPrincipalPaid += principalForMonth;
 
       currentYearInterest += interestForMonth;
       currentYearPrincipal += principalForMonth;
+      
+      // Calculate loan paid percentage
+      const loanPaidPercent = (totalPrincipalPaid / principal) * 100;
+      
+      // Get month index (0-11) within the year
+      const monthIndex = (i - 1) % 12;
+      
+      // Store monthly data
+      currentYearMonths.push({
+        month: monthNames[monthIndex],
+        principal: Math.round(principalForMonth),
+        interest: Math.round(interestForMonth),
+        emi: Math.round(monthlyEmi),
+        balance: Math.max(0, Math.round(balance)),
+        loanPaidPercent: loanPaidPercent.toFixed(2)
+      });
 
       if (i % 12 === 0 || i === numberOfMonths) {
+        const yearNumber = Math.ceil(i / 12);
+        const actualYear = startYear + yearNumber - 1;
         yearlySchedule.push({
-          year: Math.ceil(i / 12),
+          year: yearNumber,
+          actualYear: actualYear,
           principal: Math.round(currentYearPrincipal),
           interest: Math.round(currentYearInterest),
+          totalEmi: Math.round(monthlyEmi * Math.min(12, i - (yearNumber - 1) * 12)),
           balance: Math.max(0, Math.round(balance)),
+          loanPaidPercent: loanPaidPercent.toFixed(2),
+          months: [...currentYearMonths]
         });
         currentYearInterest = 0;
         currentYearPrincipal = 0;
+        currentYearMonths = [];
       }
     }
     setAmortizationSchedule(yearlySchedule);
+  };
+
+  const downloadEmiPDF = () => {
+    const doc = new jsPDF();
+    
+    const logo = new Image();
+    logo.src = '/logo.jpeg';
+
+    const drawSummary = (startY: number) => {
+        // Background Box
+        doc.setFillColor(249, 250, 251); // Very light gray
+        doc.setDrawColor(229, 231, 235); // Border gray
+        doc.roundedRect(14, startY, 182, 24, 2, 2, 'FD');
+
+        // Loan Amount
+        doc.setFontSize(10);
+        doc.setTextColor(107, 114, 128); // Gray-500
+        doc.text('Loan Amount', 24, startY + 8);
+        doc.setFontSize(14);
+        doc.setTextColor(30, 58, 138); // Blue-900
+        doc.setFont('helvetica', 'bold');
+        doc.text(`₹${formatCurrency(loanAmount)}`, 24, startY + 18);
+
+        // Interest Rate
+        doc.setFontSize(10);
+        doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Interest Rate', 90, startY + 8);
+        doc.setFontSize(14);
+        doc.setTextColor(234, 88, 12); // Orange-600
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${interestRate}%`, 90, startY + 18);
+
+        // Tenure
+        doc.setFontSize(10);
+        doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Tenure', 150, startY + 8);
+        doc.setFontSize(14);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${tenure} ${tenureType}`, 150, startY + 18);
+        
+        // Reset font
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0);
+    };
+
+    const generateTable = (startY: number) => {
+        drawSummary(startY);
+        
+        const tableStartY = startY + 30;
+
+        const tableRows: any[] = [];
+        
+        amortizationSchedule.forEach(yearData => {
+          tableRows.push([
+            { content: `${yearData.actualYear}`, colSpan: 6, styles: { fillColor: [243, 244, 246], fontStyle: 'bold', textColor: [30, 58, 138] } }
+          ]);
+          
+          yearData.months.forEach((month: any) => {
+            tableRows.push([
+              month.month,
+              formatCurrency(month.principal),
+              formatCurrency(month.interest),
+              formatCurrency(month.emi),
+              formatCurrency(month.balance),
+              `${month.loanPaidPercent}%`
+            ]);
+          });
+        });
+
+        autoTable(doc, {
+          head: [['Month', 'Principal', 'Interest', 'EMI', 'Balance', 'Paid %']],
+          body: tableRows,
+          startY: tableStartY,
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 3 },
+          headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [255, 255, 255] }
+        });
+
+        doc.save('loan-repayment-schedule.pdf');
+    };
+
+    logo.onload = () => {
+        // Logo
+        doc.addImage(logo, 'JPEG', 14, 10, 40, 15);
+        
+        // Title (Right aligned)
+        doc.setFontSize(22);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Repayment Schedule', 196, 20, { align: 'right' });
+        
+        // Date
+        doc.setFontSize(10);
+        doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Generated on ${new Date().toLocaleDateString()}`, 196, 26, { align: 'right' });
+
+        generateTable(35);
+    };
+
+    logo.onerror = () => {
+        doc.setFontSize(22);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Repayment Schedule', 14, 20);
+        generateTable(35);
+    };
+  };
+  
+  // Toggle year expansion
+  const toggleYearExpansion = (year: number) => {
+    setExpandedYears(prev => 
+      prev.includes(year) 
+        ? prev.filter(y => y !== year)
+        : [...prev, year]
+    );
   };
 
   // Eligibility Calculation
@@ -192,7 +376,100 @@ const DetailedCalculatorContent = () => {
 
   }, [btIncome, outstanding, btExistingEmi, btTenure]);
 
+  const downloadPartPaymentPDF = () => {
+    const doc = new jsPDF();
+    
+    const logo = new Image();
+    logo.src = '/logo.jpeg';
+
+    const generateSchedule = (startY: number) => {
+        if (ppResults.schedule.length > 0) {
+            doc.setFontSize(16);
+            doc.setTextColor(30, 58, 138);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Amortization Schedule with Part Payments', 14, startY);
+            
+            const tableRows: any[] = [];
+            ppResults.schedule.forEach((row: any) => {
+                tableRows.push([
+                    row.month,
+                    row.partPayment > 0 ? formatCurrency(row.partPayment) : '0',
+                    formatCurrency(row.balance),
+                    formatCurrency(row.emi)
+                ]);
+            });
+
+            autoTable(doc, {
+                head: [['Month', 'Part Payment (₹)', 'Remaining Balance (₹)', 'EMI (₹)']],
+                body: tableRows,
+                startY: startY + 10,
+                theme: 'grid',
+                styles: { fontSize: 9, cellPadding: 3 },
+                headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [255, 255, 255] },
+                margin: { top: startY + 10 }
+            });
+        }
+    };
+
+    logo.onload = () => {
+        // Logo
+        doc.addImage(logo, 'JPEG', 14, 10, 40, 15);
+        
+        // Title (Right aligned)
+        doc.setFontSize(22);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Amortization Schedule', 196, 20, { align: 'right' });
+        
+        // Date
+        doc.setFontSize(10);
+        doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Generated on ${new Date().toLocaleDateString()}`, 196, 26, { align: 'right' });
+
+        generateSchedule(35);
+        doc.save('amortization-schedule-part-payments.pdf');
+    };
+
+    logo.onerror = () => {
+        doc.setFontSize(22);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Amortization Schedule', 14, 20);
+        generateSchedule(35);
+        doc.save('amortization-schedule-part-payments.pdf');
+    };
+  };
+
   // Part Payment Calculation
+  // Helper function to calculate new tenure after part payment
+  const calculateNewTenure = (principal: number, emi: number, ratePerMonth: number): number => {
+    if (ratePerMonth === 0 || emi === 0 || principal <= 0) return 0;
+    
+    // Formula: n = log(EMI / (EMI - P*R)) / log(1 + R)
+    // Where: P = principal, R = ratePerMonth, EMI = monthly payment
+    const monthlyInterest = principal * ratePerMonth;
+    const denominator = emi - monthlyInterest;
+    
+    if (denominator <= 0) {
+      // EMI is too small to cover interest, tenure would be infinite
+      return 0;
+    }
+    
+    const ratio = emi / denominator;
+    if (ratio <= 1) {
+      // Invalid ratio - EMI must be greater than monthly interest
+      return 0;
+    }
+    
+    const newTenure = Math.log(ratio) / Math.log(1 + ratePerMonth);
+    const roundedTenure = Math.ceil(newTenure);
+    
+    // Ensure tenure is positive and reasonable
+    return roundedTenure > 0 ? roundedTenure : 0;
+  };
+
   const calculatePartPayment = () => {
     const ratePerMonth = ppInterestRate / 12 / 100;
     const totalMonths = ppTenure * 12;
@@ -212,10 +489,12 @@ const DetailedCalculatorContent = () => {
     let balance = ppLoanAmount;
     let totalInterestPaid = 0;
     let currentEmi = baseEmi;
+    let remainingMonths = totalMonths;
     const schedule = [];
     let monthsPassed = 0;
+    const maxMonths = totalMonths * 2; // Safety limit to prevent infinite loops
 
-    for (let m = 1; m <= totalMonths; m++) {
+    for (let m = 1; m <= maxMonths && balance > 0; m++) {
       // Check for Part Payment
       const pp = partPayments.find(p => p.month === m)?.amount || 0;
       
@@ -240,13 +519,31 @@ const DetailedCalculatorContent = () => {
 
       if (balance <= 0) break;
 
-      // Recalculate if Reduce EMI
-      if (ppReductionType === 'emi' && pp > 0) {
-        const remainingMonths = totalMonths - m;
-        if (remainingMonths > 0) {
-           currentEmi = (balance * ratePerMonth * Math.pow(1 + ratePerMonth, remainingMonths)) / 
-                        (Math.pow(1 + ratePerMonth, remainingMonths) - 1);
+      // Handle reduction type
+      if (ppReductionType === 'emi') {
+        // Reduce EMI: Recalculate EMI with remaining months
+        if (pp > 0) {
+          remainingMonths = totalMonths - m;
+          if (remainingMonths > 0) {
+            currentEmi = (balance * ratePerMonth * Math.pow(1 + ratePerMonth, remainingMonths)) / 
+                         (Math.pow(1 + ratePerMonth, remainingMonths) - 1);
+          }
+        } else {
+          remainingMonths = totalMonths - m;
         }
+      } else if (ppReductionType === 'tenure') {
+        // Reduce Tenure: Keep EMI same, recalculate remaining months after part payment
+        if (pp > 0) {
+          const newRemainingMonths = calculateNewTenure(balance, currentEmi, ratePerMonth);
+          if (newRemainingMonths > 0) {
+            remainingMonths = newRemainingMonths;
+            // Check if we can finish early
+            if (m + remainingMonths <= maxMonths) {
+              // Continue with reduced tenure
+            }
+          }
+        }
+        // For tenure reduction, EMI stays constant, loop continues until balance is 0
       }
     }
 
@@ -595,44 +892,153 @@ const DetailedCalculatorContent = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-xl font-bold text-blue-900">Repayment Schedule</h3>
-                  <p className="text-gray-500 text-sm">Year-wise breakdown of your loan payments</p>
+                  <p className="text-gray-500 text-sm">Click on a year to view month-wise breakdown</p>
                 </div>
               </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b-2 border-gray-100">
-                      <th className="text-left py-4 px-4 text-gray-500 font-semibold text-sm">Year</th>
-                      <th className="text-right py-4 px-4 text-gray-500 font-semibold text-sm">Principal Paid</th>
-                      <th className="text-right py-4 px-4 text-gray-500 font-semibold text-sm">Interest Paid</th>
-                      <th className="text-right py-4 px-4 text-gray-500 font-semibold text-sm">Outstanding Balance</th>
+                    <tr className="border-b-2 border-gray-200 bg-gray-100">
+                      <th className="text-left py-4 px-4 text-gray-600 font-semibold text-sm">Year</th>
+                      <th className="text-right py-4 px-4 text-gray-600 font-semibold text-sm">Principal Paid</th>
+                      <th className="text-right py-4 px-4 text-gray-600 font-semibold text-sm">Interest Paid</th>
+                      <th className="text-right py-4 px-4 text-gray-600 font-semibold text-sm">Total EMI</th>
+                      <th className="text-right py-4 px-4 text-gray-600 font-semibold text-sm">Balance</th>
+                      <th className="text-right py-4 px-4 text-gray-600 font-semibold text-sm">Loan Paid</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {amortizationSchedule.slice(0, 5).map((row, index) => (
-                      <tr key={index} className="border-b border-gray-50 hover:bg-blue-50/30 transition-colors">
-                        <td className="py-4 px-4">
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-50 rounded-lg font-bold text-blue-900 text-sm">
-                            {row.year}
-                          </span>
-                        </td>
-                        <td className="text-right py-4 px-4 font-medium text-gray-900">₹{formatCurrency(row.principal)}</td>
-                        <td className="text-right py-4 px-4 font-medium text-orange-600">₹{formatCurrency(row.interest)}</td>
-                        <td className="text-right py-4 px-4 font-bold text-blue-600">₹{formatCurrency(row.balance)}</td>
-                      </tr>
-                    ))}
+                    {emiCurrentData.map((row, index) => {
+                      const originalIndex = emiStartIndex + index;
+                      return (
+                        <React.Fragment key={originalIndex}>
+                          {/* Year Row - Clickable */}
+                          <tr 
+                            className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors cursor-pointer"
+                            onClick={() => toggleYearExpansion(row.year)}
+                          >
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-2">
+                                <button className="p-1 hover:bg-gray-200 rounded transition-colors">
+                                  {expandedYears.includes(row.year) ? (
+                                    <Minus className="w-4 h-4 text-gray-500" />
+                                  ) : (
+                                    <Plus className="w-4 h-4 text-gray-500" />
+                                  )}
+                                </button>
+                                <span className="font-bold text-blue-900">
+                                  {row.actualYear}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="text-right py-4 px-4 font-medium text-gray-900">₹{formatCurrency(row.principal)}</td>
+                            <td className="text-right py-4 px-4 font-medium text-orange-600">₹{formatCurrency(row.interest)}</td>
+                            <td className="text-right py-4 px-4 font-medium text-gray-700">₹{formatCurrency(row.totalEmi)}</td>
+                            <td className="text-right py-4 px-4 font-bold text-blue-600">₹{formatCurrency(row.balance)}</td>
+                            <td className="text-right py-4 px-4 font-medium text-green-600">{row.loanPaidPercent}%</td>
+                          </tr>
+                          
+                          {/* Monthly Breakdown - Shown when expanded */}
+                          {expandedYears.includes(row.year) && row.months.map((month: any, monthIndex: number) => (
+                            <tr 
+                              key={`${originalIndex}-${monthIndex}`} 
+                              className="bg-gray-50/80 border-b border-gray-100 hover:bg-gray-100/80 transition-colors"
+                            >
+                              <td className="py-3 px-4 pl-12">
+                                <span className="text-gray-600 text-sm">{month.month}</span>
+                              </td>
+                              <td className="text-right py-3 px-4 text-sm text-gray-700">₹{formatCurrency(month.principal)}</td>
+                              <td className="text-right py-3 px-4 text-sm text-orange-500">₹{formatCurrency(month.interest)}</td>
+                              <td className="text-right py-3 px-4 text-sm text-gray-600">₹{formatCurrency(month.emi)}</td>
+                              <td className="text-right py-3 px-4 text-sm text-blue-500">₹{formatCurrency(month.balance)}</td>
+                              <td className="text-right py-3 px-4 text-sm text-green-500">{month.loanPaidPercent}%</td>
+                            </tr>
+                          ))}
+                        </React.Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
 
-              {amortizationSchedule.length > 5 && (
-                <div className="text-center mt-6">
-                  <button className="text-orange-600 font-semibold text-sm hover:text-orange-700 transition-colors">
-                    View Full Schedule ({amortizationSchedule.length} years)
-                  </button>
+              {/* Pagination Controls */}
+              {emiTotalPages > 1 && (
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-sm text-gray-600">
+                    Showing {emiStartIndex + 1} to {Math.min(emiEndIndex, amortizationSchedule.length)} of {amortizationSchedule.length} years
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setEmiCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={emiCurrentPage === 1}
+                      className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                        emiCurrentPage === 1
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                      }`}
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Previous
+                    </button>
+                    
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: emiTotalPages }, (_, i) => i + 1).map((page) => {
+                        // Show first page, last page, current page, and pages around current
+                        if (
+                          page === 1 ||
+                          page === emiTotalPages ||
+                          (page >= emiCurrentPage - 1 && page <= emiCurrentPage + 1)
+                        ) {
+                          return (
+                            <button
+                              key={page}
+                              onClick={() => setEmiCurrentPage(page)}
+                              className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${
+                                emiCurrentPage === page
+                                  ? 'bg-blue-900 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          );
+                        } else if (
+                          page === emiCurrentPage - 2 ||
+                          page === emiCurrentPage + 2
+                        ) {
+                          return (
+                            <span key={page} className="px-2 text-gray-400">
+                              ...
+                            </span>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                    
+                    <button
+                      onClick={() => setEmiCurrentPage(prev => Math.min(emiTotalPages, prev + 1))}
+                      disabled={emiCurrentPage === emiTotalPages}
+                      className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                        emiCurrentPage === emiTotalPages
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                      }`}
+                    >
+                      Next <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               )}
+
+              <div className="mt-6 flex justify-end">
+                <button 
+                  onClick={downloadEmiPDF}
+                  className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-md"
+                >
+                  <Download className="w-4 h-4" /> Download Schedule PDF
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -876,6 +1282,38 @@ const DetailedCalculatorContent = () => {
                     </button>
                  </div>
 
+                 {/* Reduction Type Toggle */}
+                 <div className="mb-6">
+                   <label className="block text-sm font-semibold text-gray-700 mb-3">Reduce:</label>
+                   <div className="flex bg-gray-100 rounded-xl p-1">
+                     <button 
+                       onClick={() => setPpReductionType('emi')}
+                       className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                         ppReductionType === 'emi'
+                           ? 'bg-white text-blue-900 shadow-sm'
+                           : 'text-gray-500 hover:text-gray-700'
+                       }`}
+                     >
+                       EMI
+                     </button>
+                     <button 
+                       onClick={() => setPpReductionType('tenure')}
+                       className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                         ppReductionType === 'tenure'
+                           ? 'bg-white text-blue-900 shadow-sm'
+                           : 'text-gray-500 hover:text-gray-700'
+                       }`}
+                     >
+                       Tenure
+                     </button>
+                   </div>
+                   <p className="text-xs text-gray-500 mt-2">
+                     {ppReductionType === 'emi' 
+                       ? 'EMI will be reduced while keeping the same tenure'
+                       : 'Tenure will be reduced while keeping the same EMI'}
+                   </p>
+                 </div>
+
                  <div className="space-y-4">
                    {partPayments.map((payment, index) => (
                      <div key={index} className="flex flex-col sm:flex-row gap-4 items-end sm:items-center bg-gray-50 p-4 rounded-xl">
@@ -941,6 +1379,43 @@ const DetailedCalculatorContent = () => {
                      <div className="text-3xl font-bold">₹{formatCurrency(ppResults.savings)}</div>
                    </div>
 
+                   {/* Tenure Reduction Display */}
+                   {ppReductionType === 'tenure' && (
+                     <div className="bg-green-50 border-2 border-green-200 p-6 rounded-2xl">
+                       <div className="text-sm font-semibold text-green-800 mb-2">Tenure Reduction</div>
+                       <div className="flex items-center justify-between mb-2">
+                         <span className="text-gray-600 text-sm">Original Tenure:</span>
+                         <span className="text-gray-900 font-bold">{ppTenure} Years ({ppTenure * 12} months)</span>
+                       </div>
+                       <div className="flex items-center justify-between">
+                         <span className="text-gray-600 text-sm">New Tenure:</span>
+                         <span className="text-green-700 font-bold text-lg">
+                           {ppResults.newTenureYears} Years {ppResults.newTenureMonths} Months ({ppResults.newTenureYears * 12 + ppResults.newTenureMonths} months)
+                         </span>
+                       </div>
+                       <div className="mt-3 pt-3 border-t border-green-200">
+                         <div className="text-xs text-green-700 font-semibold">
+                           Tenure Reduced by: {ppTenure * 12 - (ppResults.newTenureYears * 12 + ppResults.newTenureMonths)} months
+                         </div>
+                       </div>
+                     </div>
+                   )}
+
+                   {/* EMI Reduction Display */}
+                   {ppReductionType === 'emi' && ppResults.schedule.length > 0 && (
+                     <div className="bg-blue-50 border-2 border-blue-200 p-6 rounded-2xl">
+                       <div className="text-sm font-semibold text-blue-800 mb-2">EMI Reduction</div>
+                       <div className="flex items-center justify-between">
+                         <span className="text-gray-600 text-sm">Original EMI:</span>
+                         <span className="text-gray-900 font-bold">₹{formatCurrency((ppLoanAmount * (ppInterestRate / 12 / 100) * Math.pow(1 + (ppInterestRate / 12 / 100), ppTenure * 12)) / (Math.pow(1 + (ppInterestRate / 12 / 100), ppTenure * 12) - 1))}</span>
+                       </div>
+                       <div className="flex items-center justify-between mt-2">
+                         <span className="text-gray-600 text-sm">Current EMI:</span>
+                         <span className="text-blue-700 font-bold text-lg">₹{formatCurrency(ppResults.schedule[ppResults.schedule.length - 1]?.emi || 0)}</span>
+                       </div>
+                     </div>
+                   )}
+
                    <Link href="/apply" className="block w-full bg-blue-600 text-white text-center font-bold py-3 rounded-xl hover:bg-blue-500 transition-colors">
                      Apply For Loan
                    </Link>
@@ -963,8 +1438,8 @@ const DetailedCalculatorContent = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {ppResults.schedule.slice(0, 12).map((row, index) => (
-                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                      {ppCurrentData.map((row, index) => (
+                        <tr key={ppStartIndex + index} className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="py-3 px-4 font-medium text-gray-900">{row.month}</td>
                           <td className="py-3 px-4 text-right font-medium text-gray-700">{row.partPayment > 0 ? formatCurrency(row.partPayment) : '0'}</td>
                           <td className="py-3 px-4 text-right text-gray-500">{formatCurrency(row.balance)}</td>
@@ -973,11 +1448,84 @@ const DetailedCalculatorContent = () => {
                       ))}
                     </tbody>
                   </table>
-                  {ppResults.schedule.length > 12 && (
-                    <div className="text-center mt-4 text-gray-500 text-xs">
-                      Showing first 12 months only...
+                </div>
+
+                {/* Pagination Controls */}
+                {ppTotalPages > 1 && (
+                  <div className="mt-6 flex items-center justify-between">
+                    <div className="text-sm text-gray-600">
+                      Showing {ppStartIndex + 1} to {Math.min(ppEndIndex, ppResults.schedule.length)} of {ppResults.schedule.length} months
                     </div>
-                  )}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPpCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={ppCurrentPage === 1}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                          ppCurrentPage === 1
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                        }`}
+                      >
+                        <ChevronLeft className="w-4 h-4" /> Previous
+                      </button>
+                      
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: ppTotalPages }, (_, i) => i + 1).map((page) => {
+                          // Show first page, last page, current page, and pages around current
+                          if (
+                            page === 1 ||
+                            page === ppTotalPages ||
+                            (page >= ppCurrentPage - 1 && page <= ppCurrentPage + 1)
+                          ) {
+                            return (
+                              <button
+                                key={page}
+                                onClick={() => setPpCurrentPage(page)}
+                                className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${
+                                  ppCurrentPage === page
+                                    ? 'bg-blue-900 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            );
+                          } else if (
+                            page === ppCurrentPage - 2 ||
+                            page === ppCurrentPage + 2
+                          ) {
+                            return (
+                              <span key={page} className="px-2 text-gray-400">
+                                ...
+                              </span>
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => setPpCurrentPage(prev => Math.min(ppTotalPages, prev + 1))}
+                        disabled={ppCurrentPage === ppTotalPages}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                          ppCurrentPage === ppTotalPages
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                        }`}
+                      >
+                        Next <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 flex justify-end">
+                  <button 
+                    onClick={downloadPartPaymentPDF}
+                    className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-md"
+                  >
+                    <Download className="w-4 h-4" /> Download Report PDF
+                  </button>
                 </div>
               </div>
             )}

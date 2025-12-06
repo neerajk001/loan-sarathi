@@ -39,7 +39,7 @@ const productDetails: Record<string, any> = {
   },
   'business-loan': {
     title: 'Business Loan',
-    heroImage: 'https://images.unsplash.com/photo-1664575602554-2087b04935a5?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/loan/business.png',
     description: 'Fuel your business growth with our collateral-free business loans. Designed for Proprietorships, Partnerships, Pvt Ltd, and LLPs to manage working capital, expansion, or equipment purchase.',
     features: [
       'Loans up to ₹2 Crores (Collateral-free)',
@@ -68,7 +68,7 @@ const productDetails: Record<string, any> = {
   },
   'home-loan': {
     title: 'Home Loan',
-    heroImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/loan/home.png',
     description: 'Make your dream home a reality with our affordable home loans. We cover New Purchases, Resale Properties, Construction, and Plot Purchases.',
     features: [
       'Loans up to ₹5 Crores',
@@ -98,7 +98,7 @@ const productDetails: Record<string, any> = {
   },
   'loan-against-property': {
     title: 'Loan Against Property',
-    heroImage: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/loan/property.png',
     description: 'Unlock the hidden value of your property to meet your high-value financial needs. We accept Residential, Commercial, Industrial properties and Plots.',
     features: [
       'High loan amount sanctions (up to 70% of Market Value)',
@@ -126,7 +126,7 @@ const productDetails: Record<string, any> = {
   },
   'education-loan': {
     title: 'Education Loan',
-    heroImage: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=2000',
+    heroImage: '/loan/education.png',
     description: 'Invest in your future with our comprehensive education loans. Cover tuition fees, living expenses, and other educational costs for studies in India or abroad.',
     features: [
       'Loans up to ₹1.5 Crores for abroad studies',
@@ -188,14 +188,11 @@ export default function LoanDetailPage() {
             alt={product.title} 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-12">
-          <Link href="/loan" className="text-white/80 hover:text-white flex items-center gap-2 mb-6 w-fit bg-black/20 px-4 py-2 rounded-full backdrop-blur-sm transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to all loans
+        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-6">
+          <Link href="/loan" className="text-black flex items-center justify-center w-10 h-10 bg-yellow-400 border-2 border-black rounded-full font-semibold hover:bg-yellow-500 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{product.title}</h1>
-          <p className="text-lg text-gray-200 max-w-2xl">{product.description}</p>
         </div>
       </div>
 
