@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Search, AlertCircle, CheckCircle, Clock, Loader2 } from 'lucide-react';
@@ -30,21 +31,30 @@ interface ApplicationData {
 
 export default function TrackStatusPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [searchId, setSearchId] = useState('');
   const [searchType, setSearchType] = useState<'referenceId' | 'mobile'>('referenceId');
   const [isLoading, setIsLoading] = useState(false);
   const [applicationData, setApplicationData] = useState<ApplicationData | null>(null);
   const [error, setError] = useState('');
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login?callbackUrl=/track-status');
+    }
+  }, [status, router]);
+
   // Auto-search if reference ID provided in URL
   useEffect(() => {
     const idParam = searchParams.get('id');
-    if (idParam) {
+    if (idParam && session) {
       setSearchId(idParam);
       setSearchType('referenceId');
       handleSearch(null, idParam, 'referenceId');
     }
-  }, [searchParams]);
+  }, [searchParams, session]);
 
   const handleSearch = async (e: React.FormEvent | null, id?: string, type?: 'referenceId' | 'mobile') => {
     if (e) e.preventDefault();

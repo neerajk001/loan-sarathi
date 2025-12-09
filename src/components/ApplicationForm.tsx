@@ -63,10 +63,10 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
   
   const [formData, setFormData] = useState({
     // Personal Details
-    fullName: 'neeraj kushwaha',
-    mobileNumber: '7972531164',
-    email: 'admin@sellwell.com',
-    pincode: '401209',
+    fullName: '',
+    mobileNumber: '',
+    email: '',
+    pincode: '',
     dob: '',
     city: '',
     panCard: '',
@@ -510,7 +510,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   value={formData.fullName}
                   onChange={handleInputChange}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                  placeholder="Enter full name" 
+                  placeholder="Your Full Name" 
                 />
               </div>
 
@@ -525,7 +525,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   onChange={handleInputChange}
                   maxLength={10}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                  placeholder="9876543210" 
+                  placeholder="Your 10-digit Mobile Number" 
                 />
               </div>
 
@@ -539,7 +539,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                  placeholder="email@example.com" 
+                  placeholder="Your Email Address" 
                 />
               </div>
 
@@ -554,7 +554,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   onChange={handleInputChange}
                   maxLength={6}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                  placeholder="400001" 
+                  placeholder="6-digit Pincode" 
                 />
               </div>
 
@@ -604,7 +604,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   onChange={handleInputChange}
                   maxLength={10}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 uppercase font-medium tracking-wide" 
-                  placeholder="ABCDE1234F" 
+                  placeholder="Your PAN Card Number" 
                 />
                 <p className="text-xs text-gray-500 mt-1">We need this to check your credit score for better rates</p>
               </div>
@@ -689,7 +689,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                        value={formData.monthlyIncome}
                        onChange={handleInputChange}
                        className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                       placeholder="E.g., 50000 (Min. 15000)" 
+                       placeholder="Your Monthly Income (Min. 15000)" 
                      />
                    </div>
                  </div>
@@ -706,7 +706,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                        value={formData.employerName}
                        onChange={handleInputChange}
                        className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                       placeholder="E.g., TCS or Your Business Name" 
+                       placeholder="Company or Business Name" 
                      />
                    </div>
                  </div>
@@ -723,7 +723,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                        value={formData.existingEmi}
                        onChange={handleInputChange}
                        className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                       placeholder="E.g., 15000 or enter 0 if none" 
+                       placeholder="Enter 0 if no existing EMI" 
                      />
                    </div>
                  </div>
@@ -779,7 +779,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                     value={formData.turnover}
                     onChange={handleInputChange}
                     className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                    placeholder="E.g., 5000000" 
+                    placeholder="Annual Business Turnover" 
                   />
                 </div>
               </div>
@@ -796,7 +796,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                     value={formData.yearsInBusiness}
                     onChange={handleInputChange}
                     className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                    placeholder="E.g., 3" 
+                    placeholder="Number of Years" 
                   />
                 </div>
               </div>
@@ -866,7 +866,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                     value={formData.propertyCost}
                     onChange={handleInputChange}
                     className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                    placeholder="E.g., 8000000" 
+                    placeholder="Estimated Property Value" 
                   />
                 </div>
               </div>
@@ -899,7 +899,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   value={formData.propertyCity}
                   onChange={handleInputChange}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                  placeholder="E.g., Pune" 
+                  placeholder="Property Location City" 
                 />
               </div>
 
@@ -1004,7 +1004,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   value={formData.propertyCity}
                   onChange={handleInputChange}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                  placeholder="E.g., Mumbai" 
+                  placeholder="Property Location City" 
                 />
               </div>
 
@@ -1090,7 +1090,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   value={formData.loanAmount}
                   onChange={handleInputChange}
                   className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
-                  placeholder="E.g., 5,00,000" 
+                  placeholder="Required Loan Amount" 
                 />
               </div>
 

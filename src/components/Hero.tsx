@@ -87,7 +87,7 @@ const Hero = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-blue-900" />
-                  <span>1+Cr Disbursement</span>
+                  <span>500+Cr Disbursement</span>
                 </div>
               </div>
             </div>

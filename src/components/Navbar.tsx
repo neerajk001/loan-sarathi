@@ -14,12 +14,34 @@ const Navbar = () => {
   const [showInsuranceDropdown, setShowInsuranceDropdown] = useState(false);
   const [showMobileLoanDropdown, setShowMobileLoanDropdown] = useState(false);
   const [showMobileInsuranceDropdown, setShowMobileInsuranceDropdown] = useState(false);
+  const [hasApplications, setHasApplications] = useState(false);
   const pathname = usePathname();
 
   // Only render session-dependent content after client-side hydration
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Check if user has applications
+  useEffect(() => {
+    const checkApplications = async () => {
+      if (session?.user?.email) {
+        try {
+          const response = await fetch('/api/user/has-applications');
+          const data = await response.json();
+          setHasApplications(data.hasApplications);
+        } catch (error) {
+          console.error('Error checking applications:', error);
+        }
+      } else {
+        setHasApplications(false);
+      }
+    };
+
+    if (mounted) {
+      checkApplications();
+    }
+  }, [session, mounted]);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -286,6 +308,18 @@ const Navbar = () => {
               )}
             </div>
             <Link href="/calculator" className={`${isActive('/calculator')} whitespace-nowrap transition-colors`}>Calculator</Link>
+            
+            {/* Track Status - Only show when user has applications */}
+            {session && hasApplications && (
+              <Link 
+                href="/track-status" 
+                className={`${isActive('/track-status')} whitespace-nowrap transition-colors flex items-center gap-1.5`}
+              >
+                <Activity className="h-4 w-4" />
+                Track Status
+              </Link>
+            )}
+            
             <Link 
               href={pathname === '/' ? '#articles' : '/#articles'} 
               className="text-gray-600 hover:text-orange-600 font-medium whitespace-nowrap transition-colors"
@@ -453,6 +487,20 @@ const Navbar = () => {
                   <Calculator className={`h-6 w-6 ${pathname === '/calculator' ? 'text-blue-600' : 'text-gray-400'}`} />
                   Calculator
                 </Link>
+
+                {/* Track Status - Mobile (Only show when user has applications) */}
+                {session && hasApplications && (
+                  <Link 
+                    href="/track-status"               
+                    className={`flex items-center gap-4 px-4 py-4 rounded-xl text-lg transition-all
+                      ${pathname === '/track-status' 
+                        ? 'bg-blue-50 text-blue-900 font-bold' 
+                        : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                  >
+                    <Activity className={`h-6 w-6 ${pathname === '/track-status' ? 'text-blue-600' : 'text-gray-400'}`} />
+                    Track Status
+                  </Link>
+                )}
 
                 <Link 
                   href={pathname === '/' ? '#articles' : '/#articles'} 

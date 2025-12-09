@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import clientPromise from '@/lib/mongodb';
 import { LOAN_APPLICATIONS_COLLECTION, LoanApplication } from '@/models/LoanApplication';
 import { INSURANCE_APPLICATIONS_COLLECTION, InsuranceApplication } from '@/models/InsuranceApplication';
@@ -6,6 +8,15 @@ import { INSURANCE_APPLICATIONS_COLLECTION, InsuranceApplication } from '@/model
 // GET /api/track - Track application status by reference ID or mobile number
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user?.email) {
+      return NextResponse.json(
+        { success: false, error: 'Please login to track your applications' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const referenceId = searchParams.get('referenceId');
     const mobile = searchParams.get('mobile');
@@ -77,6 +88,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'No application found with the provided details' },
         { status: 404 }
+      );
+    }
+
+    // Verify that the application belongs to the logged-in user
+    const applicationEmail = applicationType === 'loan' 
+      ? application.personalInfo?.email 
+      : application.basicInfo?.email;
+
+    if (applicationEmail !== session.user.email) {
+      return NextResponse.json(
+        { success: false, error: 'You can only track your own applications' },
+        { status: 403 }
       );
     }
 
