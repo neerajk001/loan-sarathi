@@ -1,35 +1,10 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, Clock, ShieldCheck, X, Phone } from 'lucide-react';
 
 const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // All images from loan and insurance folders
-  const images = [
-    // Loan images
-    '/loan/business.png',
-    '/loan/education.png',
-    '/loan/home.png',
-    '/loan/property.png',
-    // Insurance images
-    '/insurance/bike.png',
-    '/insurance/car.png',
-    '/insurance/health.png',
-    '/insurance/term_life.png',
-  ];
-  
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
-  // Auto-rotate images every 3 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000);
-    
-    return () => clearInterval(interval);
-  }, [images.length]);
 
   return (    
     <div className="relative overflow-hidden">
@@ -69,7 +44,6 @@ const Hero = () => {
           </div>
         </div>
       )}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 lg:pt-10 lg:pb-14">
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
           
@@ -119,43 +93,15 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Right Image Carousel */}
-          <div className="mt-12 lg:mt-0 lg:col-span-5 flex justify-center">
-             <div className="relative w-full max-w-lg lg:max-w-xl xl:max-w-2xl">
-                <div className="absolute top-0 -left-4 w-60 h-60 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-                <div className="absolute top-0 -right-4 w-60 h-60 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-                <div className="absolute -bottom-8 left-16 w-60 h-60 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-                
-                {/* Image Carousel Container */}
-                <div className="relative rounded-2xl shadow-2xl border-4 border-white overflow-hidden h-[400px] w-full">
-                  {images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Hero image ${index + 1}`}
-                      className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${
-                        index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                      }`}
-                    />
-                  ))}
-                  
-                  {/* Image Indicators */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                    {images.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          index === currentImageIndex
-                            ? 'w-8 bg-white'
-                            : 'w-2 bg-white/50 hover:bg-white/75'
-                        }`}
-                        aria-label={`Go to image ${index + 1}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-             </div>
+          {/* Right Image */}
+          <div className="mt-12 lg:mt-0 lg:col-span-5 flex items-center justify-center lg:justify-end">
+            <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
+              <img
+                src="/loan.jpg"
+                alt="Hero"
+                className="w-full h-auto rounded-2xl shadow-2xl object-cover"
+              />
+            </div>
           </div>
           
         </div>

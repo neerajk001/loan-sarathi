@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   FileText, 
@@ -10,8 +10,7 @@ import {
   ArrowDownRight,
   MoreHorizontal,
   Eye,
-  IndianRupee,
-  Calendar
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,13 +36,60 @@ const StatCard = ({ title, value, change, changeType, icon: Icon, subtitle }: an
 );
 
 export default function AdminDashboard() {
-  const recentApplications = [
-    { id: 'APP-2025001', name: 'Rahul Sharma', type: 'Personal Loan', amount: '₹5,00,000', status: 'pending', date: 'Today, 2:30 PM' },
-    { id: 'APP-2025002', name: 'Priya Patel', type: 'Home Loan', amount: '₹45,00,000', status: 'approved', date: 'Today, 11:15 AM' },
-    { id: 'APP-2025003', name: 'Amit Kumar', type: 'Business Loan', amount: '₹12,00,000', status: 'reviewing', date: 'Yesterday' },
-    { id: 'APP-2025004', name: 'Sneha Gupta', type: 'Personal Loan', amount: '₹3,50,000', status: 'pending', date: 'Yesterday' },
-    { id: 'APP-2025005', name: 'Vikram Singh', type: 'LAP', amount: '₹25,00,000', status: 'approved', date: 'Nov 25, 2025' },
-  ];
+  const [stats, setStats] = useState({
+    totalApplications: 0,
+    pendingReview: 0,
+    approved: 0,
+    totalLoanAmount: 0,
+  });
+  const [recentApplications, setRecentApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch('/api/admin/applications?limit=5&type=all');
+      const data = await response.json();
+      
+      if (data.success && data.applications) {
+        // Calculate stats
+        const allApps = data.applications;
+        const totalApps = allApps.length;
+        const pending = allApps.filter((app: any) => app.status === 'pending' || app.status === 'reviewing' || app.status === 'in-review').length;
+        const approved = allApps.filter((app: any) => app.status === 'approved' || app.status === 'disbursed').length;
+        const totalAmount = allApps
+          .filter((app: any) => app.loanAmount)
+          .reduce((sum: number, app: any) => sum + (app.loanAmount || 0), 0);
+
+        setStats({
+          totalApplications: totalApps,
+          pendingReview: pending,
+          approved: approved,
+          totalLoanAmount: totalAmount,
+        });
+
+        // Format recent applications
+        const recent = allApps.slice(0, 5).map((app: any) => ({
+          id: app.applicationId || app.id,
+          name: app.name || 'N/A',
+          type: app.type === 'consultancy' ? 'Consultancy' : (app.loanType || app.insuranceType || 'N/A'),
+          amount: app.type === 'consultancy' ? app.interestedIn || 'N/A' : (app.amount ? `₹${(app.amount / 100000).toFixed(2)}L` : app.sumInsured ? `₹${(app.sumInsured / 100000).toFixed(2)}L` : 'N/A'),
+          status: app.status,
+          date: app.createdAt || app.date,
+          appType: app.type,
+        }));
+
+        setRecentApplications(recent);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -69,40 +115,38 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard 
-          title="Total Leads" 
-          value="1,284" 
-          change="+12.5%" 
-          changeType="up"
-          icon={Users} 
-          subtitle="vs last month"
-        />
-        <StatCard 
-          title="New Applications" 
-          value="42" 
-          change="+8.2%" 
-          changeType="up"
-          icon={FileText} 
-          subtitle="This week"
-        />
-        <StatCard 
-          title="Approved Loans" 
-          value="₹2.4Cr" 
-          change="+23.1%" 
-          changeType="up"
-          icon={CheckCircle} 
-          subtitle="This month"
-        />
-        <StatCard 
-          title="Pending Review" 
-          value="18" 
-          change="-5.4%" 
-          changeType="down"
-          icon={Clock} 
-          subtitle="Requires action"
-        />
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard 
+            title="Total Applications" 
+            value={stats.totalApplications.toLocaleString()} 
+            icon={FileText} 
+            subtitle="All time"
+          />
+          <StatCard 
+            title="Pending Review" 
+            value={stats.pendingReview.toString()}
+            icon={Clock} 
+            subtitle="Requires action"
+          />
+          <StatCard 
+            title="Approved" 
+            value={stats.approved.toString()}
+            icon={CheckCircle} 
+            subtitle="Approved & disbursed"
+          />
+          <StatCard 
+            title="Total Loan Amount" 
+            value={stats.totalLoanAmount > 0 ? `₹${(stats.totalLoanAmount / 10000000).toFixed(2)}Cr` : '₹0'} 
+            icon={TrendingUp} 
+            subtitle="Total disbursed"
+          />
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -123,25 +167,36 @@ export default function AdminDashboard() {
           </div>
           
           <div className="divide-y divide-gray-50">
-            {recentApplications.map((app) => (
-              <div key={app.id} className="px-6 py-4 hover:bg-gray-50/50 transition-colors flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-600">
-                    {app.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{app.name}</p>
-                    <p className="text-sm text-gray-500">{app.id} • {app.type}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-900">{app.amount}</p>
-                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusStyle(app.status)}`}>
-                    {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                  </span>
-                </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
               </div>
-            ))}
+            ) : recentApplications.length > 0 ? (
+              recentApplications.map((app) => (
+                <div key={app.id} className="px-6 py-4 hover:bg-gray-50/50 transition-colors flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-600">
+                      {app.name !== 'N/A' ? app.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'N/A'}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{app.name}</p>
+                      <p className="text-sm text-gray-500">{app.id} • {app.type}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-gray-900">{app.amount}</p>
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusStyle(app.status)}`}>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="px-6 py-12 text-center text-gray-500">
+                <FileText className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p>No applications yet</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -160,7 +215,7 @@ export default function AdminDashboard() {
                   <span className="font-medium text-gray-700">Review Applications</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-lg">18</span>
+                  <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-lg">{stats.pendingReview}</span>
                   <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                 </div>
               </Link>
@@ -190,35 +245,35 @@ export default function AdminDashboard() {
           {/* Performance Card */}
           <div className="bg-gray-900 border border-gray-900 rounded-2xl p-6 text-white">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold">This Month</h3>
+              <h3 className="font-bold">Overview</h3>
               <TrendingUp className="w-5 h-5 text-green-400" />
             </div>
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-gray-400">Applications</span>
-                  <span className="font-semibold">86 / 100</span>
+                  <span className="text-gray-400">Total Applications</span>
+                  <span className="font-semibold">{stats.totalApplications}</span>
                 </div>
                 <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-white rounded-full" style={{ width: '86%' }}></div>
+                  <div className="h-full bg-white rounded-full" style={{ width: stats.totalApplications > 0 ? '100%' : '0%' }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-gray-400">Approvals</span>
-                  <span className="font-semibold">62 / 86</span>
+                  <span className="text-gray-400">Approved</span>
+                  <span className="font-semibold">{stats.approved} / {stats.totalApplications}</span>
                 </div>
                 <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-green-500 rounded-full" style={{ width: '72%' }}></div>
+                  <div className="h-full bg-green-500 rounded-full" style={{ width: stats.totalApplications > 0 ? `${(stats.approved / stats.totalApplications) * 100}%` : '0%' }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-gray-400">Disbursed</span>
-                  <span className="font-semibold">₹2.4Cr</span>
+                  <span className="text-gray-400">Pending</span>
+                  <span className="font-semibold">{stats.pendingReview}</span>
                 </div>
                 <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-500 rounded-full" style={{ width: '60%' }}></div>
+                  <div className="h-full bg-amber-500 rounded-full" style={{ width: stats.totalApplications > 0 ? `${(stats.pendingReview / stats.totalApplications) * 100}%` : '0%' }}></div>
                 </div>
               </div>
             </div>
@@ -226,39 +281,40 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Activity Timeline */}
-      <div className="bg-white border border-gray-900 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">Recent Activity</h2>
-            <p className="text-sm text-gray-500">Latest actions on the platform</p>
-          </div>
-          <button className="p-2 hover:bg-gray-100 rounded-lg">
-            <MoreHorizontal className="w-5 h-5 text-gray-400" />
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          {[
-            { action: 'Application APP-2025002 was approved', time: '2 minutes ago', type: 'success' },
-            { action: 'New lead received from website', time: '15 minutes ago', type: 'info' },
-            { action: 'Documents verified for Amit Kumar', time: '1 hour ago', type: 'info' },
-            { action: 'Application APP-2025001 submitted', time: '2 hours ago', type: 'default' },
-            { action: 'User Sneha Gupta registered', time: '3 hours ago', type: 'default' },
-          ].map((activity, index) => (
-            <div key={index} className="flex items-center gap-4">
-              <div className={`w-2.5 h-2.5 rounded-full ${
-                activity.type === 'success' ? 'bg-green-500' : 
-                activity.type === 'info' ? 'bg-blue-500' : 'bg-gray-300'
-              }`} />
-              <div className="flex-1">
-                <p className="text-sm text-gray-700">{activity.action}</p>
-              </div>
-              <span className="text-xs text-gray-400 whitespace-nowrap">{activity.time}</span>
+      {/* Recent Applications Timeline */}
+      {recentApplications.length > 0 && (
+        <div className="bg-white border border-gray-900 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Recent Applications</h2>
+              <p className="text-sm text-gray-500">Latest submissions</p>
             </div>
-          ))}
+            <Link href="/admin/applications" className="p-2 hover:bg-gray-100 rounded-lg">
+              <MoreHorizontal className="w-5 h-5 text-gray-400" />
+            </Link>
+          </div>
+          
+          <div className="space-y-4">
+            {recentApplications.slice(0, 5).map((app, index) => {
+              const timeAgo = new Date(app.date).toLocaleDateString();
+              return (
+                <div key={app.id} className="flex items-center gap-4">
+                  <div className={`w-2.5 h-2.5 rounded-full ${
+                    app.status === 'approved' || app.status === 'disbursed' ? 'bg-green-500' : 
+                    app.status === 'pending' || app.status === 'reviewing' ? 'bg-blue-500' : 'bg-gray-300'
+                  }`} />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-700">
+                      Application {app.id} - {app.name} ({app.type})
+                    </p>
+                  </div>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">{timeAgo}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

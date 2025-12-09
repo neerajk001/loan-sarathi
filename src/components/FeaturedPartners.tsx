@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
 import { ArrowRight, Zap, BadgeCheck } from 'lucide-react';
 
 const FeaturedPartners = () => {
@@ -10,8 +9,9 @@ const FeaturedPartners = () => {
       productType: "Instant Personal Loan",
       amount: "up to ₹15 Lakhs",
       tags: ["Zero Pre-Payment", "No Hidden Charges", "Digital Process"],
-      // Blue Theme
-      wrapperClass: "bg-blue-600", 
+      applyUrl: "https://instant-pocket-loan.poonawallafincorp.com/?redirectto=primepl&utm_medium=QR_Code&utm_DSA_Code=PMH00154&UTM_Partner_Name=FINBROS_CAPITAL_ADVISORY_PVT_LTD&UTM_SM_Name=imran.shaikh@poonawallafincorp.com",
+      // Blue Theme Gradient
+      wrapperClass: "bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800", 
       buttonClass: "bg-yellow-400 text-blue-900 hover:bg-yellow-300",
       logoText: "POONAWALLA FINCORP",
       logoColor: "text-blue-700",
@@ -24,8 +24,9 @@ const FeaturedPartners = () => {
       productType: "Personal Loan",
       amount: "up to ₹10 Lakhs",
       tags: ["Instant Approval", "Flexible Tenure", "Quick Disbursal"],
-      // Orange Theme
-      wrapperClass: "bg-orange-500",
+      applyUrl: "https://www.incred.com/personal-loan/?partnerId=1537007886761043P&utm_medium=xx&utm_campaign=ORG02323&utm_source=xx",
+      // Orange Theme Gradient
+      wrapperClass: "bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700",
       buttonClass: "bg-white text-orange-600 hover:bg-gray-50",
       logoText: "InCred finance",
       logoColor: "text-orange-600",
@@ -80,12 +81,14 @@ const FeaturedPartners = () => {
 
               {/* Right Content - Actions */}
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto min-w-[240px]">
-                <Link 
-                  href="/apply" 
+                <a
+                  href={offer.applyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`${offer.buttonClass} w-full sm:w-auto px-5 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm`}
                 >
                   Apply Now <ArrowRight className="w-3 h-3" />
-                </Link>
+                </a>
                 
                 <div className="w-full sm:w-auto bg-white py-2.5 px-4 rounded-lg flex items-center justify-center shadow-sm min-w-[120px]">
                   <span className={`font-bold text-[10px] uppercase tracking-wider ${offer.logoColor}`}>

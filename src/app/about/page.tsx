@@ -23,7 +23,7 @@ const AboutPage = () => {
         
         {/* Intro & What We Do */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mb-20 lg:mb-24 items-start">
-          <div>
+          <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
             <h2 className="text-3xl font-bold text-blue-900 mb-6">Our Role as "Sarathi"</h2>
             <p className="text-gray-600 leading-relaxed mb-6">
               Loan Sarathi, powered by <span className="font-semibold text-blue-900">Smart Solutions</span>, positions itself as a financial guide. Just as a Sarathi guides a chariot, we steer your financial journey towards the best loan options suitable for your needs.
@@ -52,7 +52,7 @@ const AboutPage = () => {
               <li className="flex gap-3">
                 <div className="mt-2 w-1.5 h-1.5 bg-orange-500 rounded-full shrink-0" />
                 <span>Coordinate with institutions for faster approvals and better rates.</span>
-              </li>
+              </li>  
               <li className="flex gap-3">
                 <div className="mt-2 w-1.5 h-1.5 bg-orange-500 rounded-full shrink-0" />
                 <span>Provide end-to-end support from inquiry to disbursement.</span>

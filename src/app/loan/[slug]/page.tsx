@@ -167,8 +167,8 @@ export default function LoanDetailPage() {
         <Navbar />
         <div className="flex flex-col items-center justify-center h-[60vh]">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Loan Not Found</h1>
-          <Link href="/loan" className="text-blue-600 hover:underline flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" /> Back to Loans
+          <Link href="/" className="text-blue-600 hover:underline flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
         </div>
         <Footer />
@@ -180,23 +180,12 @@ export default function LoanDetailPage() {
     <main className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Hero Section */}
-      <div className="relative h-[500px] w-full bg-gradient-to-br from-blue-50 to-orange-50/30 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <img 
-            src={product.heroImage} 
-            alt={product.title} 
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-6">
-          <Link href="/loan" className="text-black flex items-center justify-center w-10 h-10 bg-yellow-400 border-2 border-black rounded-full font-semibold hover:bg-yellow-500 transition-colors shadow-md">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to Home</span>
+        </Link>
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12">{product.title}</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
           {/* Main Content */}

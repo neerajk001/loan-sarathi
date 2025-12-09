@@ -1,7 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Building2, IndianRupee, Wallet, Briefcase, Store, Home, FileText } from 'lucide-react';
+import LoginModal from './LoginModal';
 
 interface ApplicationFormProps {
   loanType?: string;
@@ -9,9 +11,15 @@ interface ApplicationFormProps {
 
 const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const isBusinessLoan = loanType === 'business';
   const isHomeLoan = loanType === 'home';
   const isLAP = loanType === 'lap';
+  const isPersonalLoan = loanType === 'personal';
+  
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState(false);
+  const isSubmittingRef = React.useRef(false);
   
   // Define steps based on loan type
   let steps = [
@@ -46,6 +54,13 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
   }
 
   const [currentStep, setCurrentStep] = useState(1);
+  const currentStepRef = React.useRef(1);
+  
+  // Sync ref with state
+  useEffect(() => {
+    currentStepRef.current = currentStep;
+  }, [currentStep]);
+  
   const [formData, setFormData] = useState({
     // Personal Details
     fullName: 'neeraj kushwaha',
@@ -56,7 +71,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     city: '',
     panCard: '',
     // Employment Info
-    employmentType: 'salaried',
+    employmentType: loanType === 'business' ? 'self-employed' : 'salaried',
     monthlyIncome: '',
     employerName: '',
     existingEmi: '',
@@ -87,8 +102,154 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     }));
   };
 
-  const handleNext = () => {
-    if (currentStep < steps.length) setCurrentStep(currentStep + 1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [pendingFormData, setPendingFormData] = useState<any>(null);
+  
+  // Check if user is logged in when form opens
+  useEffect(() => {
+    if (status === 'unauthenticated' || !session) {
+      // Show login modal immediately if not logged in
+      setShowLoginModal(true);
+    }
+  }, [status, session]);
+
+  // Restore form state from sessionStorage if available (after login)
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      try {
+        const saved = sessionStorage.getItem('pendingLoanApplication');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.data && !pendingFormData) {
+            setPendingFormData(parsed.data);
+            setPendingSubmission(true);
+            if (parsed.currentStep) {
+              setCurrentStep(parsed.currentStep);
+            }
+            // Clear sessionStorage after restoring
+            sessionStorage.removeItem('pendingLoanApplication');
+          }
+        }
+      } catch (e) {
+        console.error('Failed to restore from sessionStorage:', e);
+      }
+    }
+  }, [status, session, pendingFormData]);
+  
+  // Auto-submit after login if we have pending data
+  useEffect(() => {
+    if (status === 'authenticated' && session && pendingSubmission && pendingFormData && !isSubmittingRef.current) {
+      // Small delay to ensure everything is ready
+      const timer = setTimeout(async () => {
+        setPendingSubmission(false);
+        isSubmittingRef.current = true;
+        try {
+          await submitApplicationData(pendingFormData);
+        } finally {
+          isSubmittingRef.current = false;
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session, pendingSubmission, pendingFormData]);
+
+  // Validation function to check if current step is valid
+  const isCurrentStepValid = () => {
+    // Step 1: Personal Details / Basic Details
+    if (currentStep === 1) {
+      return !!(
+        formData.fullName?.trim() &&
+        formData.mobileNumber?.trim() &&
+        formData.mobileNumber.length === 10 &&
+        formData.email?.trim() &&
+        formData.email.includes('@') &&
+        formData.pincode?.trim() &&
+        formData.pincode.length === 6 &&
+        formData.dob?.trim() &&
+        formData.city?.trim() &&
+        formData.panCard?.trim() &&
+        formData.panCard.length === 10
+      );
+    }
+
+    // Step 2: Employment Info
+    if (currentStep === 2) {
+      const existingEmiValue = formData.existingEmi?.trim();
+      return !!(
+        formData.employmentType?.trim() &&
+        formData.monthlyIncome?.trim() &&
+        parseFloat(formData.monthlyIncome) > 0 &&
+        formData.employerName?.trim() &&
+        existingEmiValue !== undefined &&
+        existingEmiValue !== '' &&
+        !isNaN(parseFloat(existingEmiValue)) &&
+        parseFloat(existingEmiValue) >= 0
+      );
+    }
+
+    // Step 3: Business Details (Business Loan only)
+    if (currentStep === 3 && isBusinessLoan) {
+      return !!(
+        formData.businessType?.trim() &&
+        formData.turnover?.trim() &&
+        parseFloat(formData.turnover) > 0 &&
+        formData.yearsInBusiness?.trim() &&
+        parseInt(formData.yearsInBusiness) > 0 &&
+        formData.gstRegistered?.trim()
+      );
+    }
+
+    // Step 3: Property Details (Home Loan only)
+    if (currentStep === 3 && isHomeLoan) {
+      return !!(
+        formData.propertyCost?.trim() &&
+        parseFloat(formData.propertyCost) > 0 &&
+        formData.propertyLoanType?.trim() &&
+        formData.propertyCity?.trim() &&
+        formData.propertyStatus?.trim()
+      );
+    }
+
+    // Step 3: Property Info (LAP only)
+    if (currentStep === 3 && isLAP) {
+      return !!(
+        formData.propertyType?.trim() &&
+        formData.propertyCost?.trim() &&
+        parseFloat(formData.propertyCost) > 0 &&
+        formData.propertyCity?.trim() &&
+        formData.occupancyStatus?.trim()
+      );
+    }
+
+    // Step 3/4: Loan Requirement
+    // Loan requirement step: Business loan step 4, or Personal loan step 3
+    if ((isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && currentStep === 3)) {
+      return !!(
+        formData.loanAmount?.trim() &&
+        parseFloat(formData.loanAmount) > 0 &&
+        formData.tenure?.trim() &&
+        parseInt(formData.tenure) > 0 &&
+        formData.loanPurpose?.trim()
+      );
+    }
+
+    return true;
+  };
+
+  const handleNext = async () => {
+    // Validate current step before proceeding
+    if (!isCurrentStepValid()) {
+      return; // Don't proceed if validation fails
+    }
+
+    // If on last step, submit the form
+    if (currentStep === steps.length) {
+      await handleSubmit();
+    } else {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const handleBack = () => {
@@ -97,6 +258,126 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
   const handleClose = () => {
     router.push('/');
+  };
+
+  const prepareApplicationData = () => {
+    const applicationData: any = {
+      loanType,
+      personalInfo: {
+        fullName: formData.fullName,
+        mobileNumber: formData.mobileNumber,
+        email: formData.email,
+        pincode: formData.pincode,
+        dob: formData.dob,
+        city: formData.city,
+        panCard: formData.panCard.toUpperCase(),
+      },
+      employmentInfo: {
+        employmentType: formData.employmentType,
+        monthlyIncome: parseFloat(formData.monthlyIncome),
+        employerName: formData.employerName,
+        existingEmi: parseFloat(formData.existingEmi) || 0,
+      },
+      loanRequirement: {
+        loanAmount: parseFloat(formData.loanAmount),
+        tenure: parseInt(formData.tenure),
+        loanPurpose: formData.loanPurpose,
+      },
+    };
+
+    // Add business details if business loan
+    if (isBusinessLoan) {
+      applicationData.businessDetails = {
+        businessType: formData.businessType,
+        turnover: parseFloat(formData.turnover),
+        yearsInBusiness: parseInt(formData.yearsInBusiness),
+        gstRegistered: formData.gstRegistered === 'yes',
+      };
+    }
+
+    // Add property details if home loan or LAP
+    if (isHomeLoan) {
+      applicationData.propertyDetails = {
+        propertyCost: parseFloat(formData.propertyCost),
+        propertyLoanType: formData.propertyLoanType,
+        propertyCity: formData.propertyCity,
+        propertyStatus: formData.propertyStatus,
+      };
+    }
+
+    if (isLAP) {
+      applicationData.propertyDetails = {
+        currentMarketValue: parseFloat(formData.propertyCost),
+        propertyType: formData.propertyType,
+        propertyCity: formData.propertyCity,
+        occupancyStatus: formData.occupancyStatus,
+      };
+    }
+
+    return applicationData;
+  };
+
+  const submitApplicationData = async (applicationData: any) => {
+    if (isSubmittingRef.current) return; // Prevent duplicate submissions
+    
+    setIsSubmitting(true);
+    setSubmitError('');
+    isSubmittingRef.current = true;
+
+    try {
+      // Submit to backend API
+      const response = await fetch('/api/applications/loan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(applicationData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Show success and redirect to track status page
+        alert(`Application submitted successfully!\n\nYour Reference ID: ${result.applicationId}\n\nPlease save this ID to track your application status.`);
+        router.push(`/track-status?id=${result.applicationId}`);
+      } else {
+        setSubmitError(result.errors?.join(', ') || result.error || 'Failed to submit application');
+      }
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      setSubmitError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+      setPendingFormData(null);
+      isSubmittingRef.current = false;
+    }
+  };
+
+  const handleSubmit = async () => {
+    // Prepare the application data first
+    const applicationData = prepareApplicationData();
+    
+    // Check if user is logged in
+    if (status === 'unauthenticated' || !session) {
+      // Store the prepared data in both state and sessionStorage
+      setPendingFormData(applicationData);
+      setPendingSubmission(true);
+      // Also store in sessionStorage as backup
+      try {
+        sessionStorage.setItem('pendingLoanApplication', JSON.stringify({
+          data: applicationData,
+          currentStep: currentStep,
+          formData: formData
+        }));
+      } catch (e) {
+        console.error('Failed to save to sessionStorage:', e);
+      }
+      setShowLoginModal(true);
+      return;
+    }
+
+    // User is logged in, submit directly
+    await submitApplicationData(applicationData);
   };
 
   // Determine which step is active
@@ -116,15 +397,55 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     return 'Personal Loan Application';
   };
 
+  const handleLoginSuccess = async () => {
+    // After successful login, submit the pending form data directly if there's pending submission
+    if (pendingSubmission && pendingFormData && !isSubmittingRef.current) {
+      setPendingSubmission(false);
+      isSubmittingRef.current = true;
+      // Wait a bit longer to ensure session is fully loaded and available in API route
+      setTimeout(async () => {
+        try {
+          await submitApplicationData(pendingFormData);
+        } finally {
+          isSubmittingRef.current = false;
+        }
+      }, 1000);
+    } else {
+      // Just close the modal if no pending submission
+      setShowLoginModal(false);
+    }
+  };
+
+  const handleLoginClose = () => {
+    // If user closes login modal without logging in, redirect them away
+    if (status === 'unauthenticated' || !session) {
+      router.push('/');
+    } else {
+      setShowLoginModal(false);
+      setPendingSubmission(false);
+    }
+  };
+
+  // Block form interaction if not logged in
+  const isFormBlocked = status === 'unauthenticated' || !session;
+
   return (
-    <div className="bg-white w-full rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-500">
-      {/* Close Button */}
-      <button 
-        onClick={handleClose}
-        className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 hover:text-gray-800 transition-colors z-20"
-      >
-        <X className="w-5 h-5" />
-      </button>
+    <>
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={handleLoginClose}
+        onSuccess={handleLoginSuccess}
+        message="Please login to apply for a loan. This helps us track your applications and provide better service."
+      />
+      
+      <div className={`bg-white w-full rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-500 ${isFormBlocked ? 'opacity-50 pointer-events-none' : ''}`}>
+        {/* Close Button */}
+        <button 
+          onClick={handleClose}
+          className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 hover:text-gray-800 transition-colors z-20"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
       {/* Header Section */}
       <div className="bg-gray-50 border-b border-gray-200 px-4 py-4 md:px-8">
@@ -304,48 +625,54 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
               </span>
             </div>
 
-            <div className="space-y-6">
+              <div className="space-y-6">
               {/* Employment Type Selection */}
               <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
                 <label className="block text-sm font-bold text-gray-900 mb-4">
                   Select Your Employment Status <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 gap-4">
-                   <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
-                     ${formData.employmentType === 'salaried' 
-                       ? 'border-blue-600 bg-white shadow-sm' 
-                       : 'border-transparent bg-white/50 hover:bg-white'}`}>
-                     <input 
-                       type="radio" 
-                       name="employmentType" 
-                       value="salaried"
-                       checked={formData.employmentType === 'salaried'}
-                       onChange={handleInputChange}
-                       className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
-                     />
-                     <div className="ml-4">
-                       <span className="block text-base font-bold text-gray-900">Salaried Employee</span>
-                       <span className="text-sm text-gray-500">I receive a fixed monthly salary</span>
-                     </div>
-                   </label>
+                   {/* Show Salaried option only if NOT business loan */}
+                   {!isBusinessLoan && (
+                     <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
+                       ${formData.employmentType === 'salaried' 
+                         ? 'border-blue-600 bg-white shadow-sm' 
+                         : 'border-transparent bg-white/50 hover:bg-white'}`}>
+                       <input 
+                         type="radio" 
+                         name="employmentType" 
+                         value="salaried"
+                         checked={formData.employmentType === 'salaried'}
+                         onChange={handleInputChange}
+                         className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+                       />
+                       <div className="ml-4">
+                         <span className="block text-base font-bold text-gray-900">Salaried Employee</span>
+                         <span className="text-sm text-gray-500">I receive a fixed monthly salary</span>
+                       </div>
+                     </label>
+                   )}
 
-                   <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
-                     ${formData.employmentType === 'self-employed' 
-                       ? 'border-blue-600 bg-white shadow-sm' 
-                       : 'border-transparent bg-white/50 hover:bg-white'}`}>
-                     <input 
-                       type="radio" 
-                       name="employmentType" 
-                       value="self-employed"
-                       checked={formData.employmentType === 'self-employed'}
-                       onChange={handleInputChange}
-                       className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
-                     />
-                     <div className="ml-4">
-                       <span className="block text-base font-bold text-gray-900">Self-Employed</span>
-                       <span className="text-sm text-gray-500">Business Owner, Professional, Freelancer</span>
-                     </div>
-                   </label>
+                   {/* Show Self-Employed option only if NOT personal loan */}
+                   {!isPersonalLoan && (
+                     <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
+                       ${formData.employmentType === 'self-employed' 
+                         ? 'border-blue-600 bg-white shadow-sm' 
+                         : 'border-transparent bg-white/50 hover:bg-white'}`}>
+                       <input 
+                         type="radio" 
+                         name="employmentType" 
+                         value="self-employed"
+                         checked={formData.employmentType === 'self-employed'}
+                         onChange={handleInputChange}
+                         className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+                       />
+                       <div className="ml-4">
+                         <span className="block text-base font-bold text-gray-900">Self-Employed</span>
+                         <span className="text-sm text-gray-500">Business Owner, Professional, Freelancer</span>
+                       </div>
+                     </label>
+                   )}
                 </div>
               </div>
 
@@ -924,6 +1251,11 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
       {/* Footer Actions - Sticky Bottom */}
       <div className="border-t border-gray-100 bg-white p-3 md:p-4 z-20">
+        {submitError && (
+          <div className="max-w-4xl mx-auto mb-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            <strong>Error:</strong> {submitError}
+          </div>
+        )}
         <div className="flex justify-between max-w-4xl mx-auto">
           <button 
             onClick={handleBack}
@@ -939,14 +1271,16 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
           <button 
             onClick={handleNext}
-            className="flex items-center bg-blue-900 text-white px-8 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+            disabled={isSubmitting || !isCurrentStepValid()}
+            className={`flex items-center bg-blue-900 text-white px-8 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 ${(isSubmitting || !isCurrentStepValid()) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {currentStep === steps.length ? 'Submit Application' : 'Next Step'}
-            {currentStep !== steps.length && <ChevronRight className="h-4 w-4 ml-1.5" />}
+            {isSubmitting ? 'Submitting...' : currentStep === steps.length ? 'Submit Application' : 'Next Step'}
+            {currentStep !== steps.length && !isSubmitting && <ChevronRight className="h-4 w-4 ml-1.5" />}
           </button>
         </div>
       </div>
     </div>
+    </>
   );
 };
 

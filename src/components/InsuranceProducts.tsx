@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { Heart, Shield, Car, Bike, ArrowRight } from 'lucide-react';
+import { Heart, Shield, Car, Bike, ArrowRight, ShieldCheck, Wallet } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const InsuranceProducts = () => {
@@ -60,6 +60,32 @@ const InsuranceProducts = () => {
       text: 'text-orange-600',
       tagBg: 'bg-orange-100'
     },
+    {
+      id: 'loan-protector',
+      title: 'Loan Protector',
+      subtitle: 'Protect your loan',
+      tag: 'Secure',
+      icon: <ShieldCheck className="h-8 w-8 text-purple-600" />,
+      applyHref: '/apply-insurance?type=loan-protector',
+      detailsHref: '/insurance/loan-protector',
+      color: 'purple',
+      bg: 'bg-purple-50',
+      text: 'text-purple-600',
+      tagBg: 'bg-purple-100'
+    },
+    {
+      id: 'emi-protector',
+      title: 'EMI Protector',
+      subtitle: 'EMI protection',
+      tag: 'Coverage',
+      icon: <Wallet className="h-8 w-8 text-indigo-600" />,
+      applyHref: '/apply-insurance?type=emi-protector',
+      detailsHref: '/insurance/emi-protector',
+      color: 'indigo',
+      bg: 'bg-indigo-50',
+      text: 'text-indigo-600',
+      tagBg: 'bg-indigo-100'
+    },
   ];
 
   const handleCardClick = (e: React.MouseEvent, href: string) => {
@@ -78,7 +104,7 @@ const InsuranceProducts = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
           {products.map((product) => (
             <div 
               key={product.id}
@@ -87,6 +113,8 @@ const InsuranceProducts = () => {
                 product.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200' :
                 product.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200' :
                 product.color === 'orange' ? 'bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200' :
+                product.color === 'purple' ? 'bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200' :
+                product.color === 'indigo' ? 'bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-200' :
                 'bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-200'
               }`}
             >
@@ -95,6 +123,8 @@ const InsuranceProducts = () => {
                 product.color === 'blue' ? 'bg-blue-200 text-blue-800' :
                 product.color === 'green' ? 'bg-green-200 text-green-800' :
                 product.color === 'orange' ? 'bg-orange-200 text-orange-800' :
+                product.color === 'purple' ? 'bg-purple-200 text-purple-800' :
+                product.color === 'indigo' ? 'bg-indigo-200 text-indigo-800' :
                 'bg-rose-200 text-rose-800'
               }`}>
                 {product.tag}
@@ -105,6 +135,8 @@ const InsuranceProducts = () => {
                 product.color === 'blue' ? 'bg-white border-2 border-blue-300' :
                 product.color === 'green' ? 'bg-white border-2 border-green-300' :
                 product.color === 'orange' ? 'bg-white border-2 border-orange-300' :
+                product.color === 'purple' ? 'bg-white border-2 border-purple-300' :
+                product.color === 'indigo' ? 'bg-white border-2 border-indigo-300' :
                 'bg-white border-2 border-rose-300'
               }`}>
                 {product.icon}
@@ -130,6 +162,8 @@ const InsuranceProducts = () => {
                   product.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' :
                   product.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
                   product.color === 'orange' ? 'bg-orange-600 hover:bg-orange-700' :
+                  product.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
+                  product.color === 'indigo' ? 'bg-indigo-600 hover:bg-indigo-700' :
                   'bg-rose-600 hover:bg-rose-700'
                 }`}
               >

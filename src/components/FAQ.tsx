@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, MessageCircle, Phone, Mail, Search, Sparkles } from 'lucide-react';
+import { ChevronDown, HelpCircle, Search, Sparkles } from 'lucide-react';
 
 const FAQ = () => {
   const categories = [
@@ -177,42 +177,6 @@ const FAQ = () => {
             <p className="text-gray-500">Try a different search term or category</p>
           </div>
         )}
-
-        {/* Contact CTA */}
-        <div className="mt-12 bg-gradient-to-br from-blue-50 via-white to-orange-50/30 rounded-3xl p-8 md:p-12 text-center border-2 border-blue-100 shadow-xl relative overflow-hidden">
-          {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-200/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-200/20 rounded-full blur-3xl" />
-          
-          <div className="relative">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-100 to-orange-100 rounded-2xl mb-6 shadow-md">
-              <MessageCircle className="w-8 h-8 text-blue-600" />
-            </div>
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-              Still have questions?
-            </h3>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto text-base">
-              Can&apos;t find the answer you&apos;re looking for? Our team is here to help you.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a 
-                href="tel:+919876543210" 
-                className="flex items-center gap-3 bg-white text-gray-900 px-6 py-3.5 rounded-full font-semibold hover:bg-blue-50 hover:text-blue-600 transition-all shadow-md hover:shadow-lg border-2 border-gray-200 hover:border-blue-300"
-              >
-                <Phone className="w-5 h-5" />
-                +91 98765 43210
-              </a>
-              <a 
-                href="mailto:support@loansarathi.com" 
-                className="flex items-center gap-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white px-6 py-3.5 rounded-full font-semibold hover:from-blue-700 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
-              >
-                <Mail className="w-5 h-5" />
-                Email Support
-              </a>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

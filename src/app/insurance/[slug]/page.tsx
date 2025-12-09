@@ -108,6 +108,63 @@ const insuranceDetails: Record<string, any> = {
       'KYC Documents'
     ],
     applyLink: '/apply-insurance?type=bike'
+  },
+  'loan-protector': {
+    title: 'Loan Protector',
+    heroImage: '/insurance/health.png',
+    description: 'Protect your loan and secure your family\'s financial future. Loan Protector insurance ensures your loan is paid off in case of unforeseen circumstances, giving you and your family peace of mind.',
+    features: [
+      'Complete loan balance coverage',
+      'Coverage for Personal, Business, and Home Loans',
+      'Affordable premium rates',
+      'No medical tests required (up to certain limits)',
+      'Tax benefits under Section 80C',
+      'Easy claim settlement process'
+    ],
+    eligibility: [
+      'Age: 18 years to 65 years',
+      'Active loan account required',
+      'Loan amount: ₹1 Lakh to ₹5 Crores',
+      'Loan tenure: Minimum 1 year',
+      'Citizenship: Indian Resident'
+    ],
+    documents: [
+      'KYC Documents (PAN/Aadhaar)',
+      'Loan Agreement Copy',
+      'Loan Statement',
+      'Address Proof',
+      'Passport size photograph'
+    ],
+    applyLink: '/apply-insurance?type=loan-protector'
+  },
+  'emi-protector': {
+    title: 'EMI Protector',
+    heroImage: '/insurance/health.png',
+    description: 'Safeguard your EMI payments with comprehensive protection. EMI Protector ensures your loan EMIs are covered in case of job loss, disability, or critical illness, keeping your financial commitments secure.',
+    features: [
+      'EMI coverage during job loss',
+      'Disability benefit coverage',
+      'Critical illness protection',
+      'Coverage for Personal, Business, and Home Loans',
+      'Flexible coverage options',
+      'Quick claim processing'
+    ],
+    eligibility: [
+      'Age: 18 years to 60 years',
+      'Active loan with regular EMI payments',
+      'Loan amount: ₹50,000 to ₹2 Crores',
+      'Employment: Salaried or Self-Employed',
+      'Minimum income: ₹25,000 per month'
+    ],
+    documents: [
+      'KYC Documents (PAN/Aadhaar)',
+      'Loan Agreement Copy',
+      'EMI Payment Statement',
+      'Income Proof (Salary Slip/ITR)',
+      'Bank Statement',
+      'Passport size photograph'
+    ],
+    applyLink: '/apply-insurance?type=emi-protector'
   }
 };
 
@@ -135,23 +192,12 @@ export default function InsuranceDetailPage() {
     <main className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Hero Section */}
-      <div className="relative h-[500px] w-full bg-gradient-to-br from-blue-50 to-orange-50/30 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center p-8">
-          <img 
-            src={product.heroImage} 
-            alt={product.title} 
-            className="max-w-[90%] max-h-[90%] w-auto h-auto object-contain drop-shadow-2xl"
-          />
-        </div>
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-6">
-          <Link href="/" className="text-black flex items-center justify-center w-10 h-10 bg-yellow-400 border-2 border-black rounded-full font-semibold hover:bg-yellow-500 transition-colors shadow-md">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to Home</span>
+        </Link>
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12">{product.title}</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
           {/* Main Content */}

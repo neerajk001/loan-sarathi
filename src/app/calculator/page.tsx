@@ -12,6 +12,17 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const DetailedCalculatorContent = () => {
+  // Custom formatter for PDF that doesn't use toLocaleString (causes rendering issues in jsPDF)
+  const formatForPDF = (num: number): string => {
+    const str = Math.round(num).toString();
+    const lastThree = str.substring(str.length - 3);
+    const otherNumbers = str.substring(0, str.length - 3);
+    if (otherNumbers !== '') {
+      return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree;
+    }
+    return lastThree;
+  };
+
   const searchParams = useSearchParams();
   // Determine initial tab
   const getInitialTab = () => {
@@ -205,46 +216,89 @@ const DetailedCalculatorContent = () => {
 
   const downloadEmiPDF = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     
     const logo = new Image();
     logo.src = '/logo.jpeg';
 
     const drawSummary = (startY: number) => {
-        // Background Box
-        doc.setFillColor(249, 250, 251); // Very light gray
-        doc.setDrawColor(229, 231, 235); // Border gray
-        doc.roundedRect(14, startY, 182, 24, 2, 2, 'FD');
-
-        // Loan Amount
-        doc.setFontSize(10);
-        doc.setTextColor(107, 114, 128); // Gray-500
-        doc.text('Loan Amount', 24, startY + 8);
-        doc.setFontSize(14);
-        doc.setTextColor(30, 58, 138); // Blue-900
-        doc.setFont('helvetica', 'bold');
-        doc.text(`₹${formatCurrency(loanAmount)}`, 24, startY + 18);
-
-        // Interest Rate
-        doc.setFontSize(10);
-        doc.setTextColor(107, 114, 128);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Interest Rate', 90, startY + 8);
-        doc.setFontSize(14);
-        doc.setTextColor(234, 88, 12); // Orange-600
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${interestRate}%`, 90, startY + 18);
-
-        // Tenure
-        doc.setFontSize(10);
-        doc.setTextColor(107, 114, 128);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Tenure', 150, startY + 8);
-        doc.setFontSize(14);
+        // Enhanced Summary Box
+        doc.setFillColor(240, 248, 255);
+        doc.roundedRect(14, startY, 182, 52, 3, 3, 'F');
+        
+        // Title
+        doc.setFontSize(13);
         doc.setTextColor(30, 58, 138);
         doc.setFont('helvetica', 'bold');
-        doc.text(`${tenure} ${tenureType}`, 150, startY + 18);
+        doc.text('Loan Summary', 20, startY + 8);
+
+        // Loan Amount
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Loan Amount', 20, startY + 18);
+        doc.setFontSize(12);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(loanAmount)}`, 20, startY + 25);
+
+        // Interest Rate
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Interest Rate', 85, startY + 18);
+        doc.setFontSize(12);
+        doc.setTextColor(234, 88, 12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${interestRate}% p.a.`, 85, startY + 25);
+
+        // Tenure
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Tenure', 140, startY + 18);
+        doc.setFontSize(12);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${tenure} ${tenureType}`, 140, startY + 25);
+
+        // EMI Box
+        doc.setFillColor(255, 248, 230);
+        doc.roundedRect(18, startY + 32, 54, 13, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 80, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Monthly EMI', 22, startY + 38);
+        doc.setFontSize(10);
+        doc.setTextColor(180, 120, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(emi)}`, 22, startY + 43);
+
+        // Interest Box
+        doc.setFillColor(255, 240, 240);
+        doc.roundedRect(76, startY + 32, 56, 13, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Total Interest', 80, startY + 38);
+        doc.setFontSize(10);
+        doc.setTextColor(200, 50, 50);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(totalInterest)}`, 80, startY + 43);
+
+        // Total Box
+        doc.setFillColor(230, 255, 230);
+        doc.roundedRect(136, startY + 32, 56, 13, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(0, 100, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Total Payment', 140, startY + 38);
+        doc.setFontSize(10);
+        doc.setTextColor(0, 150, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(totalPayment)}`, 140, startY + 43);
         
-        // Reset font
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(0, 0, 0);
     };
@@ -252,65 +306,106 @@ const DetailedCalculatorContent = () => {
     const generateTable = (startY: number) => {
         drawSummary(startY);
         
-        const tableStartY = startY + 30;
+        const tableStartY = startY + 60;
+
+        doc.setFontSize(12);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Monthly Repayment Schedule', 14, tableStartY - 4);
 
         const tableRows: any[] = [];
         
         amortizationSchedule.forEach(yearData => {
           tableRows.push([
-            { content: `${yearData.actualYear}`, colSpan: 6, styles: { fillColor: [243, 244, 246], fontStyle: 'bold', textColor: [30, 58, 138] } }
+            { content: `${yearData.actualYear}`, colSpan: 6, styles: { fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9.5 } }
           ]);
           
           yearData.months.forEach((month: any) => {
             tableRows.push([
               month.month,
-              formatCurrency(month.principal),
-              formatCurrency(month.interest),
-              formatCurrency(month.emi),
-              formatCurrency(month.balance),
+              `Rs ${formatForPDF(month.principal)}`,
+              `Rs ${formatForPDF(month.interest)}`,
+              `Rs ${formatForPDF(month.emi)}`,
+              `Rs ${formatForPDF(month.balance)}`,
               `${month.loanPaidPercent}%`
             ]);
           });
         });
 
         autoTable(doc, {
-          head: [['Month', 'Principal', 'Interest', 'EMI', 'Balance', 'Paid %']],
+          head: [['Month', 'Principal (Rs)', 'Interest (Rs)', 'EMI (Rs)', 'Balance (Rs)', 'Paid %']],
           body: tableRows,
           startY: tableStartY,
-          theme: 'grid',
-          styles: { fontSize: 9, cellPadding: 3 },
-          headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold' },
-          alternateRowStyles: { fillColor: [255, 255, 255] }
+          theme: 'striped',
+          styles: { fontSize: 8, cellPadding: 2.5, halign: 'right' },
+          columnStyles: {
+            0: { halign: 'center', fontStyle: 'bold' },
+            1: { halign: 'right' },
+            2: { halign: 'right' },
+            3: { halign: 'right' },
+            4: { halign: 'right' },
+            5: { halign: 'right' }
+          },
+          headStyles: { 
+            fillColor: [30, 58, 138], 
+            textColor: [255, 255, 255], 
+            fontStyle: 'bold',
+            fontSize: 9,
+            halign: 'right',
+            0: { halign: 'center' }
+          },
+          alternateRowStyles: { fillColor: [245, 250, 255] },
+          didDrawPage: (data) => {
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text(
+              `Page ${data.pageNumber} | Generated on ${new Date().toLocaleDateString('en-IN')}`,
+              pageWidth / 2,
+              pageHeight - 10,
+              { align: 'center' }
+            );
+          }
         });
 
-        doc.save('loan-repayment-schedule.pdf');
+        doc.save(`EMI-Repayment-Schedule-${new Date().toISOString().split('T')[0]}.pdf`);
     };
 
     logo.onload = () => {
-        // Logo
-        doc.addImage(logo, 'JPEG', 14, 10, 40, 15);
+        doc.addImage(logo, 'JPEG', 14, 10, 35, 13);
         
-        // Title (Right aligned)
-        doc.setFontSize(22);
+        doc.setFontSize(19);
         doc.setTextColor(30, 58, 138);
         doc.setFont('helvetica', 'bold');
-        doc.text('Repayment Schedule', 196, 20, { align: 'right' });
+        doc.text('EMI Calculator Report', 196, 17, { align: 'right' });
         
-        // Date
-        doc.setFontSize(10);
-        doc.setTextColor(107, 114, 128);
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Generated on ${new Date().toLocaleDateString()}`, 196, 26, { align: 'right' });
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`, 196, 23, { align: 'right' });
 
-        generateTable(35);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.3);
+        doc.line(14, 27, 196, 27);
+
+        generateTable(32);
     };
 
     logo.onerror = () => {
-        doc.setFontSize(22);
+        doc.setFontSize(19);
         doc.setTextColor(30, 58, 138);
         doc.setFont('helvetica', 'bold');
-        doc.text('Repayment Schedule', 14, 20);
-        generateTable(35);
+        doc.text('EMI Calculator Report', 14, 17);
+        
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, 14, 23);
+        
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.3);
+        doc.line(14, 27, 196, 27);
+        
+        generateTable(32);
     };
   };
   
@@ -378,67 +473,207 @@ const DetailedCalculatorContent = () => {
 
   const downloadPartPaymentPDF = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     
     const logo = new Image();
     logo.src = '/logo.jpeg';
 
     const generateSchedule = (startY: number) => {
-        if (ppResults.schedule.length > 0) {
-            doc.setFontSize(16);
+        // Loan Summary Box
+        doc.setFillColor(240, 248, 255);
+        doc.roundedRect(14, startY, 182, 48, 3, 3, 'F');
+        
+        doc.setFontSize(13);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Loan Details', 20, startY + 8);
+
+        // Loan Amount
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Loan Amount', 20, startY + 18);
+        doc.setFontSize(12);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(ppLoanAmount)}`, 20, startY + 25);
+
+        // Interest Rate
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Interest Rate', 90, startY + 18);
+        doc.setFontSize(12);
+        doc.setTextColor(234, 88, 12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${ppInterestRate}% p.a.`, 90, startY + 25);
+
+        // Tenure
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Tenure', 145, startY + 18);
+        doc.setFontSize(12);
+        doc.setTextColor(30, 58, 138);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${ppTenure} Years`, 145, startY + 25);
+
+        // Interest Savings Box
+        doc.setFillColor(255, 248, 230);
+        doc.roundedRect(18, startY + 32, 58, 11, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 80, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Interest With Prepay', 22, startY + 37);
+        doc.setFontSize(9);
+        doc.setTextColor(180, 120, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(ppResults.newInterest)}`, 22, startY + 42);
+
+        // Original Interest Box
+        doc.setFillColor(255, 240, 240);
+        doc.roundedRect(80, startY + 32, 58, 11, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Interest Without', 84, startY + 37);
+        doc.setFontSize(9);
+        doc.setTextColor(200, 50, 50);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(ppResults.originalInterest)}`, 84, startY + 42);
+
+        // Total Savings Box
+        doc.setFillColor(230, 255, 230);
+        doc.roundedRect(142, startY + 32, 50, 11, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(0, 100, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Total Savings', 146, startY + 37);
+        doc.setFontSize(10);
+        doc.setTextColor(0, 150, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Rs ${formatForPDF(ppResults.savings)}`, 146, startY + 42);
+
+        // Part Payments Summary
+        if (partPayments.length > 0) {
+            doc.setFontSize(11);
             doc.setTextColor(30, 58, 138);
             doc.setFont('helvetica', 'bold');
-            doc.text('Amortization Schedule with Part Payments', 14, startY);
+            doc.text('Part Payment Schedule:', 14, startY + 56);
+            
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(80, 80, 80);
+            let yPos = startY + 64;
+            partPayments.forEach((pp, index) => {
+                doc.text(`Payment ${index + 1}: Rs ${formatForPDF(pp.amount)} at Month ${pp.month}`, 18, yPos);
+                yPos += 6;
+            });
+            
+            yPos += 2;
+            
+            // Reduction Type Info
+            doc.setFillColor(245, 250, 255);
+            doc.roundedRect(14, yPos, 182, 10, 2, 2, 'F');
+            doc.setFontSize(9);
+            doc.setTextColor(30, 58, 138);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Reduction Type: ${ppReductionType === 'emi' ? 'EMI Reduction' : 'Tenure Reduction'}`, 18, yPos + 6);
+        }
+
+        // Amortization Schedule Table
+        if (ppResults.schedule.length > 0) {
+            const tableStartY = startY + 82 + (partPayments.length * 6);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(30, 58, 138);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Amortization Schedule with Part Payments', 14, tableStartY);
             
             const tableRows: any[] = [];
             ppResults.schedule.forEach((row: any) => {
                 tableRows.push([
                     row.month,
-                    row.partPayment > 0 ? formatCurrency(row.partPayment) : '0',
-                    formatCurrency(row.balance),
-                    formatCurrency(row.emi)
+                    row.partPayment > 0 ? `Rs ${formatForPDF(row.partPayment)}` : '-',
+                    `Rs ${formatForPDF(row.balance)}`,
+                    `Rs ${formatForPDF(row.emi)}`
                 ]);
             });
 
             autoTable(doc, {
-                head: [['Month', 'Part Payment (₹)', 'Remaining Balance (₹)', 'EMI (₹)']],
+                head: [['Month', 'Part Payment (Rs)', 'Balance (Rs)', 'EMI (Rs)']],
                 body: tableRows,
-                startY: startY + 10,
-                theme: 'grid',
-                styles: { fontSize: 9, cellPadding: 3 },
-                headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold' },
-                alternateRowStyles: { fillColor: [255, 255, 255] },
-                margin: { top: startY + 10 }
+                startY: tableStartY + 6,
+                theme: 'striped',
+                styles: { fontSize: 8, cellPadding: 2.5, halign: 'right' },
+                columnStyles: {
+                    0: { halign: 'center', fontStyle: 'bold' },
+                    1: { halign: 'right', textColor: [234, 88, 12] },
+                    2: { halign: 'right' },
+                    3: { halign: 'right' }
+                },
+                headStyles: { 
+                    fillColor: [30, 58, 138], 
+                    textColor: [255, 255, 255], 
+                    fontStyle: 'bold',
+                    fontSize: 9,
+                    halign: 'right',
+                    0: { halign: 'center' }
+                },
+                alternateRowStyles: { fillColor: [245, 250, 255] },
+                didDrawPage: (data) => {
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(
+                        `Page ${data.pageNumber} | Generated on ${new Date().toLocaleDateString('en-IN')}`,
+                        pageWidth / 2,
+                        pageHeight - 10,
+                        { align: 'center' }
+                    );
+                }
             });
         }
     };
 
     logo.onload = () => {
-        // Logo
-        doc.addImage(logo, 'JPEG', 14, 10, 40, 15);
+        doc.addImage(logo, 'JPEG', 14, 10, 35, 13);
         
-        // Title (Right aligned)
-        doc.setFontSize(22);
+        doc.setFontSize(18);
         doc.setTextColor(30, 58, 138);
         doc.setFont('helvetica', 'bold');
-        doc.text('Amortization Schedule', 196, 20, { align: 'right' });
+        doc.text('Part Payment Analysis', 196, 17, { align: 'right' });
         
-        // Date
-        doc.setFontSize(10);
-        doc.setTextColor(107, 114, 128);
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Generated on ${new Date().toLocaleDateString()}`, 196, 26, { align: 'right' });
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`, 196, 23, { align: 'right' });
 
-        generateSchedule(35);
-        doc.save('amortization-schedule-part-payments.pdf');
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.3);
+        doc.line(14, 27, 196, 27);
+
+        generateSchedule(32);
+        doc.save(`Part-Payment-Analysis-${new Date().toISOString().split('T')[0]}.pdf`);
     };
 
     logo.onerror = () => {
-        doc.setFontSize(22);
+        doc.setFontSize(18);
         doc.setTextColor(30, 58, 138);
         doc.setFont('helvetica', 'bold');
-        doc.text('Amortization Schedule', 14, 20);
-        generateSchedule(35);
-        doc.save('amortization-schedule-part-payments.pdf');
+        doc.text('Part Payment Analysis', 14, 17);
+        
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, 14, 23);
+        
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.3);
+        doc.line(14, 27, 196, 27);
+        
+        generateSchedule(32);
+        doc.save(`Part-Payment-Analysis-${new Date().toISOString().split('T')[0]}.pdf`);
     };
   };
 
@@ -485,6 +720,11 @@ const DetailedCalculatorContent = () => {
     const totalOriginalPayment = baseEmi * totalMonths;
     const originalInterest = totalOriginalPayment - ppLoanAmount;
 
+    // Filter and sort part payments by month (only include valid payments with amount > 0)
+    const validPartPayments = partPayments
+      .filter(p => p.amount > 0 && p.month >= 0)
+      .sort((a, b) => a.month - b.month);
+
     // Simulation
     let balance = ppLoanAmount;
     let totalInterestPaid = 0;
@@ -494,9 +734,26 @@ const DetailedCalculatorContent = () => {
     let monthsPassed = 0;
     const maxMonths = totalMonths * 2; // Safety limit to prevent infinite loops
 
+    // Handle part payment at month 0 (before first EMI)
+    const ppAtMonth0 = validPartPayments.find(p => p.month === 0)?.amount || 0;
+    const initialBalance = balance;
+    if (ppAtMonth0 > 0) {
+      balance = balance - ppAtMonth0;
+      if (balance < 0) balance = 0;
+      
+      // Recalculate EMI if needed after month 0 part payment
+      if (ppReductionType === 'emi' && balance > 0) {
+        remainingMonths = totalMonths;
+        if (remainingMonths > 0 && ratePerMonth > 0) {
+          currentEmi = (balance * ratePerMonth * Math.pow(1 + ratePerMonth, remainingMonths)) / 
+                       (Math.pow(1 + ratePerMonth, remainingMonths) - 1);
+        }
+      }
+    }
+
     for (let m = 1; m <= maxMonths && balance > 0; m++) {
-      // Check for Part Payment
-      const pp = partPayments.find(p => p.month === m)?.amount || 0;
+      // Check for Part Payment at this month
+      const pp = validPartPayments.find(p => p.month === m)?.amount || 0;
       
       const interestForMonth = balance * ratePerMonth;
       const principalForMonth = currentEmi - interestForMonth;
@@ -524,7 +781,7 @@ const DetailedCalculatorContent = () => {
         // Reduce EMI: Recalculate EMI with remaining months
         if (pp > 0) {
           remainingMonths = totalMonths - m;
-          if (remainingMonths > 0) {
+          if (remainingMonths > 0 && ratePerMonth > 0) {
             currentEmi = (balance * ratePerMonth * Math.pow(1 + ratePerMonth, remainingMonths)) / 
                          (Math.pow(1 + ratePerMonth, remainingMonths) - 1);
           }
@@ -550,6 +807,16 @@ const DetailedCalculatorContent = () => {
     const savings = originalInterest - totalInterestPaid;
     const newTenureYears = Math.floor(monthsPassed / 12);
     const newTenureMonths = monthsPassed % 12;
+
+    // Add month 0 to schedule if there's a part payment at month 0
+    if (ppAtMonth0 > 0) {
+      schedule.unshift({
+        month: 0,
+        partPayment: ppAtMonth0,
+        balance: Math.round(balance),
+        emi: 0
+      });
+    }
 
     setPpResults({
       originalInterest: Math.round(originalInterest),
@@ -590,22 +857,6 @@ const DetailedCalculatorContent = () => {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            {activeTab === 'emi' && 'EMI Calculator'}
-            {activeTab === 'eligibility' && 'Loan Eligibility Calculator'}
-            {activeTab === 'balance' && 'Balance Transfer Calculator'}
-            {activeTab === 'part-payment' && 'Part Payment Calculator'}
-          </h1>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            {activeTab === 'emi' && 'Plan your loan with precise calculations and detailed payment breakdown'}
-            {activeTab === 'eligibility' && 'Check how much loan amount you are eligible for based on your income'}
-            {activeTab === 'balance' && 'Calculate your eligibility and savings for balance transfer'}
-            {activeTab === 'part-payment' && 'See how much you can save by making part payments'}
-          </p>
-        </div>
-
         {/* Tabs */}
         <div className="flex justify-center mb-12">
           <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex overflow-x-auto max-w-full">
@@ -1550,15 +1801,10 @@ const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suff
           <p className="text-xs text-gray-500 font-semibold mt-0.5">{description}</p>
         )}
       </div>
-      <div className="bg-gray-100 px-4 py-2 rounded-xl border border-gray-200 flex items-center gap-1">
-        {prefix && <span className="font-bold text-gray-900">{prefix}</span>}
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => setValue(Number(e.target.value))}
-          className="bg-transparent font-bold text-gray-900 w-24 text-right outline-none appearance-none"
-        />
-        {suffix && <span className="font-bold text-gray-900">{suffix}</span>}
+      <div className="bg-gray-100 px-4 py-2 rounded-xl border border-gray-200">
+        <span className="font-bold text-gray-900">
+          {prefix}{formatCurrency(value)}{suffix}
+        </span>
       </div>
     </div>
     <input

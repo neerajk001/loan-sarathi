@@ -232,15 +232,8 @@ const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suff
   <div>
     <div className="flex justify-between mb-2">
       <label className="font-semibold text-gray-700">{label}</label>
-      <div className="flex items-center gap-1 font-bold text-blue-900">
-        {prefix && <span>{prefix}</span>}
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => setValue(Number(e.target.value))}
-          className="w-24 text-right bg-transparent border-b border-gray-300 focus:border-orange-600 outline-none transition-colors"
-        />
-        {suffix && <span>{suffix}</span>}
+      <div className="font-bold text-blue-900">
+        {prefix}{formatCurrency(value)}{suffix}
       </div>
     </div>
     <input

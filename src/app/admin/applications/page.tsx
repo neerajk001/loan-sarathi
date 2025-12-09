@@ -1,8 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Search, 
-  Filter, 
   Check, 
   X, 
   Eye, 
@@ -10,97 +10,109 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Loader2
 } from 'lucide-react';
 
+interface Application {
+  applicationId: string;
+  id: string;
+  name: string;
+  email?: string;
+  phone: string;
+  loanType?: string;
+  insuranceType?: string;
+  interestedIn?: string;
+  amount?: number;
+  sumInsured?: number;
+  status: string;
+  createdAt: Date | string;
+  type: 'loan' | 'insurance' | 'consultancy';
+}
+
 export default function ApplicationsPage() {
+  const router = useRouter();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    reviewing: 0,
+    approved: 0,
+    rejected: 0,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 20;
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1); // Reset to page 1 when filter/search changes
+      fetchApplications();
+    }, search ? 500 : 0); // Debounce search by 500ms
+
+    return () => clearTimeout(timeoutId);
+  }, [filter, search]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [currentPage]);
+
+  const fetchApplications = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        type: 'all',
+        limit: limit.toString(),
+        page: currentPage.toString(),
+      });
+      
+      if (filter !== 'all') {
+        params.append('status', filter);
+      }
+      
+      if (search) {
+        params.append('search', search);
+      }
+
+      const response = await fetch(`/api/admin/applications?${params}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setApplications(data.applications || []);
+        if (data.stats) {
+          setStats(data.stats);
+        }
+        if (data.pagination) {
+          setTotalPages(data.pagination.totalPages || 1);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filters = [
-    { id: 'all', label: 'All', count: 124 },
-    { id: 'pending', label: 'Pending', count: 18 },
-    { id: 'reviewing', label: 'In Review', count: 12 },
-    { id: 'approved', label: 'Approved', count: 86 },
-    { id: 'rejected', label: 'Rejected', count: 8 },
-  ];
-
-  const applications = [
-    { 
-      id: 'APP-2025001', 
-      name: 'Rahul Sharma', 
-      email: 'rahul.sharma@email.com',
-      phone: '+91 98765 43210',
-      type: 'Personal Loan', 
-      amount: '₹5,00,000', 
-      status: 'pending', 
-      date: 'Nov 27, 2025',
-      documents: { verified: 3, total: 4 }
-    },
-    { 
-      id: 'APP-2025002', 
-      name: 'Priya Patel', 
-      email: 'priya.p@email.com',
-      phone: '+91 87654 32109',
-      type: 'Home Loan', 
-      amount: '₹45,00,000', 
-      status: 'approved', 
-      date: 'Nov 27, 2025',
-      documents: { verified: 6, total: 6 }
-    },
-    { 
-      id: 'APP-2025003', 
-      name: 'Amit Kumar', 
-      email: 'amit.k@email.com',
-      phone: '+91 76543 21098',
-      type: 'Business Loan', 
-      amount: '₹12,00,000', 
-      status: 'reviewing', 
-      date: 'Nov 26, 2025',
-      documents: { verified: 4, total: 5 }
-    },
-    { 
-      id: 'APP-2025004', 
-      name: 'Sneha Gupta', 
-      email: 'sneha.g@email.com',
-      phone: '+91 65432 10987',
-      type: 'Personal Loan', 
-      amount: '₹3,50,000', 
-      status: 'pending', 
-      date: 'Nov 26, 2025',
-      documents: { verified: 2, total: 4 }
-    },
-    { 
-      id: 'APP-2025005', 
-      name: 'Vikram Singh', 
-      email: 'vikram.s@email.com',
-      phone: '+91 54321 09876',
-      type: 'Loan Against Property', 
-      amount: '₹25,00,000', 
-      status: 'approved', 
-      date: 'Nov 25, 2025',
-      documents: { verified: 5, total: 5 }
-    },
-    { 
-      id: 'APP-2025006', 
-      name: 'Neha Verma', 
-      email: 'neha.v@email.com',
-      phone: '+91 43210 98765',
-      type: 'Personal Loan', 
-      amount: '₹2,00,000', 
-      status: 'rejected', 
-      date: 'Nov 24, 2025',
-      documents: { verified: 4, total: 4 }
-    },
+    { id: 'all', label: 'All', count: stats.total },
+    { id: 'pending', label: 'Pending', count: stats.pending },
+    { id: 'reviewing', label: 'In Review', count: stats.reviewing },
+    { id: 'approved', label: 'Approved', count: stats.approved },
+    { id: 'rejected', label: 'Rejected', count: stats.rejected },
   ];
 
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'approved':
+      case 'disbursed':
         return 'bg-green-100 text-green-700 border-green-200';
       case 'pending':
         return 'bg-amber-100 text-amber-700 border-amber-200';
       case 'reviewing':
+      case 'in-review':
         return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'rejected':
         return 'bg-red-100 text-red-700 border-red-200';
@@ -109,11 +121,60 @@ export default function ApplicationsPage() {
     }
   };
 
-  const filteredApplications = applications.filter(app => {
-    if (filter !== 'all' && app.status !== filter) return false;
-    if (search && !app.name.toLowerCase().includes(search.toLowerCase()) && !app.id.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const formatAmount = (app: Application) => {
+    if (app.type === 'loan' && app.amount) {
+      if (app.amount >= 10000000) {
+        return `₹${(app.amount / 10000000).toFixed(2)}Cr`;
+      } else if (app.amount >= 100000) {
+        return `₹${(app.amount / 100000).toFixed(2)}L`;
+      }
+      return `₹${app.amount.toLocaleString('en-IN')}`;
+    } else if (app.type === 'insurance' && app.sumInsured) {
+      if (app.sumInsured >= 10000000) {
+        return `₹${(app.sumInsured / 10000000).toFixed(2)}Cr`;
+      } else if (app.sumInsured >= 100000) {
+        return `₹${(app.sumInsured / 100000).toFixed(2)}L`;
+      }
+      return `₹${app.sumInsured.toLocaleString('en-IN')}`;
+    }
+    return 'N/A';
+  };
+
+  const getTypeLabel = (app: Application) => {
+    if (app.type === 'loan') {
+      return app.loanType || 'Loan';
+    } else if (app.type === 'insurance') {
+      return app.insuranceType || 'Insurance';
+    } else {
+      return app.interestedIn || 'Consultancy';
+    }
+  };
+
+  const handleView = (app: Application) => {
+    const id = app.applicationId || app.id;
+    if (id) {
+      router.push(`/admin/applications/${id}`);
+    } else {
+      console.error('No application ID found:', app);
+      alert('Application ID not found');
+    }
+  };
+
+  const handleStatusUpdate = async (app: Application, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/admin/applications/${app.applicationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        fetchApplications();
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -189,90 +250,148 @@ export default function ApplicationsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredApplications.map((app) => (
-                <tr key={app.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-600">
-                        {app.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{app.name}</p>
-                        <p className="text-sm text-gray-500">{app.id}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="font-semibold text-gray-900">{app.amount}</p>
-                    <p className="text-sm text-gray-500">{app.type}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-gray-900">{app.email}</p>
-                    <p className="text-sm text-gray-500">{app.phone}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden max-w-[80px]">
-                        <div 
-                          className={`h-full rounded-full ${app.documents.verified === app.documents.total ? 'bg-green-500' : 'bg-amber-500'}`}
-                          style={{ width: `${(app.documents.verified / app.documents.total) * 100}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-gray-600 font-medium">
-                        {app.documents.verified}/{app.documents.total}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusStyle(app.status)}`}>
-                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-colors" title="View">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 hover:bg-green-100 rounded-lg text-gray-500 hover:text-green-600 transition-colors" title="Approve">
-                        <Check className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 hover:bg-red-100 rounded-lg text-gray-500 hover:text-red-600 transition-colors" title="Reject">
-                        <X className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-colors" title="More">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </button>
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto" />
+                    <p className="text-gray-500 mt-2">Loading applications...</p>
                   </td>
                 </tr>
-              ))}
+              ) : applications.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <p className="text-gray-500">No applications found</p>
+                  </td>
+                </tr>
+              ) : (
+                applications.map((app) => (
+                  <tr key={app.applicationId || app.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-600">
+                          {app.name && app.name !== 'N/A' ? app.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'N/A'}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{app.name || 'N/A'}</p>
+                          <p className="text-sm text-gray-500">{app.applicationId || app.id}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {app.type === 'consultancy' ? (
+                        <>
+                          <p className="font-semibold text-gray-900">Consultancy Request</p>
+                          <p className="text-sm text-gray-500">{getTypeLabel(app)}</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-semibold text-gray-900">{formatAmount(app)}</p>
+                          <p className="text-sm text-gray-500">{getTypeLabel(app)}</p>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm text-gray-900">{app.email || 'N/A'}</p>
+                      <p className="text-sm text-gray-500">{app.phone || 'N/A'}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-500">-</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusStyle(app.status)}`}>
+                        {app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('-', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <button 
+                          onClick={() => handleView(app)}
+                          className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-colors" 
+                          title="View"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {app.status !== 'approved' && app.status !== 'disbursed' && (
+                          <button 
+                            onClick={() => handleStatusUpdate(app, 'approved')}
+                            className="p-2 hover:bg-green-100 rounded-lg text-gray-500 hover:text-green-600 transition-colors" 
+                            title="Approve"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                        )}
+                        {app.status !== 'rejected' && (
+                          <button 
+                            onClick={() => handleStatusUpdate(app, 'rejected')}
+                            className="p-2 hover:bg-red-100 rounded-lg text-gray-500 hover:text-red-600 transition-colors" 
+                            title="Reject"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-500">
-            Showing <span className="font-semibold text-gray-700">1</span> to <span className="font-semibold text-gray-700">{filteredApplications.length}</span> of <span className="font-semibold text-gray-700">124</span> applications
-          </p>
-          <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </button>
-            <div className="flex items-center gap-1">
-              <button className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-semibold bg-gray-900 text-white">1</button>
-              <button className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">2</button>
-              <button className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">3</button>
-              <span className="px-2 text-gray-400">...</span>
-              <button className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">12</button>
+        {!loading && applications.length > 0 && (
+          <div className="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-500">
+              Showing <span className="font-semibold text-gray-700">{(currentPage - 1) * limit + 1}</span> to <span className="font-semibold text-gray-700">{Math.min(currentPage * limit, stats.total)}</span> of <span className="font-semibold text-gray-700">{stats.total}</span> applications
+            </p>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-gray-900 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-            <button className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
