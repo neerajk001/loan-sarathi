@@ -617,8 +617,7 @@ const DetailedCalculatorContent = () => {
                     textColor: [255, 255, 255], 
                     fontStyle: 'bold',
                     fontSize: 9,
-                    halign: 'right',
-                    0: { halign: 'center' }
+                    halign: 'right'
                 },
                 alternateRowStyles: { fillColor: [245, 250, 255] },
                 didDrawPage: (data) => {
