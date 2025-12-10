@@ -1,9 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Building2, IndianRupee, Wallet, Briefcase, Store, Home, FileText } from 'lucide-react';
-import LoginModal from './LoginModal';
 
 interface ApplicationFormProps {
   loanType?: string;
@@ -11,14 +9,11 @@ interface ApplicationFormProps {
 
 const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const isBusinessLoan = loanType === 'business';
   const isHomeLoan = loanType === 'home';
   const isLAP = loanType === 'lap';
   const isPersonalLoan = loanType === 'personal';
   
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [pendingSubmission, setPendingSubmission] = useState(false);
   const isSubmittingRef = React.useRef(false);
   
   // Define steps based on loan type
@@ -104,56 +99,6 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const [pendingFormData, setPendingFormData] = useState<any>(null);
-  
-  // Check if user is logged in when form opens
-  useEffect(() => {
-    if (status === 'unauthenticated' || !session) {
-      // Show login modal immediately if not logged in
-      setShowLoginModal(true);
-    }
-  }, [status, session]);
-
-  // Restore form state from sessionStorage if available (after login)
-  useEffect(() => {
-    if (status === 'authenticated' && session) {
-      try {
-        const saved = sessionStorage.getItem('pendingLoanApplication');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed.data && !pendingFormData) {
-            setPendingFormData(parsed.data);
-            setPendingSubmission(true);
-            if (parsed.currentStep) {
-              setCurrentStep(parsed.currentStep);
-            }
-            // Clear sessionStorage after restoring
-            sessionStorage.removeItem('pendingLoanApplication');
-          }
-        }
-      } catch (e) {
-        console.error('Failed to restore from sessionStorage:', e);
-      }
-    }
-  }, [status, session, pendingFormData]);
-  
-  // Auto-submit after login if we have pending data
-  useEffect(() => {
-    if (status === 'authenticated' && session && pendingSubmission && pendingFormData && !isSubmittingRef.current) {
-      // Small delay to ensure everything is ready
-      const timer = setTimeout(async () => {
-        setPendingSubmission(false);
-        isSubmittingRef.current = true;
-        try {
-          await submitApplicationData(pendingFormData);
-        } finally {
-          isSubmittingRef.current = false;
-        }
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, session, pendingSubmission, pendingFormData]);
 
   // Validation function to check if current step is valid
   const isCurrentStepValid = () => {
@@ -348,35 +293,13 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       setSubmitError('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
-      setPendingFormData(null);
       isSubmittingRef.current = false;
     }
   };
 
   const handleSubmit = async () => {
-    // Prepare the application data first
+    // Prepare and submit the application data directly
     const applicationData = prepareApplicationData();
-    
-    // Check if user is logged in
-    if (status === 'unauthenticated' || !session) {
-      // Store the prepared data in both state and sessionStorage
-      setPendingFormData(applicationData);
-      setPendingSubmission(true);
-      // Also store in sessionStorage as backup
-      try {
-        sessionStorage.setItem('pendingLoanApplication', JSON.stringify({
-          data: applicationData,
-          currentStep: currentStep,
-          formData: formData
-        }));
-      } catch (e) {
-        console.error('Failed to save to sessionStorage:', e);
-      }
-      setShowLoginModal(true);
-      return;
-    }
-
-    // User is logged in, submit directly
     await submitApplicationData(applicationData);
   };
 
@@ -397,48 +320,9 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     return 'Personal Loan Application';
   };
 
-  const handleLoginSuccess = async () => {
-    // After successful login, submit the pending form data directly if there's pending submission
-    if (pendingSubmission && pendingFormData && !isSubmittingRef.current) {
-      setPendingSubmission(false);
-      isSubmittingRef.current = true;
-      // Wait a bit longer to ensure session is fully loaded and available in API route
-      setTimeout(async () => {
-        try {
-          await submitApplicationData(pendingFormData);
-        } finally {
-          isSubmittingRef.current = false;
-        }
-      }, 1000);
-    } else {
-      // Just close the modal if no pending submission
-      setShowLoginModal(false);
-    }
-  };
-
-  const handleLoginClose = () => {
-    // If user closes login modal without logging in, redirect them away
-    if (status === 'unauthenticated' || !session) {
-      router.push('/');
-    } else {
-      setShowLoginModal(false);
-      setPendingSubmission(false);
-    }
-  };
-
-  // Block form interaction if not logged in
-  const isFormBlocked = status === 'unauthenticated' || !session;
-
   return (
     <>
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={handleLoginClose}
-        onSuccess={handleLoginSuccess}
-        message="Please login to apply for a loan. This helps us track your applications and provide better service."
-      />
-      
-      <div className={`bg-white w-full rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-500 ${isFormBlocked ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className="bg-white w-full rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-500">
         {/* Close Button */}
         <button 
           onClick={handleClose}

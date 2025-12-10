@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import clientPromise from '@/lib/mongodb';
 import {
   InsuranceApplication,
@@ -17,7 +16,6 @@ import {
 // POST /api/applications/insurance - Submit a new insurance application
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
     const body = await request.json();
     
     // Validate the application data
@@ -45,8 +43,8 @@ export async function POST(request: NextRequest) {
     // Create application document
     const application: InsuranceApplication = {
       applicationId,
-      userId: session?.user?.id,
-      userEmail: session?.user?.email || body.basicInfo.email || `${body.basicInfo.mobileNumber}@temp.com`,
+      userId: undefined,
+      userEmail: body.basicInfo.email || `${body.basicInfo.mobileNumber}@temp.com`,
       insuranceType: body.insuranceType,
       basicInfo: {
         ...body.basicInfo,
@@ -80,7 +78,7 @@ export async function POST(request: NextRequest) {
     
     // Send confirmation email (if email available)
     try {
-      const email = body.basicInfo.email || (session?.user?.email);
+      const email = body.basicInfo.email;
       if (email) {
         const confirmationEmail = createInsuranceApplicationConfirmationEmail(
           body.basicInfo.fullName,
@@ -136,44 +134,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/applications/insurance - Get user's insurance applications (if authenticated)
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getServerSession();
-    
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    const client = await clientPromise;
-    const db = client.db('loan-sarathi');
-    const collection = db.collection<InsuranceApplication>(INSURANCE_APPLICATIONS_COLLECTION);
-    
-    // Get applications for the logged-in user
-    const applications = await collection
-      .find({ userEmail: session.user.email })
-      .sort({ createdAt: -1 })
-      .toArray();
-    
-    return NextResponse.json({
-      success: true,
-      applications: applications.map((app) => ({
-        applicationId: app.applicationId,
-        insuranceType: app.insuranceType,
-        sumInsured: app.sumInsured,
-        status: app.status,
-        createdAt: app.createdAt,
-        updatedAt: app.updatedAt,
-      })),
-    });
-  } catch (error) {
-    console.error('Error fetching insurance applications:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch applications' },
-      { status: 500 }
-    );
-  }
-}
+

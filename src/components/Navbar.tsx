@@ -1,25 +1,17 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
-import { Menu, X, User, LogOut, Info, Calculator, Activity, CheckCircle, Home, Shield, FileText, Phone, Wallet, Building2, GraduationCap, Heart, Car, Bike, ShieldCheck, ChevronDown } from 'lucide-react';
+import { Menu, X, Info, Calculator, CheckCircle, Home, Shield, FileText, Phone, Wallet, Building2, GraduationCap, Heart, Car, Bike, ShieldCheck, ChevronDown } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import MovingBanner from './MovingBanner';
 
 const Navbar = () => {
-  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [showLoanDropdown, setShowLoanDropdown] = useState(false);
   const [showInsuranceDropdown, setShowInsuranceDropdown] = useState(false);
   const [showMobileLoanDropdown, setShowMobileLoanDropdown] = useState(false);
   const [showMobileInsuranceDropdown, setShowMobileInsuranceDropdown] = useState(false);
   const pathname = usePathname();
-
-  // Only render session-dependent content after client-side hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -49,91 +41,7 @@ const Navbar = () => {
   };
 
   // Render login button placeholder during SSR to match client initial render
-  const renderAuthSection = () => {
-    if (!mounted) {
-      // Return a placeholder that matches the login button size to prevent layout shift
-      return (
-        <div className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full w-[100px] h-[36px] bg-gray-50"></div>
-      );
-    }
 
-    if (session) {
-      return (
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-900 font-bold border border-blue-100">
-              {session.user?.name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
-            </div>
-          </div>
-          <button 
-            onClick={() => signOut()}
-            className="text-gray-400 hover:text-orange-600 transition-colors p-2 rounded-full hover:bg-orange-50"
-            title="Logout"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <Link 
-        href="/login" 
-        className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full hover:bg-orange-50 hover:border-orange-200 transition-colors group"
-      >
-        <img 
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
-          alt="Google" 
-          className="w-5 h-5" 
-        />
-        <span className="text-gray-700 font-medium text-sm group-hover:text-orange-700">Login</span>
-      </Link>
-    );
-  };
-
-  const renderMobileAuthSection = () => {
-    if (!mounted) {
-      return (
-        <div className="px-3 py-2.5 rounded-lg bg-gray-50 h-[44px]"></div>
-      );
-    }
-
-    if (session) {
-      return (
-        <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-base border border-blue-200">
-              {session.user?.name?.[0]?.toUpperCase()}
-            </div>
-            <div>
-              <p className="font-bold text-gray-900 text-sm">{session.user?.name}</p>
-              <p className="text-xs text-gray-500">{session.user?.email}</p>
-            </div>
-          </div>
-          <button 
-            onClick={() => signOut()}
-            className="text-red-500 hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition-colors"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <Link 
-        href="/login" 
-        className="flex items-center justify-center gap-3 w-full px-4 py-3.5 rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-all"
-      >
-        <img 
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
-          alt="Google" 
-          className="w-5 h-5" 
-        />
-        <span className="font-semibold text-gray-700">Login with Google</span>
-      </Link>
-    );
-  };
 
   return (
     <>
@@ -145,7 +53,7 @@ const Navbar = () => {
           {/* Left: Logo */}
           <div className="shrink-0 flex items-center cursor-pointer z-50 relative">
             <Link href="/" className="flex items-center">
-              <img src="/logoc.svg" alt="Loan Sarathi Logo" className="h-16 md:h-36 w-auto object-contain" />
+              <img src="/logoc.svg" alt="Loan Sarathi Logo" className="h-24 md:h-36 w-auto object-contain" />
             </Link>
           </div>
 
@@ -309,10 +217,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Right: Login / Profile */}
-          <div className="hidden md:flex items-center justify-end shrink-0 min-w-[120px]">
-            {renderAuthSection()}
-          </div> 
+ 
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center z-50 relative">
@@ -492,9 +397,7 @@ const Navbar = () => {
 
             {/* Footer Section */}
             <div className="mt-auto p-6 border-t border-gray-100 bg-gray-50/50">
-              {renderMobileAuthSection()}
-              
-              <div className="mt-6 text-center">
+              <div className="text-center">
                 <p className="text-xs text-gray-400">
                   &copy; {new Date().getFullYear()} Loan Sarathi. All rights reserved.
                 </p>

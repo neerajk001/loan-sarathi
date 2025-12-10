@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import clientPromise from '@/lib/mongodb';
 import {
   LoanApplication,
@@ -17,7 +16,6 @@ import {
 // POST /api/applications/loan - Submit a new loan application
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
     const body = await request.json();
     
     // Validate the application data
@@ -45,8 +43,8 @@ export async function POST(request: NextRequest) {
     // Create application document
     const application: LoanApplication = {
       applicationId,
-      userId: session?.user?.id,
-      userEmail: session?.user?.email || body.personalInfo.email,
+      userId: undefined,
+      userEmail: body.personalInfo.email,
       loanType: body.loanType,
       personalInfo: {
         ...body.personalInfo,
@@ -136,44 +134,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/applications/loan - Get user's loan applications (if authenticated)
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getServerSession();
-    
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    const client = await clientPromise;
-    const db = client.db('loan-sarathi');
-    const collection = db.collection<LoanApplication>(LOAN_APPLICATIONS_COLLECTION);
-    
-    // Get applications for the logged-in user
-    const applications = await collection
-      .find({ userEmail: session.user.email })
-      .sort({ createdAt: -1 })
-      .toArray();
-    
-    return NextResponse.json({
-      success: true,
-      applications: applications.map((app) => ({
-        applicationId: app.applicationId,
-        loanType: app.loanType,
-        loanAmount: app.loanRequirement.loanAmount,
-        status: app.status,
-        createdAt: app.createdAt,
-        updatedAt: app.updatedAt,
-      })),
-    });
-  } catch (error) {
-    console.error('Error fetching loan applications:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch applications' },
-      { status: 500 }
-    );
-  }
-}
+

@@ -71,8 +71,11 @@ const DetailedCalculatorContent = () => {
 
   // Eligibility Calculator State
   const [income, setIncome] = useState(50000);
-  const [existingEmi, setExistingEmi] = useState(0);
+  const [existingEmi, setExistingEmi] = useState(10000);
+  const [eligTenure, setEligTenure] = useState(6);
   const [eligibleAmount, setEligibleAmount] = useState(0);
+  const [maxEmiCapacity, setMaxEmiCapacity] = useState(0);
+  const [applicableROI, setApplicableROI] = useState(11.0);
 
   // Balance Transfer State
   const [btIncome, setBtIncome] = useState(100000);
@@ -421,11 +424,12 @@ const DetailedCalculatorContent = () => {
   useEffect(() => {
     const foir = 0.50;
     const maxMonthlyEmi = (income * foir) - existingEmi;
+    setMaxEmiCapacity(Math.round(Math.max(0, maxMonthlyEmi)));
     
     // Calculate Loan Amount for this Max EMI
     // Formula: P = (E * ( (1+r)^n - 1 ) ) / ( r * (1+r)^n )
-    const r = 10.5 / 12 / 100; // Standard rate for estimation
-    const n = 60; // 5 years standard
+    const r = applicableROI / 12 / 100;
+    const n = eligTenure * 12; // tenure in months
 
     let loan = 0;
     if (maxMonthlyEmi > 0) {
@@ -433,7 +437,7 @@ const DetailedCalculatorContent = () => {
     }
 
     setEligibleAmount(Math.round(Math.max(0, loan)));
-  }, [income, existingEmi]);
+  }, [income, existingEmi, eligTenure, applicableROI]);
 
   // Balance Transfer Calculation
   useEffect(() => {
@@ -1307,42 +1311,73 @@ const DetailedCalculatorContent = () => {
               </div>
 
               <div className="space-y-8">
-                <SliderInput 
-                  label="Monthly Income" 
-                  value={income} 
-                  setValue={setIncome} 
-                  min={15000} 
-                  max={500000} 
-                  step={1000} 
-                  prefix="₹"
-                  description="Your total monthly net income after all deductions"
-                />
-                <SliderInput 
-                  label="Existing EMIs" 
-                  value={existingEmi} 
-                  setValue={setExistingEmi} 
-                  min={0} 
-                  max={200000} 
-                  step={1000} 
-                  prefix="₹"
-                  description="Total monthly EMIs for all your existing loans"
-                />
-                <div className="bg-white/50 p-4 rounded-xl text-sm text-gray-600 border border-blue-50">
-                  *Estimated based on standard bank policies (50% FOIR). Actual eligibility may vary.
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Monthly Net Income (₹)</label>
+                  <input 
+                    type="number" 
+                    value={income}
+                    onChange={(e) => setIncome(Number(e.target.value))}
+                    className="w-full px-4 py-3 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    placeholder="50000"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Salary deposited in bank</p>
                 </div>
-              </div>
-            </div>
-
-            <div className="col-span-12 lg:col-span-5">
-              <div className="bg-blue-900 border border-blue-900 rounded-3xl p-6 text-white relative overflow-hidden h-full flex flex-col justify-center">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                 
-                <div className="relative text-center">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
-                    <Sparkles className="w-3 h-3" />
-                    You are eligible for
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Total Existing EMI (₹)</label>
+                  <input 
+                    type="number" 
+                    value={existingEmi}
+                    onChange={(e) => setExistingEmi(Number(e.target.value))}
+                    className="w-full px-4 py-3 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    placeholder="10000"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Don't Include Balance transfer loan EMIs</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Desired Tenure (Years)</label>
+            <div className="col-span-12 lg:col-span-5">
+              <div className="bg-white border-2 border-gray-200 rounded-3xl p-8 shadow-sm">
+                <h3 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b-2 border-green-500">
+                  Your Loan Eligibility Result
+                </h3>
+                
+                <div className="space-y-6">
+                  <div>
+                    <div className="text-sm text-gray-500 mb-2">Max EMI Capacity</div>
+                    <div className="text-3xl font-bold text-blue-600">₹{formatCurrency(maxEmiCapacity)}</div>
+                    <p className="text-xs text-gray-500 mt-1">This will be new EMI</p>
                   </div>
-                  <div className="text-5xl font-bold mb-6">
+                  
+                  <div>
+                    <div className="text-sm text-gray-500 mb-2">Per Lakh EMI</div>
+                    <div className="text-3xl font-bold text-orange-600">₹{formatCurrency(Math.round((maxEmiCapacity / (eligibleAmount / 100000)) || 0))}</div>
+                    <p className="text-xs text-gray-500 mt-1">@ {applicableROI.toFixed(2)}% on {eligTenure} Years</p>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-gray-500 mb-2">Max Loan Amount</div>
+                    <div className="text-3xl font-bold text-green-600">₹{formatCurrency(eligibleAmount)}</div>
+                    <p className="text-xs text-gray-500 mt-1">Total Eligibility of Loan Amount</p>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-gray-500 mb-2">Net In Hand</div>
+                    <div className="text-3xl font-bold text-purple-600">₹{formatCurrency(Math.max(0, eligibleAmount - 0))}</div>
+                    <p className="text-xs text-gray-500 mt-1">After BT in hand Amount</p>
+                  </div>
+                </div>
+                
+                <Link 
+                  href="/apply"
+                  className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg mt-8"
+                >
+                  Apply Now
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </div><div className="text-5xl font-bold mb-6">
                     ₹{formatCurrency(eligibleAmount)}
                   </div>
                   
@@ -1387,7 +1422,7 @@ const DetailedCalculatorContent = () => {
                   max={500000} 
                   step={1000} 
                   prefix="₹"
-                  description="Your total monthly net income after deductions"
+                  description="Salary deposited in bank"
                 />
                 <SliderInput 
                   label="BT Loan Amount Outstanding" 
@@ -1397,7 +1432,7 @@ const DetailedCalculatorContent = () => {
                   max={5000000} 
                   step={10000} 
                   prefix="₹"
-                  description="Current outstanding balance on your existing loan"
+                  description="Include Balance transfer loan Outstanding"
                 />
                 <SliderInput 
                   label="Existing EMI" 
@@ -1407,7 +1442,7 @@ const DetailedCalculatorContent = () => {
                   max={200000} 
                   step={500} 
                   prefix="₹"
-                  description="Total monthly EMI you are currently paying"
+                  description="Don't Include Balance transfer loan EMIs"
                 />
                 <SliderInput 
                   label="Desired Tenure (Years)" 
@@ -1417,7 +1452,7 @@ const DetailedCalculatorContent = () => {
                   max={30} 
                   step={1} 
                   suffix=" Years"
-                  description="Loan tenure you want for the balance transfer"
+                  description="Max tenure: 7 years"
                 />
               </div>
             </div>
@@ -1788,34 +1823,63 @@ const DetailedCalculatorContent = () => {
 };
 
 // Helper Component
-const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suffix = '', description = '' }: any) => (
-  <div>
-    <div className="flex justify-between items-start mb-4">
-      <div className="flex-1">
-        <label className="flex items-center gap-2 text-gray-700 font-medium mb-1">
-          {label}
-        </label>
-        {description && (
-          <p className="text-xs text-gray-500 font-semibold mt-0.5">{description}</p>
-        )}
+const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suffix = '', description = '' }: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value.replace(/,/g, '');
+    const numValue = Number(newValue);
+    if (!isNaN(numValue) && numValue >= min && numValue <= max) {
+      setValue(numValue);
+    } else if (newValue === '') {
+      setValue(min);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex-1">
+          <label className="flex items-center gap-2 text-gray-700 font-medium mb-1">
+            {label}
+          </label>
+          {description && (
+            <p className="text-xs text-gray-500 font-semibold mt-0.5">{description}</p>
+          )}
+        </div>
+        <div className="bg-white px-4 py-2 rounded-xl border-2 border-gray-200 focus-within:border-blue-500 transition-all">
+          <input
+            type="text"
+            value={`${prefix}${formatCurrency(value)}${suffix}`}
+            onChange={handleInputChange}
+            onFocus={(e) => {
+              // Remove formatting on focus for easier editing
+              e.target.value = value.toString();
+            }}
+            onBlur={(e) => {
+              // Restore formatting on blur
+              const numValue = Number(e.target.value.replace(/,/g, ''));
+              if (!isNaN(numValue)) {
+                if (numValue < min) setValue(min);
+                else if (numValue > max) setValue(max);
+                else setValue(numValue);
+              }
+              e.target.value = `${prefix}${formatCurrency(value)}${suffix}`;
+            }}
+            className="font-bold text-gray-900 text-right outline-none bg-transparent w-full min-w-[120px]"
+          />
+        </div>
       </div>
-      <div className="bg-gray-100 px-4 py-2 rounded-xl border border-gray-200">
-        <span className="font-bold text-gray-900">
-          {prefix}{formatCurrency(value)}{suffix}
-        </span>
-      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => setValue(Number(e.target.value))}
+        className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+      />
     </div>
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onChange={(e) => setValue(Number(e.target.value))}
-      className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600"
-    />
-  </div>
-);
+  );
+};
 
 export default function DetailedCalculator() {
   return (

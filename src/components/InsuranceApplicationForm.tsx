@@ -1,9 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Heart, Shield, Car, Bike, Calendar, User, Phone, IndianRupee, MapPin, Hash, Wallet } from 'lucide-react';
-import LoginModal from './LoginModal';
 
 interface InsuranceApplicationFormProps {
   insuranceType?: string;
@@ -11,7 +9,6 @@ interface InsuranceApplicationFormProps {
 
 const InsuranceApplicationForm = ({ insuranceType = 'health' }: InsuranceApplicationFormProps) => {
   const router = useRouter();
-  const { data: session, status } = useSession();
   
   const isHealthInsurance = insuranceType === 'health';
   const isTermLife = insuranceType === 'term-life';
@@ -19,18 +16,6 @@ const InsuranceApplicationForm = ({ insuranceType = 'health' }: InsuranceApplica
   const isBikeInsurance = insuranceType === 'bike';
   const isLoanProtector = insuranceType === 'loan-protector';
   const isEmiProtector = insuranceType === 'emi-protector';
-  
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [pendingSubmission, setPendingSubmission] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState<any>(null);
-  
-  // Check if user is logged in when form opens
-  React.useEffect(() => {
-    if (status === 'unauthenticated' || !session) {
-      // Show login modal immediately if not logged in
-      setShowLoginModal(true);
-    }
-  }, [status, session]);
   
   // Get form title and icon
   const getFormDetails = () => {
@@ -220,62 +205,17 @@ const InsuranceApplicationForm = ({ insuranceType = 'health' }: InsuranceApplica
   };
 
   const handleSubmit = async () => {
-    // Prepare the application data first
+    // Prepare and submit the application data directly
     const applicationData = prepareApplicationData();
-    
-    // Check if user is logged in
-    if (status === 'unauthenticated' || !session) {
-      // Store the prepared data and show login modal
-      setPendingFormData(applicationData);
-      setPendingSubmission(true);
-      setShowLoginModal(true);
-      return;
-    }
-
-    // User is logged in, submit directly
     await submitApplicationData(applicationData);
   };
 
   const showBasicDetails = currentStep === 1;
   const showReview = currentStep === 2;
 
-  const handleLoginSuccess = async () => {
-    // After successful login, submit the pending form data directly if there's pending submission
-    if (pendingSubmission && pendingFormData) {
-      setPendingSubmission(false);
-      // Wait a bit longer to ensure session is fully loaded and available in API route
-      setTimeout(async () => {
-        await submitApplicationData(pendingFormData);
-      }, 800);
-    } else {
-      // Just close the modal if no pending submission
-      setShowLoginModal(false);
-    }
-  };
-
-  const handleLoginClose = () => {
-    // If user closes login modal without logging in, redirect them away
-    if (status === 'unauthenticated' || !session) {
-      router.push('/');
-    } else {
-      setShowLoginModal(false);
-      setPendingSubmission(false);
-    }
-  };
-
-  // Block form interaction if not logged in
-  const isFormBlocked = status === 'unauthenticated' || !session;
-
   return (
     <>
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={handleLoginClose}
-        onSuccess={handleLoginSuccess}
-        message="Please login to apply for insurance. This helps us track your applications and provide better service."
-      />
-      
-      <div className={`bg-white w-full rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-500 ${isFormBlocked ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className="bg-white w-full rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-500">
         {/* Close Button */}
         <button 
           onClick={handleClose}
