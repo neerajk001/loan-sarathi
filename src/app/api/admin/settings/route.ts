@@ -17,6 +17,13 @@ const DEFAULT_SETTINGS = {
   },
 };
 
+interface AdminSettings {
+  _id: string;
+  settings: typeof DEFAULT_SETTINGS;
+  updatedAt?: Date;
+  updatedBy?: string;
+}
+
 // GET /api/admin/settings - Get current settings
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -28,9 +35,9 @@ export async function GET(request: NextRequest) {
   try {
     const client = await clientPromise;
     const db = client.db('loan-sarathi');
-    const collection = db.collection(SETTINGS_COLLECTION);
+    const collection = db.collection<AdminSettings>(SETTINGS_COLLECTION);
     
-    const settings = await collection.findOne({ _id: 'main' });
+    const settings = await collection.findOne({ _id: 'main' } as any);
     
     return NextResponse.json({
       success: true,
@@ -57,7 +64,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const client = await clientPromise;
     const db = client.db('loan-sarathi');
-    const collection = db.collection(SETTINGS_COLLECTION);
+    const collection = db.collection<AdminSettings>(SETTINGS_COLLECTION);
     
     // Validate admin emails
     if (body.adminEmails && Array.isArray(body.adminEmails)) {
@@ -82,7 +89,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Merge with existing settings
-    const existing = await collection.findOne({ _id: 'main' });
+    const existing = await collection.findOne({ _id: 'main' } as any);
     const mergedSettings = {
       ...DEFAULT_SETTINGS,
       ...(existing?.settings || {}),
@@ -91,7 +98,7 @@ export async function POST(request: NextRequest) {
     
     // Update or insert settings
     await collection.updateOne(
-      { _id: 'main' },
+      { _id: 'main' } as any,
       {
         $set: {
           settings: mergedSettings,
