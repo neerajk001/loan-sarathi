@@ -337,9 +337,9 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       const result = await response.json();
 
       if (result.success) {
-        // Show success and redirect to track status page
-        alert(`Application submitted successfully!\n\nYour Reference ID: ${result.applicationId}\n\nPlease save this ID to track your application status.`);
-        router.push(`/track-status?id=${result.applicationId}`);
+        // Show success and redirect to home page
+        alert(`Application submitted successfully!\n\nYour Reference ID: ${result.applicationId}\n\nOur team will contact you shortly with updates.`);
+        router.push('/');
       } else {
         setSubmitError(result.errors?.join(', ') || result.error || 'Failed to submit application');
       }

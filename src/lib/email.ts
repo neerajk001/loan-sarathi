@@ -102,12 +102,7 @@ export function createLoanApplicationConfirmationEmail(
             <li>Our team will verify your application details within 24-48 hours</li>
             <li>We may contact you for additional documents if required</li>
             <li>Once verified, we'll connect you with our lending partners</li>
-            <li>You can track your application status anytime using your Reference ID</li>
           </ol>
-          
-          <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/track-status" class="button">Track Application Status</a>
-          </div>
           
           <div class="footer">
             <p>Need help? Contact us at <a href="mailto:support@loansarathi.com">support@loansarathi.com</a></p>
@@ -136,9 +131,6 @@ What happens next?
 1. Our team will verify your application details within 24-48 hours
 2. We may contact you for additional documents if required
 3. Once verified, we'll connect you with our lending partners
-4. You can track your application status anytime using your Reference ID
-
-Track your application: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/track-status
 
 Need help? Contact us at support@loansarathi.com
 
@@ -201,10 +193,6 @@ export function createInsuranceApplicationConfirmationEmail(
             <li>Complete your purchase online or speak with our advisors</li>
           </ol>
           
-          <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/track-status" class="button">Track Quote Status</a>
-          </div>
-          
           <div class="footer">
             <p>Questions? Contact us at <a href="mailto:insurance@loansarathi.com">insurance@loansarathi.com</a></p>
             <p>© ${new Date().getFullYear()} Loan Sarathi. All rights reserved.</p>
@@ -227,8 +215,6 @@ What happens next?
 2. We'll send you personalized quotes from top insurers within 24 hours
 3. Compare and choose the best plan for your needs
 4. Complete your purchase online or speak with our advisors
-
-Track your quote: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/track-status
 
 Questions? Contact us at insurance@loansarathi.com
 
@@ -279,10 +265,6 @@ export function createStatusUpdateEmail(
           </div>
           
           ${notes ? `<p><strong>Additional Notes:</strong><br>${notes}</p>` : ''}
-          
-          <div style="text-align: center; margin-top: 20px;">
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/track-status" style="display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">View Full Details</a>
-          </div>
         </div>
       </div>
     </body>
@@ -297,8 +279,6 @@ Your application ${applicationId} has been updated.
 New Status: ${newStatus.toUpperCase()}
 
 ${notes ? `Notes: ${notes}` : ''}
-
-View full details: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/track-status
 
 © ${new Date().getFullYear()} Loan Sarathi
   `;

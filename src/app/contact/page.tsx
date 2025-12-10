@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Phone, Mail, Clock, MapPin } from 'lucide-react';
+import { Phone, Mail, Clock, MapPin, Send, Building2, User } from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -10,7 +10,7 @@ export default function ContactPage() {
     lastName: '',
     email: '',
     contactNumber: '',
-    companyName: '',
+    message: '',
     loanType: 'Personal Loan'
   });
 
@@ -23,230 +23,241 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
     console.log('Form submitted:', formData);
+    alert('Thank you for contacting us! We will get back to you shortly.');
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      contactNumber: '',
+      message: '',
+      loanType: 'Personal Loan'
+    });
   };
 
   const loanTypes = [
     'Personal Loan',
     'Business Loan',
     'Home Loan',
-    'Property Loan',
+    'Loan Against Property',
     'Education Loan'
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      {/* Header Banner */}
-      <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1600&q=80)',
-            filter: 'blur(3px) brightness(0.7)'
-          }}
-        />
-        <div className="absolute inset-0 bg-blue-900/40" />
-        <div className="relative h-full flex items-center justify-start max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white">
-            Contact Us
-          </h1>
-        </div>
-      </div>
-
-      {/* Request Call Back Section */}
-      <div className="bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-blue-600 mb-3">
-            Request a call back now
-          </h2>
-          <div className="w-24 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-gray-600 text-lg max-w-3xl mx-auto">
-            Embark on your journey towards financial empowerment today! Contact us at 95888 33303 to schedule a consultation or learn more about our services.
-          </p>
-        </div>
-      </div>
-
-      {/* Contact Information Cards */}
-      <div className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {/* Phone */}
-            <div className="bg-white rounded-lg p-6 shadow-md flex items-start gap-4">
-              <div className="bg-blue-600 rounded-full p-3 shrink-0">
-                <Phone className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Phone</h3>
-                <p className="text-gray-600">+91 9588833303</p>
-              </div>
+      {/* Modern Header Section */}
+      <div className="relative bg-gradient-to-r from-blue-600 to-blue-700 border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+              <Mail className="h-8 w-8 text-white" />
             </div>
-
-            {/* Email */}
-            <div className="bg-white rounded-lg p-6 shadow-md flex items-start gap-4">
-              <div className="bg-blue-600 rounded-full p-3 shrink-0">
-                <Mail className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Email</h3>
-                <p className="text-gray-600">sales@smartsolutionsmumbai.com</p>
-                <p className="text-gray-600">sales@ssolutions.com</p>
-              </div>
-            </div>
-
-            {/* Working Hours */}
-            <div className="bg-gray-100 rounded-lg p-6 shadow-md flex items-start gap-4">
-              <div className="bg-blue-600 rounded-full p-3 shrink-0">
-                <Clock className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Working Hours</h3>
-                <p className="text-gray-600">Mon - Sat 10:00 AM – 6:30 PM</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Branch Addresses */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Vasai Branch */}
-            <div className="bg-white rounded-lg p-6 shadow-md flex items-start gap-4">
-              <div className="bg-blue-600 rounded-full p-3 shrink-0">
-                <MapPin className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900 mb-2 uppercase">Vasai Branch</h3>
-                <p className="text-gray-600">
-                  B-101, Lawrence Trade Center Vasai West Pincode 401202
-                </p>
-              </div>
-            </div>
-
-            {/* Dadar Branch */}
-            <div className="bg-white rounded-lg p-6 shadow-md flex items-start gap-4">
-              <div className="bg-blue-600 rounded-full p-3 shrink-0">
-                <MapPin className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900 mb-2 uppercase">Dadar Branch</h3>
-                <p className="text-gray-600">
-                  Office No. 236/238/240 Hind Rajasthan Building 2nd floor Near Kailas Lassi, Dadar East Mumbai 400014
-                </p>
-              </div>
-            </div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
+              Get in Touch
+            </h1>
+            <p className="text-base md:text-lg text-blue-50 max-w-2xl mx-auto">
+              Have questions? We're here to help. Reach out to us and let's discuss your financial needs.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Form and Map Section */}
-      <div className="bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Contact Form */}
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Contact Info Cards */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {/* Phone Card */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-blue-100 hover:shadow-md hover:border-blue-300 transition-all">
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+              <Phone className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-2">Call Us</h3>
+            <p className="text-gray-600 text-sm mb-2">Mon - Sat</p>
+            <p className="text-blue-600 font-semibold">9588833303</p>
+          </div>
+
+          {/* Email Card */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-orange-100 hover:shadow-md hover:border-orange-300 transition-all">
+            <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-4">
+              <Mail className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-2">Email Us</h3>
+            <p className="text-gray-600 text-sm mb-2">Quick response</p>
+            <p className="text-orange-600 font-semibold text-sm">info@loansarathi.com</p>
+          </div>
+
+          {/* Working Hours Card */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-blue-100 hover:shadow-md hover:border-blue-300 transition-all">
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+              <Clock className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-2">Working Hours</h3>
+            <p className="text-gray-600 text-sm mb-2">Monday - Saturday</p>
+            <p className="text-blue-600 font-semibold">10:00 AM – 6:30 PM</p>
+          </div>
+
+          {/* Address Card */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-orange-100 hover:shadow-md hover:border-orange-300 transition-all">
+            <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-4">
+              <MapPin className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-2">Visit Us</h3>
+            <p className="text-gray-600 text-sm">Vasai West, Maharashtra 401202</p>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Contact Form - Takes 2 columns */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Send us a Message</h2>
+                <p className="text-gray-600">Fill out the form below and we'll get back to you as soon as possible.</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <input
-                      type="text"
-                      name="firstName"
-                      placeholder="First name"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      First Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="firstName"
+                        placeholder="John"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      />
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    </div>
                   </div>
                   <div>
-                    <input
-                      type="text"
-                      name="lastName"
-                      placeholder="Last name"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="lastName"
+                        placeholder="Doe"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      />
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Your email address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  />
+                  <div className="relative">
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="john.doe@example.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Contact Number <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="tel"
-                    name="contactNumber"
-                    placeholder="Your contact number"
-                    value={formData.contactNumber}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  />
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      name="contactNumber"
+                      placeholder="+91 98765 43210"
+                      value={formData.contactNumber}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Company Name <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="companyName"
-                    placeholder="Enter your company name"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Loan Type <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    name="loanType"
-                    value={formData.loanType}
+                  <div className="relative">
+                    <select
+                      name="loanType"
+                      value={formData.loanType}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none bg-white"
+                    >
+                      {loanTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Message <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="message"
+                    placeholder="Tell us about your requirements..."
+                    value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  >
-                    {loanTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-all"
+                  />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+                  className="w-full bg-orange-500 text-white font-bold py-4 px-6 rounded-xl hover:bg-orange-600 transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                 >
-                  Submit
+                  <Send className="h-5 w-5" />
+                  Send Message
                 </button>
               </form>
             </div>
+          </div>
 
-            {/* Google Maps */}
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Find Us</h2>
-              <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          {/* Right Sidebar */}
+          <div className="space-y-8">
+            {/* Address Details */}
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-blue-100 p-6">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+                <MapPin className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-4">Our Office</h3>
+              <p className="text-gray-600 mb-4 leading-relaxed">
+                B-203, 204, 205, Lawrence Trade Center, Manikpur Road, Near Madhuram Hotel, Vasai West 401202
+              </p>
+              <div className="pt-4 border-t border-blue-100">
+                <p className="text-sm text-blue-600 font-medium mb-2">Maharashtra, India</p>
+              </div>
+            </div>
+
+            {/* Map */}
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-orange-100 p-3">
+              <div className="w-full h-[300px] rounded-xl overflow-hidden">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3764.1234567890123!2d72.82345678901234!3d19.456789012345678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDI3JzI0LjQiTiA3MsKwNDknMjQuNCJF!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
                   width="100%"
@@ -258,18 +269,14 @@ export default function ContactPage() {
                   className="w-full h-full"
                 />
               </div>
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">Lawrence Trade Center</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  9RHH+J7H, Panchal Nagar, Anand Nagar, Vasai West, Navghar-Manikpur, Vasai-Virar, Maharashtra 401202
-                </p>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span className="text-yellow-500">★★★★☆</span>
-                  <span>3.5</span>
-                  <span className="text-gray-400">•</span>
-                  <span>59 reviews</span>
-                </div>
-              </div>
+            </div>
+
+            {/* Quick Info */}
+            <div className="bg-gradient-to-br from-orange-50 to-blue-50 rounded-2xl border-2 border-orange-200 p-6">
+              <h3 className="font-bold text-gray-900 mb-4">Quick Response</h3>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                We typically respond to all inquiries within 24 hours during business days. For urgent matters, please call us directly.
+              </p>
             </div>
           </div>
         </div>

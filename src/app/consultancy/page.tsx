@@ -128,9 +128,9 @@ export default function ConsultancyPage() {
             </p>
             
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Why Consult with Us?</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-8">Why Consult with Us?</h3>
               
-              <div className="space-y-4">
+              <div className="space-y-10">
                 <div className="flex items-start gap-3">
                   <div className="bg-blue-50 p-1.5 rounded-lg">
                     <ShieldCheck className="h-5 w-5 text-blue-600" />

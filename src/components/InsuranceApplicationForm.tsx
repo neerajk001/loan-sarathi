@@ -204,9 +204,9 @@ const InsuranceApplicationForm = ({ insuranceType = 'health' }: InsuranceApplica
       const result = await response.json();
 
       if (result.success) {
-        // Show success and redirect to track status page
-        alert(`Quote request submitted successfully!\n\nYour Reference ID: ${result.applicationId}\n\nPlease save this ID to track your quote status.`);
-        router.push(`/track-status?id=${result.applicationId}`);
+        // Show success and redirect to home page
+        alert(`Quote request submitted successfully!\n\nYour Reference ID: ${result.applicationId}\n\nOur team will contact you shortly with personalized quotes.`);
+        router.push('/');
       } else {
         setSubmitError(result.errors?.join(', ') || result.error || 'Failed to submit quote request');
       }
