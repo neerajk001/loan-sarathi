@@ -48,13 +48,13 @@ export default function ContactPage() {
       <Navbar />
       
       {/* Modern Header Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 to-blue-700 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="relative bg-blue-900  border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-12">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4">
-              <Mail className="h-8 w-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-2">
+              <Mail className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
+            <h1 className="text-3xl md:text-2xl lg:text-3xl font-bold text-white mb-2">
               Get in Touch
             </h1>
             <p className="text-base md:text-lg text-blue-50 max-w-2xl mx-auto">
