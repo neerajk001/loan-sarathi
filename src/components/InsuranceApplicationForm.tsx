@@ -200,7 +200,6 @@ const InsuranceApplicationForm = ({ insuranceType = 'health' }: InsuranceApplica
       setSubmitError('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
-      setPendingFormData(null);
     }
   };
 

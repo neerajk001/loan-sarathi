@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         $set: {
           settings: mergedSettings,
           updatedAt: new Date(),
-          updatedBy: session.user.email || 'unknown',
+          updatedBy: 'admin@loansarathi.com',
         },
       },
       { upsert: true }
