@@ -256,7 +256,7 @@ export default function ContactPage() {
             </div>
 
             {/* Map */}
-            <div className="bg-white rounded-2xl shadow-sm border-2 border-orange-100 p-3">
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-orange-100 p-2">
               <div className="w-full h-[300px] rounded-xl overflow-hidden">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3764.1234567890123!2d72.82345678901234!3d19.456789012345678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDI3JzI0LjQiTiA3MsKwNDknMjQuNCJF!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
@@ -273,9 +273,9 @@ export default function ContactPage() {
 
             {/* Quick Info */}
             <div className="bg-gradient-to-br from-orange-50 to-blue-50 rounded-2xl border-2 border-orange-200 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Quick Response</h3>
+              <h3 className="font-bold text-gray-900 mb-2">Quick Response</h3>
               <p className="text-gray-700 text-sm leading-relaxed">
-                We typically respond to all inquiries within 24 hours during business days. For urgent matters, please call us directly.
+                We typically respond to all inquiries within 24 hours during business days. For urgent matters.
               </p>
             </div>
           </div>
