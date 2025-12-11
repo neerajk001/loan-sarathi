@@ -109,7 +109,7 @@ const InsuranceProducts = () => {
             <div 
               key={product.id}
               onClick={(e) => handleCardClick(e, product.detailsHref)}
-              className={`group flex flex-col items-center text-center p-6 rounded-3xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer relative border-2 ${
+              className={`group flex flex-col items-center text-center p-4 rounded-3xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer relative border-2 ${
                 product.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200' :
                 product.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200' :
                 product.color === 'orange' ? 'bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200' :
@@ -119,7 +119,7 @@ const InsuranceProducts = () => {
               }`}
             >
               {/* Top Tag */}
-              <div className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-bold mb-6 shadow-sm ${
+              <div className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-bold mb-3 shadow-sm ${
                 product.color === 'blue' ? 'bg-blue-200 text-blue-800' :
                 product.color === 'green' ? 'bg-green-200 text-green-800' :
                 product.color === 'orange' ? 'bg-orange-200 text-orange-800' :
@@ -131,7 +131,7 @@ const InsuranceProducts = () => {
               </div>
 
               {/* Icon Box */}
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 shadow-md ${
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md ${
                 product.color === 'blue' ? 'bg-white border-2 border-blue-300' :
                 product.color === 'green' ? 'bg-white border-2 border-green-300' :
                 product.color === 'orange' ? 'bg-white border-2 border-orange-300' :
@@ -148,7 +148,7 @@ const InsuranceProducts = () => {
               </h3>
 
               {/* Subtitle */}
-              <p className="text-xs md:text-sm text-gray-500 mb-4">
+              <p className="text-xs md:text-sm text-gray-500 mb-3">
                 {product.subtitle}
               </p>
 

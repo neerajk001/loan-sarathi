@@ -118,6 +118,14 @@ const Navbar = () => {
                       <GraduationCap className="h-4 w-4 text-indigo-600" />
                       <span className="text-sm font-medium text-gray-900">Education Loan</span>
                     </Link>
+                    
+                    <Link 
+                      href="/loan/car-loan" 
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-teal-50 transition-colors group"
+                    >
+                      <Car className="h-4 w-4 text-teal-600" />
+                      <span className="text-sm font-medium text-gray-900">Car Loan</span>
+                    </Link>
                     </div>
                   </div>
                 </div>
@@ -297,6 +305,10 @@ const Navbar = () => {
                       <Link href="/loan/education-loan" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-indigo-50 transition-colors">
                         <GraduationCap className="h-5 w-5 text-indigo-600" />
                         Education Loan
+                      </Link>
+                      <Link href="/loan/car-loan" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-teal-50 transition-colors">
+                        <Car className="h-5 w-5 text-teal-600" />
+                        Car Loan
                       </Link>
                     </div>
                   )}

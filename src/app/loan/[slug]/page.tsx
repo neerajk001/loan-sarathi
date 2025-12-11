@@ -153,6 +153,37 @@ const productDetails: Record<string, any> = {
       'Academic Records (10th, 12th, Graduation marksheets)'
     ],
     applyLink: '/apply?type=education'
+  },
+  'car-loan': {
+    title: 'Car Loan',
+    heroImage: '/loan/car.png',
+    description: 'Drive your dream car home with our flexible car loans. We offer financing for new cars, used cars, and pre-owned vehicles with competitive interest rates and flexible tenure options.',
+    features: [
+      'Loans up to 90% of car value (On-Road Price)',
+      'Interest rates starting @ 8.50% p.a.',
+      'Flexible tenure up to 7 years',
+      'Covers: New Cars & Used Cars (up to 7 years old)',
+      'Quick approval and fast disbursal',
+      'Zero foreclosure charges after 6 months'
+    ],
+    eligibility: [
+      'Citizenship: Indian Resident',
+      'Age: 21 to 65 years',
+      'Employment: Salaried or Self-Employed',
+      'Min. Monthly Income: ₹25,000 (Salaried) / ₹50,000 (Self-Employed)',
+      'CIBIL Score: 700+ for best rates',
+      'Existing loans: Should not exceed 50% of net income'
+    ],
+    documents: [
+      'Identity Proof (PAN Card/Aadhaar)',
+      'Address Proof (Aadhaar/Passport/Utility Bill)',
+      'Income Proof: Last 3 months Salary Slips (Salaried) / Last 2 years ITR (Self-Employed)',
+      'Bank Statements (Last 6 months)',
+      'Car Quotation/Proforma Invoice',
+      'Existing Loan Statements (if any)',
+      'Passport size photographs'
+    ],
+    applyLink: '/apply?type=car'
   }
 };
 

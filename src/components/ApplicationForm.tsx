@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Building2, IndianRupee, Wallet, Briefcase, Store, Home, FileText } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Building2, IndianRupee, Wallet, Briefcase, Store, Home, FileText, Car } from 'lucide-react';
 
 interface ApplicationFormProps {
   loanType?: string;
@@ -13,6 +13,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
   const isHomeLoan = loanType === 'home';
   const isLAP = loanType === 'lap';
   const isPersonalLoan = loanType === 'personal';
+  const isCarLoan = loanType === 'car';
   
   const isSubmittingRef = React.useRef(false);
   
@@ -44,6 +45,13 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       { id: 1, title: 'Basic Details' },
       { id: 2, title: 'Employment Info' },
       { id: 3, title: 'Property Info' },
+      { id: 4, title: 'Review & Submit' },
+    ];
+  } else if (isCarLoan) {
+    steps = [
+      { id: 1, title: 'Basic Details' },
+      { id: 2, title: 'Employment Info' },
+      { id: 3, title: 'Vehicle Details' },
       { id: 4, title: 'Review & Submit' },
     ];
   }
@@ -83,6 +91,14 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     // LAP Specific
     propertyType: '', // Residential, Commercial, Industrial
     occupancyStatus: '', // Self Occupied, Rented
+    // Car Loan Specific
+    carType: '', // New or Used
+    carMake: '', // Manufacturer
+    carModel: '',
+    carVariant: '',
+    carPrice: '', // On-Road Price
+    carYear: '', // For used cars
+    downPayment: '',
     // Loan Requirement
     loanAmount: '',
     tenure: '',
@@ -168,9 +184,34 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       );
     }
 
+    // Step 3: Vehicle Details (Car Loan only)
+    if (currentStep === 3 && isCarLoan) {
+      const baseValidation = !!(
+        formData.carType?.trim() &&
+        formData.carMake?.trim() &&
+        formData.carModel?.trim() &&
+        formData.carVariant?.trim() &&
+        formData.carPrice?.trim() &&
+        parseFloat(formData.carPrice) > 0 &&
+        formData.downPayment?.trim() &&
+        parseFloat(formData.downPayment) > 0
+      );
+      
+      // For used cars, also validate year
+      if (formData.carType === 'used') {
+        return baseValidation && !!(
+          formData.carYear?.trim() &&
+          parseInt(formData.carYear) >= 2018 &&
+          parseInt(formData.carYear) <= new Date().getFullYear()
+        );
+      }
+      
+      return baseValidation;
+    }
+
     // Step 3/4: Loan Requirement
     // Loan requirement step: Business loan step 4, or Personal loan step 3
-    if ((isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && currentStep === 3)) {
+    if ((isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && !isCarLoan && currentStep === 3)) {
       return !!(
         formData.loanAmount?.trim() &&
         parseFloat(formData.loanAmount) > 0 &&
@@ -309,14 +350,16 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
   const showBusinessDetails = isBusinessLoan && currentStep === 3;
   const showPropertyDetails = isHomeLoan && currentStep === 3;
   const showLAPDetails = isLAP && currentStep === 3;
-  const showLoanRequirement = (isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && currentStep === 3);
-  const showReview = (isBusinessLoan && currentStep === 5) || ((isHomeLoan || isLAP) && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && currentStep === 4);
+  const showCarDetails = isCarLoan && currentStep === 3;
+  const showLoanRequirement = (isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && !isCarLoan && currentStep === 3);
+  const showReview = (isBusinessLoan && currentStep === 5) || ((isHomeLoan || isLAP || isCarLoan) && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && !isCarLoan && currentStep === 4);
 
   // Dynamic Title
   const getTitle = () => {
     if (isBusinessLoan) return 'Business Loan Application';
     if (isHomeLoan) return 'Home Loan Application';
     if (isLAP) return 'Loan Against Property';
+    if (isCarLoan) return 'Car Loan Application';
     return 'Personal Loan Application';
   };
 
@@ -940,6 +983,150 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                     <span className="ml-3 font-medium">Vacant</span>
                   </label>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Vehicle Details (Car Loan) */}
+        {showCarDetails && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Vehicle Details</h3>
+                <p className="text-gray-500 text-sm mt-1">Tell us about your dream car</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-teal-700 bg-teal-50 px-4 py-2 rounded-full border border-teal-200 shadow-sm">
+                Drive Home Today
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Car Type <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Car className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <select 
+                    name="carType"
+                    value={formData.carType}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="new">New Car</option>
+                    <option value="used">Used Car (Up to 7 years old)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Car Make/Manufacturer <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="text" 
+                    name="carMake"
+                    value={formData.carMake}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., Maruti, Hyundai, Tata" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Car Model <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Car className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="text" 
+                    name="carModel"
+                    value={formData.carModel}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., Swift, Creta, Nexon" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Variant <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="text" 
+                    name="carVariant"
+                    value={formData.carVariant}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., VXi, SX, XZ+" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  On-Road Price (₹) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="carPrice"
+                    value={formData.carPrice}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 800000" 
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Including all taxes and charges</p>
+              </div>
+
+              {formData.carType === 'used' && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Manufacturing Year <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input 
+                      type="number" 
+                      name="carYear"
+                      value={formData.carYear}
+                      onChange={handleInputChange}
+                      min="2018"
+                      max={new Date().getFullYear()}
+                      className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                      placeholder={`E.g., ${new Date().getFullYear() - 2}`}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Down Payment (₹) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="downPayment"
+                    value={formData.downPayment}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 80000" 
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Minimum 10% of car price</p>
               </div>
             </div>
           </div>
