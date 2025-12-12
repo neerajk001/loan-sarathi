@@ -192,12 +192,18 @@ export default function InsuranceDetailPage() {
     <main className="min-h-screen bg-white">
       <Navbar />
       
+      {/* Full-width blue banner with product name and back button */}
+      <div className="bg-blue-600 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Link href="/" className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-2.5 rounded-lg mb-4 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back to Home</span>
+          </Link>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mt-4">{product.title}</h1>
+        </div>
+      </div>
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Home</span>
-        </Link>
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12">{product.title}</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
           {/* Main Content */}
