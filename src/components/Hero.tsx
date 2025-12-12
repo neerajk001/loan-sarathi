@@ -97,7 +97,7 @@ const Hero = () => {
           <div className="mt-12 lg:mt-0 lg:col-span-5 flex items-center justify-center lg:justify-end">
             <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
               <img
-                src="/loan.jpg"
+                src="/coin.jpg"
                 alt="Hero"
                 className="w-full h-auto rounded-2xl shadow-2xl object-cover"
               />

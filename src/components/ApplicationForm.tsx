@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Building2, IndianRupee, Wallet, Briefcase, Store, Home, FileText, Car } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, ShieldCheck, X, Building2, IndianRupee, Wallet, Briefcase, Store, Home, FileText, Car, GraduationCap, CheckCircle } from 'lucide-react';
 
 interface ApplicationFormProps {
   loanType?: string;
@@ -14,8 +14,11 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
   const isLAP = loanType === 'lap';
   const isPersonalLoan = loanType === 'personal';
   const isCarLoan = loanType === 'car';
+  const isEducationLoan = loanType === 'education';
   
   const isSubmittingRef = React.useRef(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [applicationId, setApplicationId] = useState('');
   
   // Define steps based on loan type
   let steps = [
@@ -52,6 +55,13 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       { id: 1, title: 'Basic Details' },
       { id: 2, title: 'Employment Info' },
       { id: 3, title: 'Vehicle Details' },
+      { id: 4, title: 'Review & Submit' },
+    ];
+  } else if (isEducationLoan) {
+    steps = [
+      { id: 1, title: 'Basic Details' },
+      { id: 2, title: 'Employment Info' },
+      { id: 3, title: 'Education Details' },
       { id: 4, title: 'Review & Submit' },
     ];
   }
@@ -99,6 +109,12 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     carPrice: '', // On-Road Price
     carYear: '', // For used cars
     downPayment: '',
+    // Education Loan Specific
+    courseName: '',
+    instituteName: '',
+    courseCountry: '',
+    courseDuration: '',
+    courseFee: '',
     // Loan Requirement
     loanAmount: '',
     tenure: '',
@@ -180,7 +196,12 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
         formData.propertyCost?.trim() &&
         parseFloat(formData.propertyCost) > 0 &&
         formData.propertyCity?.trim() &&
-        formData.occupancyStatus?.trim()
+        formData.occupancyStatus?.trim() &&
+        formData.loanAmount?.trim() &&
+        parseFloat(formData.loanAmount) > 0 &&
+        formData.tenure?.trim() &&
+        parseInt(formData.tenure) > 0 &&
+        formData.loanPurpose?.trim()
       );
     }
 
@@ -209,9 +230,22 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       return baseValidation;
     }
 
+    // Step 3: Education Details (Education Loan only)
+    if (currentStep === 3 && isEducationLoan) {
+      return !!(
+        formData.courseName?.trim() &&
+        formData.instituteName?.trim() &&
+        formData.courseCountry?.trim() &&
+        formData.courseDuration?.trim() &&
+        parseInt(formData.courseDuration) > 0 &&
+        formData.courseFee?.trim() &&
+        parseFloat(formData.courseFee) > 0
+      );
+    }
+
     // Step 3/4: Loan Requirement
     // Loan requirement step: Business loan step 4, or Personal loan step 3
-    if ((isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && !isCarLoan && currentStep === 3)) {
+    if ((isBusinessLoan && currentStep === 4) || (!isBusinessLoan && !isHomeLoan && !isLAP && !isCarLoan && !isEducationLoan && currentStep === 3)) {
       return !!(
         formData.loanAmount?.trim() &&
         parseFloat(formData.loanAmount) > 0 &&
@@ -323,9 +357,13 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       const result = await response.json();
 
       if (result.success) {
-        // Show success and redirect to home page
-        alert(`Application submitted successfully!\n\nYour Reference ID: ${result.applicationId}\n\nOur team will contact you shortly with updates.`);
-        router.push('/');
+        // Show success popup and redirect to home page after delay
+        setApplicationId(result.applicationId);
+        setShowSuccessPopup(true);
+        setTimeout(() => {
+          setShowSuccessPopup(false);
+          router.push('/');
+        }, 4000);
       } else {
         setSubmitError(result.errors?.join(', ') || result.error || 'Failed to submit application');
       }
@@ -359,6 +397,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     if (isBusinessLoan) return 'Business Loan Application';
     if (isHomeLoan) return 'Home Loan Application';
     if (isLAP) return 'Loan Against Property';
+    if (isEducationLoan) return 'Education Loan Application';
     if (isCarLoan) return 'Car Loan Application';
     return 'Personal Loan Application';
   };
@@ -985,6 +1024,65 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                 </div>
               </div>
             </div>
+
+            {/* Loan Requirement Section */}
+            <div className="border-t border-gray-100 pt-6 mt-6">
+              <h4 className="text-lg font-bold text-gray-900 mb-4">Loan Requirement</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Required Loan Amount (₹) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input 
+                      type="number" 
+                      name="loanAmount"
+                      value={formData.loanAmount}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                      placeholder="E.g., 5000000" 
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500">Up to 70% of property value</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Desired Tenure (Years) <span className="text-red-500">*</span>
+                  </label>
+                  <select 
+                    name="tenure"
+                    value={formData.tenure}
+                    onChange={handleInputChange}
+                    className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                  >
+                    <option value="">Select tenure</option>
+                    <option value="1">1 Year</option>
+                    <option value="2">2 Years</option>
+                    <option value="3">3 Years</option>
+                    <option value="5">5 Years</option>
+                    <option value="7">7 Years</option>
+                    <option value="10">10 Years</option>
+                    <option value="15">15 Years</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Purpose of Loan <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="loanPurpose"
+                    value={formData.loanPurpose}
+                    onChange={handleInputChange}
+                    className="w-full px-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., Business expansion, Working capital, Medical emergency" 
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1127,6 +1225,118 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Minimum 10% of car price</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Education Details (Education Loan) */}
+        {isEducationLoan && currentStep === 3 && (
+          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Education Details</h3>
+                <p className="text-gray-500 text-sm mt-1">Tell us about your educational plans</p>
+              </div>
+              <span className="hidden md:inline-block text-sm font-bold text-indigo-700 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-200 shadow-sm">
+                Invest in Your Future
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Course Name <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="text" 
+                    name="courseName"
+                    value={formData.courseName}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., MBA, B.Tech, MS" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Institute Name <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="text" 
+                    name="instituteName"
+                    value={formData.instituteName}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="University/College Name" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Country <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Home className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <select 
+                    name="courseCountry"
+                    value={formData.courseCountry}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                  >
+                    <option value="">Select Country</option>
+                    <option value="india">India</option>
+                    <option value="usa">USA</option>
+                    <option value="uk">UK</option>
+                    <option value="canada">Canada</option>
+                    <option value="australia">Australia</option>
+                    <option value="germany">Germany</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Course Duration (Years) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="courseDuration"
+                    value={formData.courseDuration}
+                    onChange={handleInputChange}
+                    min="1"
+                    max="10"
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 2, 3, 4" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Total Course Fee (₹) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input 
+                    type="number" 
+                    name="courseFee"
+                    value={formData.courseFee}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" 
+                    placeholder="E.g., 1500000" 
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Total tuition and other educational expenses</p>
               </div>
             </div>
           </div>
@@ -1307,7 +1517,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
                 <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
                   <h4 className="font-bold text-gray-900">Loan Requirement</h4>
-                  <button onClick={() => setCurrentStep(isBusinessLoan ? 4 : 3)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+                  <button onClick={() => setCurrentStep(isBusinessLoan ? 4 : (isLAP || isCarLoan || isEducationLoan) ? 4 : 3)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>
                 </div>
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                   <ReviewField label="Required Loan Amount" value={`₹${formData.loanAmount || '0'}`} />
@@ -1351,6 +1561,29 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
         </div>
       </div>
     </div>
+
+    {/* Success Popup */}
+    {showSuccessPopup && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] animate-in fade-in duration-200">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 animate-in zoom-in-95 duration-300">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted!</h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-4 w-full">
+              <p className="text-sm text-gray-600 mb-1">Your Reference ID:</p>
+              <p className="text-lg font-bold text-blue-600">{applicationId}</p>
+            </div>
+            <p className="text-gray-600 mb-6">Our team will contact you shortly with updates.</p>
+            <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+              <div className="bg-green-600 h-full animate-[shrink_4s_linear]" style={{width: '100%'}}></div>
+            </div>
+            <p className="text-xs text-gray-400 mt-3">Redirecting to home page...</p>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 };

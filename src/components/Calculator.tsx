@@ -8,21 +8,21 @@ const Calculator = () => {
   const [activeTab, setActiveTab] = useState<'emi' | 'eligibility' | 'balance'>('emi');
 
   // EMI State
-  const [amount, setAmount] = useState(500000);
-  const [rate, setRate] = useState(10.5);
-  const [years, setYears] = useState(3);
+  const [amount, setAmount] = useState(0);
+  const [rate, setRate] = useState(0);
+  const [years, setYears] = useState(0);
   const [emi, setEmi] = useState(0);
 
   // Eligibility State
-  const [income, setIncome] = useState(50000);
+  const [income, setIncome] = useState(0);
   const [existingEmi, setExistingEmi] = useState(0);
   const [eligibleAmount, setEligibleAmount] = useState(0);
 
   // Balance Transfer State
-  const [btIncome, setBtIncome] = useState(100000);
-  const [outstanding, setOutstanding] = useState(1000000);
-  const [btExistingEmi, setBtExistingEmi] = useState(15000);
-  const [btTenure, setBtTenure] = useState(7);
+  const [btIncome, setBtIncome] = useState(0);
+  const [outstanding, setOutstanding] = useState(0);
+  const [btExistingEmi, setBtExistingEmi] = useState(0);
+  const [btTenure, setBtTenure] = useState(1);
   
   // BT Results
   const [btMaxEmi, setBtMaxEmi] = useState(0);
@@ -228,25 +228,71 @@ const Calculator = () => {
 };
 
 // Helper Components to clean up code
-const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suffix = '' }: any) => (
-  <div>
-    <div className="flex justify-between mb-2">
-      <label className="font-semibold text-gray-700">{label}</label>
-      <div className="font-bold text-blue-900">
-        {prefix}{formatCurrency(value)}{suffix}
+const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suffix = '' }: any) => {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editValue, setEditValue] = React.useState('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditValue(e.target.value);
+  };
+
+  const handleFocus = () => {
+    setIsEditing(true);
+    setEditValue(value.toString());
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    const cleanValue = editValue.replace(/,/g, '').replace(/[^0-9.]/g, '');
+    const numValue = Number(cleanValue);
+    
+    if (!isNaN(numValue) && numValue >= min && numValue <= max) {
+      setValue(numValue);
+    } else if (!isNaN(numValue) && numValue < min) {
+      setValue(min);
+    } else if (!isNaN(numValue) && numValue > max) {
+      setValue(max);
+    } else {
+      setValue(value);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
+  const displayValue = isEditing ? editValue : `${prefix}${formatCurrency(value)}${suffix}`;
+
+  return (
+    <div>
+      <div className="flex justify-between mb-2 items-center">
+        <label className="font-semibold text-gray-700">{label}</label>
+        <div className="bg-white px-3 py-1.5 rounded-lg border-2 border-gray-200 focus-within:border-blue-500 transition-all">
+          <input
+            type="text"
+            value={displayValue}
+            onChange={handleInputChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className="font-bold text-blue-900 text-right outline-none bg-transparent w-24"
+          />
+        </div>
       </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => setValue(Number(e.target.value))}
+        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
+      />
     </div>
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onChange={(e) => setValue(Number(e.target.value))}
-      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
-    />
-  </div>
-);
+  );
+};
 
 const ResultBox = ({ label, amount, buttonText }: any) => (
   <div className="bg-blue-50 rounded-xl p-8 text-center">

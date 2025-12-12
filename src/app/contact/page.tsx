@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Phone, Mail, Clock, MapPin, Send, Building2, User } from 'lucide-react';
+import { Phone, Mail, Clock, MapPin, Send, Building2, User, CheckCircle, XCircle } from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,6 +14,19 @@ export default function ContactPage() {
     loanType: 'Personal Loan'
   });
 
+  const [popup, setPopup] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+
+  const showPopup = (message: string, type: 'success' | 'error') => {
+    setPopup({ show: true, message, type });
+    setTimeout(() => {
+      setPopup({ show: false, message: '', type: 'success' });
+    }, 2000);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -21,18 +34,37 @@ export default function ContactPage() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Thank you for contacting us! We will get back to you shortly.');
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      contactNumber: '',
-      message: '',
-      loanType: 'Personal Loan'
-    });
+    
+    const form = e.target as HTMLFormElement;
+    const formDataToSend = new FormData(form);
+    
+    try {
+      const response = await fetch('https://formspree.io/f/mrbnrbrj', {
+        method: 'POST',
+        body: formDataToSend,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        showPopup('Message sent successfully!', 'success');
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          contactNumber: '',
+          message: '',
+          loanType: 'Personal Loan'
+        });
+      } else {
+        showPopup('Failed to send message. Please try again.', 'error');
+      }
+    } catch (error) {
+      showPopup('Failed to send message. Please try again.', 'error');
+    }
   };
 
   const loanTypes = [
@@ -46,6 +78,22 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      
+      {/* Popup Notification */}
+      {popup.show && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className={`${
+            popup.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          } text-white px-8 py-6 rounded-2xl shadow-2xl flex items-center gap-3 transform transition-all duration-300 scale-100`}>
+            {popup.type === 'success' ? (
+              <CheckCircle className="h-6 w-6" />
+            ) : (
+              <XCircle className="h-6 w-6" />
+            )}
+            <span className="text-lg font-semibold">{popup.message}</span>
+          </div>
+        </div>
+      )}
       
       {/* Modern Header Section */}
       <div className="relative bg-blue-900  border-b">
@@ -154,6 +202,7 @@ export default function ContactPage() {
                     </div>
                   </div>
                 </div>
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address <span className="text-red-500">*</span>

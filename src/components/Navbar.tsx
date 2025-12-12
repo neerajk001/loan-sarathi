@@ -53,7 +53,7 @@ const Navbar = () => {
           {/* Left: Logo */}
           <div className="shrink-0 flex items-center cursor-pointer z-50 relative">
             <Link href="/" className="flex items-center">
-              <img src="/logoc.svg" alt="Loan Sarathi Logo" className="h-24 md:h-36 w-auto object-contain" />
+              <img src="/logoc.svg" alt="Loan Sarathi Logo" className="h-32 md:h-48 w-auto object-contain" />
             </Link>
           </div>
 
@@ -220,7 +220,7 @@ const Navbar = () => {
             >
               Contact Us
             </Link>
-            <Link href="/consultancy" className="bg-orange-600 text-white px-5 py-2 rounded-full font-medium hover:bg-orange-700 transition-colors shadow-sm whitespace-nowrap text-sm">
+            <Link href="/consultancy" className="bg-orange-600 text-white px-5 py-2 rounded-full font-medium hover:bg-orange-700 transition-colors shadow-sm whitespace-nowrap text-sm ml-10 mr-4">
               Get Free Consultancy
             </Link>
           </div>

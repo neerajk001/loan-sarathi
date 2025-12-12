@@ -42,9 +42,9 @@ const DetailedCalculatorContent = () => {
   }, [searchParams]);
 
   // EMI Calculator State
-  const [loanAmount, setLoanAmount] = useState(1000000);
-  const [interestRate, setInterestRate] = useState(10.5);
-  const [tenure, setTenure] = useState(5);
+  const [loanAmount, setLoanAmount] = useState(0);
+  const [interestRate, setInterestRate] = useState(0);
+  const [tenure, setTenure] = useState(0);
   const [tenureType, setTenureType] = useState<'years' | 'months'>('years');
   
   const [emi, setEmi] = useState(0);
@@ -70,18 +70,18 @@ const DetailedCalculatorContent = () => {
   }, [amortizationSchedule.length]);
 
   // Eligibility Calculator State
-  const [income, setIncome] = useState(50000);
-  const [existingEmi, setExistingEmi] = useState(10000);
-  const [eligTenure, setEligTenure] = useState(6);
+  const [income, setIncome] = useState(0);
+  const [existingEmi, setExistingEmi] = useState(0);
+  const [eligTenure, setEligTenure] = useState(1);
   const [eligibleAmount, setEligibleAmount] = useState(0);
   const [maxEmiCapacity, setMaxEmiCapacity] = useState(0);
   const [applicableROI, setApplicableROI] = useState(11.0);
 
   // Balance Transfer State
-  const [btIncome, setBtIncome] = useState(100000);
-  const [outstanding, setOutstanding] = useState(1000000);
-  const [btExistingEmi, setBtExistingEmi] = useState(15000);
-  const [btTenure, setBtTenure] = useState(7);
+  const [btIncome, setBtIncome] = useState(0);
+  const [outstanding, setOutstanding] = useState(0);
+  const [btExistingEmi, setBtExistingEmi] = useState(0);
+  const [btTenure, setBtTenure] = useState(1);
   
   // BT Results
   const [btMaxEmi, setBtMaxEmi] = useState(0);
@@ -90,15 +90,11 @@ const DetailedCalculatorContent = () => {
   const [btNetInHand, setBtNetInHand] = useState(0);
 
   // Part Payment State
-  const [ppLoanAmount, setPpLoanAmount] = useState(409375);
-  const [ppInterestRate, setPpInterestRate] = useState(10.5);
-  const [ppTenure, setPpTenure] = useState(12); // in years
+  const [ppLoanAmount, setPpLoanAmount] = useState(0);
+  const [ppInterestRate, setPpInterestRate] = useState(0);
+  const [ppTenure, setPpTenure] = useState(1); // in years
   const [ppReductionType, setPpReductionType] = useState<'emi' | 'tenure'>('emi');
-  const [partPayments, setPartPayments] = useState<{ amount: number; month: number }[]>([
-    { amount: 100000, month: 2 },
-    { amount: 100000, month: 4 },
-    { amount: 100000, month: 8 },
-  ]);
+  const [partPayments, setPartPayments] = useState<{ amount: number; month: number }[]>([]);
 
   // Part Payment Results
   const [ppResults, setPpResults] = useState({
@@ -1376,12 +1372,6 @@ const DetailedCalculatorContent = () => {
                     <div className="text-3xl font-bold text-green-600">₹{formatCurrency(eligibleAmount)}</div>
                     <p className="text-xs text-gray-500 mt-1">Total Eligibility of Loan Amount</p>
                   </div>
-                  
-                  <div>
-                    <div className="text-sm text-gray-500 mb-2">Net In Hand</div>
-                    <div className="text-3xl font-bold text-purple-600">₹{formatCurrency(Math.max(0, eligibleAmount - 0))}</div>
-                    <p className="text-xs text-gray-500 mt-1">After BT in hand Amount</p>
-                  </div>
                 </div>
                 
                 <Link 
@@ -1822,15 +1812,41 @@ const DetailedCalculatorContent = () => {
 
 // Helper Component
 const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suffix = '', description = '' }: any) => {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editValue, setEditValue] = React.useState('');
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value.replace(/,/g, '');
-    const numValue = Number(newValue);
+    setEditValue(e.target.value);
+  };
+
+  const handleFocus = () => {
+    setIsEditing(true);
+    setEditValue(value.toString());
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    const cleanValue = editValue.replace(/,/g, '').replace(/[^0-9.]/g, '');
+    const numValue = Number(cleanValue);
+    
     if (!isNaN(numValue) && numValue >= min && numValue <= max) {
       setValue(numValue);
-    } else if (newValue === '') {
+    } else if (!isNaN(numValue) && numValue < min) {
       setValue(min);
+    } else if (!isNaN(numValue) && numValue > max) {
+      setValue(max);
+    } else {
+      setValue(value); // Keep current value if invalid
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
+  const displayValue = isEditing ? editValue : `${prefix}${formatCurrency(value)}${suffix}`;
 
   return (
     <div>
@@ -1846,22 +1862,11 @@ const SliderInput = ({ label, value, setValue, min, max, step, prefix = '', suff
         <div className="bg-white px-4 py-2 rounded-xl border-2 border-gray-200 focus-within:border-blue-500 transition-all">
           <input
             type="text"
-            value={`${prefix}${formatCurrency(value)}${suffix}`}
+            value={displayValue}
             onChange={handleInputChange}
-            onFocus={(e) => {
-              // Remove formatting on focus for easier editing
-              e.target.value = value.toString();
-            }}
-            onBlur={(e) => {
-              // Restore formatting on blur
-              const numValue = Number(e.target.value.replace(/,/g, ''));
-              if (!isNaN(numValue)) {
-                if (numValue < min) setValue(min);
-                else if (numValue > max) setValue(max);
-                else setValue(numValue);
-              }
-              e.target.value = `${prefix}${formatCurrency(value)}${suffix}`;
-            }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
             className="font-bold text-gray-900 text-right outline-none bg-transparent w-full min-w-[120px]"
           />
         </div>

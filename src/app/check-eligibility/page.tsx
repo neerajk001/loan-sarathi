@@ -7,9 +7,9 @@ import { Calculator, Wallet, CreditCard, Calendar, ArrowRight, CheckCircle2, Per
 import { formatCurrency } from '@/lib/utils';
 
 const CheckEligibility = () => {
-  const [income, setIncome] = useState(50000);
-  const [existingEmi, setExistingEmi] = useState(10000);
-  const [tenure, setTenure] = useState(6);
+  const [income, setIncome] = useState(0);
+  const [existingEmi, setExistingEmi] = useState(0);
+  const [tenure, setTenure] = useState(1);
   
   const [maxEmiCapacity, setMaxEmiCapacity] = useState(0);
   const [maxLoanAmount, setMaxLoanAmount] = useState(0);
