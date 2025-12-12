@@ -1337,6 +1337,21 @@ const DetailedCalculatorContent = () => {
                 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Desired Tenure (Years)</label>
+                  <select 
+                    value={eligTenure}
+                    onChange={(e) => setEligTenure(Number(e.target.value))}
+                    className="w-full px-4 py-3 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all cursor-pointer"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30].map((y) => (
+                      <option key={y} value={y}>{y} Years</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-2">Repayment period you prefer</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Results Column */}
             <div className="col-span-12 lg:col-span-5">
               <div className="bg-white border-2 border-gray-200 rounded-3xl p-8 shadow-sm">
                 <h3 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b-2 border-green-500">
@@ -1376,23 +1391,6 @@ const DetailedCalculatorContent = () => {
                   Apply Now
                   <ArrowRight className="w-5 h-5" />
                 </Link>
-              </div>
-            </div><div className="text-5xl font-bold mb-6">
-                    ₹{formatCurrency(eligibleAmount)}
-                  </div>
-                  
-                  <p className="text-blue-200 text-sm mb-8 max-w-xs mx-auto">
-                    Based on your income and existing obligations, this is the estimated loan amount you can borrow.
-                  </p>
-
-                  <Link 
-                    href="/apply"
-                    className="flex items-center justify-center gap-2 w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors shadow-lg"
-                  >
-                    Check Offers
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </div>
               </div>
             </div>
           </div>
