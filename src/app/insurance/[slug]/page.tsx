@@ -193,7 +193,7 @@ export default function InsuranceDetailPage() {
       <Navbar />
       
       {/* Full-width blue banner with product name and back button */}
-      <div className="bg-blue-600 w-full">
+      <div className="bg-blue-900 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link href="/" className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-2.5 rounded-lg mb-4 transition-colors">
             <ArrowLeft className="w-5 h-5" />

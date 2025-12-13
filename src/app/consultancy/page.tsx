@@ -148,8 +148,8 @@ export default function ConsultancyPage() {
                   <div>
                     <h4 className="font-bold text-gray-900 text-base">Higher Approval Chances</h4>
                     <p className="text-gray-600 text-sm mt-0.5">We match your profile with the right lender criteria to minimize rejection risk.</p>
-                  </div>
-                </div>
+                  </div>  
+                </div> 
                 
                 <div className="flex items-start gap-3">
                   <div className="bg-green-50 p-1.5 rounded-lg">

@@ -62,20 +62,14 @@ const Footer = () => {
             <ul className="space-y-3 text-gray-400">
               <li className="flex items-start gap-2 hover:text-white transition-colors">
                 <Mail className="h-5 w-5 mt-0.5 flex-shrink-0 text-orange-500" />
-                <a href="mailto:pratik@smartsolutionsmumbai.com" className="hover:text-white transition-colors">
-                  pratik@smartsolutionsmumbai.com
-                </a>
-              </li>
-              <li className="flex items-start gap-2 hover:text-white transition-colors">
-                <Mail className="h-5 w-5 mt-0.5 flex-shrink-0 text-orange-500" />
-                <a href="mailto:shashichanyal@gmail.com" className="hover:text-white transition-colors">
-                  shashichanyal@gmail.com
+                <a href="mailto:info@loansarathi.com" className="hover:text-white transition-colors">
+                  info@loansarathi.com
                 </a>
               </li>
               <li className="flex items-start gap-2 hover:text-white transition-colors">
                 <Phone className="h-5 w-5 mt-0.5 flex-shrink-0 text-orange-500" />
-                <a href="tel:+919876543210" className="hover:text-white transition-colors">
-                  +91 98765 43210
+                <a href="tel:+919588833303" className="hover:text-white transition-colors">
+                  +91 95888 33303
                 </a>
               </li>
               <li className="flex items-start gap-2">

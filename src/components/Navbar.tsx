@@ -47,11 +47,11 @@ const Navbar = () => {
     <>
     <MovingBanner />
     <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-18">
+        <div className="flex justify-between items-center h-24 ml-5">
           
           {/* Left: Logo */}
-          <div className="shrink-0 flex items-center cursor-pointer z-50 relative">
+          <div className="shrink-0 flex items-center cursor-pointer z-50 relative -ml-3">
             <Link href="/" className="flex items-center">
               <img src="/logoc.svg" alt="Loan Sarathi Logo" className="h-32 md:h-48 w-auto object-contain" />
             </Link>

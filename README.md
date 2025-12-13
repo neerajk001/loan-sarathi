@@ -34,3 +34,59 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+
+## ⚡ Quick Implementation (2 hours)
+
+### Step 1: Enable CORS (30 minutes)
+
+Create `src/middleware.ts`:
+
+```typescript
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  
+  // List of allowed domains
+  const allowedOrigins = [
+    'https://loansarathi.com',
+    'https://smartsolutions.com',
+    'http://localhost:3001',  // For local dev
+    'http://localhost:3002',
+  ];
+
+  const origin = request.headers.get('origin');
+
+  // Set CORS headers
+  if (origin && allowedOrigins.includes(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+    );
+    response.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization'
+    );
+  }
+
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, { 
+      status: 200,
+      headers: response.headers 
+    });
+  }
+
+  return response;
+}
+
+// Apply only to API routes
+export const config = {
+  matcher: '/api/:path*',
+};
+```
