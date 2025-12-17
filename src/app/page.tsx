@@ -20,12 +20,12 @@ export default function Home() {
       <div className="bg-gradient-to-br from-blue-50/40 via-slate-50 to-orange-50/20">
         <Hero />
       </div>
-      <div className="bg-slate-50/80">
+      {/* <div className="bg-slate-50/80">
         <FeaturedPartners />
       </div>
       <div className="bg-white/60">
         <Partners />
-      </div>
+      </div> */}
       
       <div className="bg-gradient-to-br from-white/80 to-blue-50/30">
         <Products />
@@ -33,9 +33,9 @@ export default function Home() {
       <div className="bg-gradient-to-br from-slate-50 to-orange-50/20">
         <InsuranceProducts />
       </div>
-      <div className="bg-gradient-to-br from-blue-50/30 via-slate-50 to-orange-50/20">
+      {/* <div className="bg-gradient-to-br from-blue-50/30 via-slate-50 to-orange-50/20">
         <FundingPath />
-      </div>
+      </div> */}
       <div className="bg-white/70">
         <Calculator />
       </div>

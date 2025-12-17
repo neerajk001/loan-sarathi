@@ -109,13 +109,13 @@ const InsuranceProducts = () => {
             <div 
               key={product.id}
               onClick={(e) => handleCardClick(e, product.detailsHref)}
-              className={`group flex flex-col items-center text-center p-4 rounded-3xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer relative border-2 ${
-                product.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200' :
-                product.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200' :
-                product.color === 'orange' ? 'bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200' :
-                product.color === 'purple' ? 'bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200' :
-                product.color === 'indigo' ? 'bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-200' :
-                'bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-200'
+              className={`group flex flex-col items-center text-center p-4 rounded-3xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer relative border bg-white ${
+                product.color === 'blue' ? 'border-blue-200 hover:border-blue-300' :
+                product.color === 'green' ? 'border-green-200 hover:border-green-300' :
+                product.color === 'orange' ? 'border-orange-200 hover:border-orange-300' :
+                product.color === 'purple' ? 'border-purple-200 hover:border-purple-300' :
+                product.color === 'indigo' ? 'border-indigo-200 hover:border-indigo-300' :
+                'border-rose-200 hover:border-rose-300'
               }`}
             >
               {/* Top Tag */}

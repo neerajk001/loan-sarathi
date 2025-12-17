@@ -1,10 +1,30 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, Clock, ShieldCheck, X, Phone } from 'lucide-react';
 
 const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const heroImages = [
+    '/loan/personal loan (1).png',
+    '/loan/BUSINESS-LOAN1 (2).png',
+    '/loan/home loan (2).png',
+    '/loan/car-LOAN (1).png',
+    '/loan/loan against property (1).png',
+  ];
+
+  // Auto-rotate images every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (    
     <div className="relative overflow-hidden">
@@ -93,14 +113,34 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Right Image */}
+          {/* Right Image - Auto Rotating Slideshow */}
           <div className="mt-12 lg:-mt-12 lg:col-span-6 flex items-center justify-center lg:justify-end">
             <div className="relative w-full">
-              <img
-                src="/coin.jpg"
-                alt="Hero"
-                className="w-full h-auto rounded-2xl shadow-2xl object-cover"
-              />
+              {heroImages.map((image, index) => (
+                <img
+                  key={image}
+                  src={image}
+                  alt={`Loan Service ${index + 1}`}
+                  className={`w-full h-auto rounded-2xl shadow-2xl object-cover transition-opacity duration-700 ${
+                    index === currentImageIndex ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
+                  }`}
+                />
+              ))}
+              
+              {/* Image Indicators */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {heroImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      index === currentImageIndex 
+                        ? 'bg-orange-600 w-6' 
+                        : 'bg-white/70 hover:bg-white'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
           
