@@ -78,7 +78,7 @@ const Testimonials = () => {
 
 
   return (
-    <div className="bg-gradient-to-br from-slate-50/85 to-white/70 py-6 relative overflow-hidden">
+    <div className="py-6 relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
@@ -187,18 +187,6 @@ const Testimonials = () => {
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>
-        </div>
-
-        {/* CTA */}
-        <div className="mt-16 text-center">
-          <p className="text-gray-500 mb-4">Ready to write your own success story?</p>
-          <a 
-            href="/apply" 
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300"
-          >
-            Apply Now - It&apos;s Free
-            <TrendingUp className="w-5 h-5" />
-          </a>
         </div>
       </div>
     </div>

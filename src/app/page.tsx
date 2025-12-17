@@ -15,9 +15,9 @@ import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
-    <main className="bg-slate-50">
+    <main className="bg-blue-50">
       <Navbar />
-      <div className="bg-gradient-to-br from-blue-50/40 via-slate-50 to-orange-50/20">
+      <div>
         <Hero />
       </div>
       {/* <div className="bg-slate-50/80">
@@ -27,28 +27,28 @@ export default function Home() {
         <Partners />
       </div> */}
       
-      <div className="bg-gradient-to-br from-white/80 to-blue-50/30">
+      <div>
         <Products />
       </div>
-      <div className="bg-gradient-to-br from-slate-50 to-orange-50/20">
+      <div>
         <InsuranceProducts />
       </div>
       {/* <div className="bg-gradient-to-br from-blue-50/30 via-slate-50 to-orange-50/20">
         <FundingPath />
       </div> */}
-      <div className="bg-white/70">
+      <div>
         <Calculator />
       </div>
-      <div className="bg-gradient-to-br from-slate-50 to-blue-50/20">
+      <div>
         <NewsSection />
       </div>
-      <div className="bg-white/80">
+      <div>
         <Features />
       </div>
-      <div className="bg-gradient-to-br from-slate-50/90 to-white/60">
+      <div>
         <Testimonials />
       </div>
-      <div className="bg-gradient-to-br from-blue-50/20 via-slate-50 to-orange-50/15">
+      <div>
         <FAQ />
       </div>
       <Footer />

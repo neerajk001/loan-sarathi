@@ -65,7 +65,7 @@ const FAQ = () => {
   });
 
   return (
-    <div className="bg-gradient-to-br from-white/80 via-slate-50/90 to-blue-50/25 py-6 relative overflow-hidden">
+    <div className="py-6 relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-20 right-0 w-72 h-72 bg-blue-100/40 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-0 w-72 h-72 bg-indigo-100/40 rounded-full blur-3xl" />
@@ -73,10 +73,6 @@ const FAQ = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
         <div className="text-center mb-8">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 border border-blue-200">
-            <HelpCircle className="w-4 h-4" />
-            GOT QUESTIONS?
-          </span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Frequently Asked Questions
           </h2>

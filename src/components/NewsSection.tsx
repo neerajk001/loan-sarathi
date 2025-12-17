@@ -167,7 +167,7 @@ const NewsSection = () => {
   };
 
   return (
-    <div id="articles" className="py-16 bg-gradient-to-br from-slate-50/90 to-blue-50/30 border-t border-gray-200 scroll-mt-24">
+    <div id="articles" className="py-16 border-t border-gray-200 scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
           <div>

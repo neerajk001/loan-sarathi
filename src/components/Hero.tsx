@@ -8,11 +8,11 @@ const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const heroImages = [
-    '/loan/personal loan (1).png',
-    '/loan/BUSINESS-LOAN1 (2).png',
-    '/loan/home loan (2).png',
-    '/loan/car-LOAN (1).png',
-    '/loan/loan against property (1).png',
+    { src: '/loan/personal loan (1).png', name: 'Personal Loan' },
+    { src: '/loan/BUSINESS-LOAN1 (2).png', name: 'Business Loan' },
+    { src: '/loan/home loan (2).png', name: 'Home Loan' },
+    { src: '/loan/car-LOAN (1).png', name: 'Car Loan' },
+    { src: '/loan/loan against property (1).png', name: 'Loan Against Property' },
   ];
 
   // Auto-rotate images every 3 seconds
@@ -118,28 +118,20 @@ const Hero = () => {
             <div className="relative w-full">
               {heroImages.map((image, index) => (
                 <img
-                  key={image}
-                  src={image}
-                  alt={`Loan Service ${index + 1}`}
+                  key={image.src}
+                  src={image.src}
+                  alt={image.name}
                   className={`w-full h-auto rounded-2xl shadow-2xl object-cover transition-opacity duration-700 ${
                     index === currentImageIndex ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
                   }`}
                 />
               ))}
               
-              {/* Image Indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {heroImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${
-                      index === currentImageIndex 
-                        ? 'bg-orange-600 w-6' 
-                        : 'bg-white/70 hover:bg-white'
-                    }`}
-                  />
-                ))}
+              {/* Loan Name Label */}
+              <div className="mt-4 text-center">
+                <span className="text-lg font-bold text-blue-900">
+                  {heroImages[currentImageIndex].name}
+                </span>
               </div>
             </div>
           </div>

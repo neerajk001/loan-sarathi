@@ -13,7 +13,7 @@ const Products = () => {
       title: 'Personal Loan',
       subtitle: 'Up to ₹50 Lakhs',
       tag: '@10.49% ROI',
-      icon: <Wallet className="h-8 w-8 text-blue-600" />,
+      icon: <Wallet className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=personal',
       detailsHref: '/loan/personal-loan',
       color: 'blue',
@@ -26,7 +26,7 @@ const Products = () => {
       title: 'Business Loan',
       subtitle: 'Quick Approval',
       tag: 'Up to ₹2 Cr',
-      icon: <Building2 className="h-8 w-8 text-purple-600" />,
+      icon: <Building2 className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=business',
       detailsHref: '/loan/business-loan',
       color: 'purple',
@@ -39,7 +39,7 @@ const Products = () => {
       title: 'Home Loan',
       subtitle: 'Up to ₹5 Cr',
       tag: 'Low Interest',
-      icon: <Home className="h-8 w-8 text-green-600" />,
+      icon: <Home className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=home',
       detailsHref: '/loan/home-loan',
       color: 'green',
@@ -52,7 +52,7 @@ const Products = () => {
       title: 'Loan Against Property',
       subtitle: 'Unlock Value',
       tag: 'High Amount',
-      icon: <FileText className="h-8 w-8 text-orange-600" />,
+      icon: <FileText className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=lap',
       detailsHref: '/loan/loan-against-property',
       color: 'orange',
@@ -65,7 +65,7 @@ const Products = () => {
       title: 'Education Loan',
       subtitle: 'Study Abroad',
       tag: 'Low Interest',
-      icon: <GraduationCap className="h-8 w-8 text-indigo-600" />,
+      icon: <GraduationCap className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=education',
       detailsHref: '/loan/education-loan',
       color: 'indigo',
@@ -78,7 +78,7 @@ const Products = () => {
       title: 'Car Loan',
       subtitle: 'Drive Home',
       tag: 'Up to 90%',
-      icon: <Car className="h-8 w-8 text-teal-600" />,
+      icon: <Car className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=car',
       detailsHref: '/loan/car-loan',
       color: 'teal',
@@ -97,7 +97,7 @@ const Products = () => {
   };
 
   return (
-    <div id="products" className="py-6 bg-gradient-to-br from-blue-50/30 to-white/80">
+    <div id="products" className="py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-900">
@@ -132,14 +132,7 @@ const Products = () => {
               </div>
 
               {/* Icon Box */}
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md ${
-                product.color === 'blue' ? 'bg-white border-2 border-blue-300' :
-                product.color === 'purple' ? 'bg-white border-2 border-purple-300' :
-                product.color === 'green' ? 'bg-white border-2 border-green-300' :
-                product.color === 'orange' ? 'bg-white border-2 border-orange-300' :
-                product.color === 'indigo' ? 'bg-white border-2 border-indigo-300' :
-                'bg-white border-2 border-teal-300'
-              }`}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md bg-white border border-gray-300">
                 {product.icon}
               </div>
 
@@ -159,14 +152,7 @@ const Products = () => {
                   e.stopPropagation(); // Stop bubble to parent div
                   router.push(product.applyHref);
                 }}
-                className={`mt-auto px-6 py-2 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 flex items-center gap-1 ${
-                  product.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' :
-                  product.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
-                  product.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
-                  product.color === 'orange' ? 'bg-orange-600 hover:bg-orange-700' :
-                  product.color === 'indigo' ? 'bg-indigo-600 hover:bg-indigo-700' :
-                  'bg-teal-600 hover:bg-teal-700'
-                }`}
+                className="mt-auto px-6 py-2 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 flex items-center gap-1 bg-blue-600 hover:bg-blue-700"
               >
                 Apply <ArrowRight className="w-3 h-3" />
               </button>

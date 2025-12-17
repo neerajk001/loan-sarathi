@@ -13,7 +13,7 @@ const InsuranceProducts = () => {
       title: 'Health Insurance',
       subtitle: 'Up to ₹1Cr cover',
       tag: 'Cashless',
-      icon: <Heart className="h-8 w-8 text-rose-600" />,
+      icon: <Heart className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply-insurance?type=health',
       detailsHref: '/insurance/health-insurance',
       color: 'rose',
@@ -26,7 +26,7 @@ const InsuranceProducts = () => {
       title: 'Term Life',
       subtitle: 'Tax benefits 80C',
       tag: '₹10Cr+',
-      icon: <Shield className="h-8 w-8 text-blue-600" />,
+      icon: <Shield className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply-insurance?type=term-life',
       detailsHref: '/insurance/term-life-insurance',
       color: 'blue',
@@ -39,7 +39,7 @@ const InsuranceProducts = () => {
       title: 'Car Insurance',
       subtitle: 'Instant policy',
       tag: 'Zero Dep',
-      icon: <Car className="h-8 w-8 text-green-600" />,
+      icon: <Car className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply-insurance?type=car',
       detailsHref: '/insurance/car-insurance',
       color: 'green',
@@ -52,7 +52,7 @@ const InsuranceProducts = () => {
       title: 'Bike Insurance',
       subtitle: 'Third party',
       tag: 'Comprehensive',
-      icon: <Bike className="h-8 w-8 text-orange-600" />,
+      icon: <Bike className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply-insurance?type=bike',
       detailsHref: '/insurance/bike-insurance',
       color: 'orange',
@@ -65,7 +65,7 @@ const InsuranceProducts = () => {
       title: 'Loan Protector',
       subtitle: 'Protect your loan',
       tag: 'Secure',
-      icon: <ShieldCheck className="h-8 w-8 text-purple-600" />,
+      icon: <ShieldCheck className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply-insurance?type=loan-protector',
       detailsHref: '/insurance/loan-protector',
       color: 'purple',
@@ -78,7 +78,7 @@ const InsuranceProducts = () => {
       title: 'EMI Protector',
       subtitle: 'EMI protection',
       tag: 'Coverage',
-      icon: <Wallet className="h-8 w-8 text-indigo-600" />,
+      icon: <Wallet className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply-insurance?type=emi-protector',
       detailsHref: '/insurance/emi-protector',
       color: 'indigo',
@@ -96,7 +96,7 @@ const InsuranceProducts = () => {
   };
 
   return (
-    <div id="insurance" className="py-6 bg-gradient-to-br from-orange-50/25 to-slate-50/90">
+    <div id="insurance" className="py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-900">
@@ -131,14 +131,7 @@ const InsuranceProducts = () => {
               </div>
 
               {/* Icon Box */}
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md ${
-                product.color === 'blue' ? 'bg-white border-2 border-blue-300' :
-                product.color === 'green' ? 'bg-white border-2 border-green-300' :
-                product.color === 'orange' ? 'bg-white border-2 border-orange-300' :
-                product.color === 'purple' ? 'bg-white border-2 border-purple-300' :
-                product.color === 'indigo' ? 'bg-white border-2 border-indigo-300' :
-                'bg-white border-2 border-rose-300'
-              }`}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md bg-white border border-gray-300">
                 {product.icon}
               </div>
 
@@ -158,14 +151,7 @@ const InsuranceProducts = () => {
                   e.stopPropagation();
                   router.push(product.applyHref);
                 }}
-                className={`mt-auto px-6 py-2 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 flex items-center gap-1 ${
-                  product.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' :
-                  product.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
-                  product.color === 'orange' ? 'bg-orange-600 hover:bg-orange-700' :
-                  product.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
-                  product.color === 'indigo' ? 'bg-indigo-600 hover:bg-indigo-700' :
-                  'bg-rose-600 hover:bg-rose-700'
-                }`}
+                className="mt-auto px-6 py-2 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 flex items-center gap-1 bg-blue-600 hover:bg-blue-700"
               >
                 Apply <ArrowRight className="w-3 h-3" />
               </button>
