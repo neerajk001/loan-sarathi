@@ -129,7 +129,7 @@ const Hero = () => {
               
               {/* Loan Name Label */}
               <div className="mt-4 text-center">
-                <span className="text-lg font-bold text-blue-900">
+                <span className="text-3xl font-bold text-blue-900">
                   {heroImages[currentImageIndex].name}
                 </span>
               </div>
