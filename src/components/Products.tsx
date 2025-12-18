@@ -1,8 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Building2, Home, FileText, GraduationCap, Wallet, ArrowRight, Car } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const Products = () => {
   const router = useRouter();
@@ -68,7 +69,7 @@ const Products = () => {
       title: 'Personal Loan',
       defaultSubtitle: 'Up to ₹50 Lakhs',
       defaultTag: '@10.49% ROI',
-      icon: <Wallet className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/PersonalLoan.png',
       applyHref: '/apply?type=personal',
       detailsHref: '/loan/personal-loan',
       color: 'blue',
@@ -82,7 +83,7 @@ const Products = () => {
       title: 'Business Loan',
       defaultSubtitle: 'Up to ₹2 Crores',
       defaultTag: '@14.00% ROI',
-      icon: <Building2 className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/BusinessLoan.png',
       applyHref: '/apply?type=business',
       detailsHref: '/loan/business-loan',
       color: 'purple',
@@ -96,7 +97,7 @@ const Products = () => {
       title: 'Home Loan',
       defaultSubtitle: 'Up to ₹5 Crores',
       defaultTag: '@7.15% ROI',
-      icon: <Home className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/HomeLoan (2).png',
       applyHref: '/apply?type=home',
       detailsHref: '/loan/home-loan',
       color: 'green',
@@ -110,7 +111,7 @@ const Products = () => {
       title: 'Loan Against Property',
       defaultSubtitle: 'Up to 70%',
       defaultTag: '@8.75% ROI',
-      icon: <FileText className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/LAP (2).png',
       applyHref: '/apply?type=lap',
       detailsHref: '/loan/loan-against-property',
       color: 'orange',
@@ -124,7 +125,7 @@ const Products = () => {
       title: 'Education Loan',
       defaultSubtitle: 'Up to ₹2 Crores',
       defaultTag: '@9.50% ROI',
-      icon: <GraduationCap className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/EducationLoan.png',
       applyHref: '/apply?type=education',
       detailsHref: '/loan/education-loan',
       color: 'indigo',
@@ -138,7 +139,7 @@ const Products = () => {
       title: 'Car Loan',
       defaultSubtitle: 'Up to 90%',
       defaultTag: '@8.50% ROI',
-      icon: <Car className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/CarLoan (2).png',
       applyHref: '/apply?type=car',
       detailsHref: '/loan/car-loan',
       color: 'teal',
@@ -198,7 +199,13 @@ const Products = () => {
 
               {/* Icon Box */}
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md bg-white border border-gray-300">
-                {product.icon}
+                <Image 
+                  src={product.iconPath} 
+                  alt={product.title}
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </div>
 
               {/* Title */}

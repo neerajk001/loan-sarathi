@@ -1,8 +1,9 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { Heart, Shield, Car, Bike, ArrowRight, ShieldCheck, Wallet } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const InsuranceProducts = () => {
   const router = useRouter();
@@ -13,7 +14,7 @@ const InsuranceProducts = () => {
       title: 'Health Insurance',
       subtitle: 'Up to ₹1Cr cover',
       tag: 'Cashless',
-      icon: <Heart className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/HealthInsurance.png',
       applyHref: '/apply-insurance?type=health',
       detailsHref: '/insurance/health-insurance',
       color: 'rose',
@@ -26,7 +27,7 @@ const InsuranceProducts = () => {
       title: 'Term Life',
       subtitle: 'Tax benefits 80C',
       tag: '₹10Cr+',
-      icon: <Shield className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/terminsurance.png',
       applyHref: '/apply-insurance?type=term-life',
       detailsHref: '/insurance/term-life-insurance',
       color: 'blue',
@@ -39,7 +40,7 @@ const InsuranceProducts = () => {
       title: 'Car Insurance',
       subtitle: 'Instant policy',
       tag: 'Zero Dep',
-      icon: <Car className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/CarInsurance.png',
       applyHref: '/apply-insurance?type=car',
       detailsHref: '/insurance/car-insurance',
       color: 'green',
@@ -52,7 +53,7 @@ const InsuranceProducts = () => {
       title: 'Bike Insurance',
       subtitle: 'Third party',
       tag: 'Comprehensive',
-      icon: <Bike className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/BikeInsurance.png',
       applyHref: '/apply-insurance?type=bike',
       detailsHref: '/insurance/bike-insurance',
       color: 'orange',
@@ -65,7 +66,7 @@ const InsuranceProducts = () => {
       title: 'Loan Protector',
       subtitle: 'Protect your loan',
       tag: 'Secure',
-      icon: <ShieldCheck className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/LoanProtector.png',
       applyHref: '/apply-insurance?type=loan-protector',
       detailsHref: '/insurance/loan-protector',
       color: 'purple',
@@ -78,7 +79,7 @@ const InsuranceProducts = () => {
       title: 'EMI Protector',
       subtitle: 'EMI protection',
       tag: 'Coverage',
-      icon: <Wallet className="h-8 w-8 text-gray-900" />,
+      iconPath: '/card-logo/EMI Protector.png',
       applyHref: '/apply-insurance?type=emi-protector',
       detailsHref: '/insurance/emi-protector',
       color: 'indigo',
@@ -135,7 +136,13 @@ const InsuranceProducts = () => {
 
               {/* Icon Box */}
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md bg-white border border-gray-300">
-                {product.icon}
+                <Image 
+                  src={product.iconPath} 
+                  alt={product.title}
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </div>
 
               {/* Title */}
