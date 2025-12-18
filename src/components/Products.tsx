@@ -1,18 +1,73 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Building2, Home, FileText, GraduationCap, Wallet, ArrowRight, Car } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const Products = () => {
   const router = useRouter();
+  const [loanProductsData, setLoanProductsData] = useState<Record<string, { maxAmount: string; interestRate: string }>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLoanProducts = async () => {
+      try {
+        const response = await fetch('/api/loan-products');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.products) {
+            // Convert array to object keyed by slug for easy lookup
+            const productsMap: Record<string, { maxAmount: string; interestRate: string }> = {};
+            data.products.forEach((product: any) => {
+              productsMap[product.slug] = {
+                maxAmount: product.maxAmount,
+                interestRate: product.interestRate,
+              };
+            });
+            setLoanProductsData(productsMap);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching loan products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLoanProducts();
+  }, []);
+
+  // Helper function to extract ROI percentage from interest rate string
+  const extractROI = (interestRate: string): string => {
+    const match = interestRate.match(/@(\d+\.?\d*)%/);
+    if (match) {
+      return `@${match[1]}% ROI`;
+    }
+    // Fallback: try to find any percentage
+    const fallbackMatch = interestRate.match(/(\d+\.?\d*)%/);
+    if (fallbackMatch) {
+      return `@${fallbackMatch[1]}% ROI`;
+    }
+    return interestRate; // Return as-is if no percentage found
+  };
+
+  // Helper function to extract max amount from maxAmount string
+  const extractMaxAmount = (maxAmount: string): string => {
+    // If it already starts with "Up to" or similar, return as-is
+    if (maxAmount.toLowerCase().includes('up to') || maxAmount.toLowerCase().includes('upto')) {
+      return maxAmount;
+    }
+    // Otherwise, add "Up to" prefix
+    return maxAmount.startsWith('Loans up to') ? maxAmount.replace('Loans up to', 'Up to') : `Up to ${maxAmount}`;
+  };
 
   const products = [
     {
       id: 'personal-loan',
+      slug: 'personal-loan',
       title: 'Personal Loan',
-      subtitle: 'Up to ₹50 Lakhs',
-      tag: '@10.49% ROI',
+      defaultSubtitle: 'Up to ₹50 Lakhs',
+      defaultTag: '@10.49% ROI',
       icon: <Wallet className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=personal',
       detailsHref: '/loan/personal-loan',
@@ -23,9 +78,10 @@ const Products = () => {
     },
     {
       id: 'business-loan',
+      slug: 'business-loan',
       title: 'Business Loan',
-      subtitle: 'Quick Approval',
-      tag: 'Up to ₹2 Cr',
+      defaultSubtitle: 'Up to ₹2 Crores',
+      defaultTag: '@14.00% ROI',
       icon: <Building2 className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=business',
       detailsHref: '/loan/business-loan',
@@ -36,9 +92,10 @@ const Products = () => {
     },
     {
       id: 'home-loan',
+      slug: 'home-loan',
       title: 'Home Loan',
-      subtitle: 'Up to ₹5 Cr',
-      tag: 'Low Interest',
+      defaultSubtitle: 'Up to ₹5 Crores',
+      defaultTag: '@7.15% ROI',
       icon: <Home className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=home',
       detailsHref: '/loan/home-loan',
@@ -49,9 +106,10 @@ const Products = () => {
     },
     {                             
       id: 'loan-against-property',
+      slug: 'loan-against-property',
       title: 'Loan Against Property',
-      subtitle: 'Unlock Value',
-      tag: 'High Amount',
+      defaultSubtitle: 'Up to 70%',
+      defaultTag: '@8.75% ROI',
       icon: <FileText className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=lap',
       detailsHref: '/loan/loan-against-property',
@@ -62,9 +120,10 @@ const Products = () => {
     },
     {
       id: 'education-loan',
+      slug: 'education-loan',
       title: 'Education Loan',
-      subtitle: 'Study Abroad',
-      tag: 'Low Interest',
+      defaultSubtitle: 'Up to ₹2 Crores',
+      defaultTag: '@9.50% ROI',
       icon: <GraduationCap className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=education',
       detailsHref: '/loan/education-loan',
@@ -75,9 +134,10 @@ const Products = () => {
     },
     {
       id: 'car-loan',
+      slug: 'car-loan',
       title: 'Car Loan',
-      subtitle: 'Drive Home',
-      tag: 'Up to 90%',
+      defaultSubtitle: 'Up to 90%',
+      defaultTag: '@8.50% ROI',
       icon: <Car className="h-8 w-8 text-gray-900" />,
       applyHref: '/apply?type=car',
       detailsHref: '/loan/car-loan',
@@ -122,7 +182,7 @@ const Products = () => {
                 'border-teal-200 hover:border-teal-300'
               }`}
             >
-              {/* Top Tag */}
+              {/* Top Tag - Interest Rate (ROI) */}
               <div className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-bold mb-3 shadow-sm ${
                 product.color === 'blue' ? 'bg-blue-200 text-blue-800' :
                 product.color === 'purple' ? 'bg-purple-200 text-purple-800' :
@@ -131,7 +191,9 @@ const Products = () => {
                 product.color === 'indigo' ? 'bg-indigo-200 text-indigo-800' :
                 'bg-teal-200 text-teal-800'
               }`}>
-                {product.tag}
+                {loading ? '...' : (loanProductsData[product.slug]?.interestRate 
+                  ? extractROI(loanProductsData[product.slug].interestRate)
+                  : product.defaultTag)}
               </div>
 
               {/* Icon Box */}
@@ -144,9 +206,11 @@ const Products = () => {
                 {product.title}
               </h3>
 
-              {/* Subtitle */}
+              {/* Subtitle - Maximum Amount */}
               <p className="text-xs md:text-sm text-gray-500 mb-3">
-                {product.subtitle}
+                {loading ? '...' : (loanProductsData[product.slug]?.maxAmount 
+                  ? extractMaxAmount(loanProductsData[product.slug].maxAmount)
+                  : product.defaultSubtitle)}
               </p>
 
               {/* Apply Button */}

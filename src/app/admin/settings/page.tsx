@@ -398,7 +398,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900">Loan Products</h2>
-            <p className="text-sm text-gray-500">Manage loan amounts and interest rates</p>
+            <p className="text-sm text-gray-500">Manage loan amounts and interest rates for product cards and detail pages</p>
           </div>
         </div>
 
@@ -440,26 +440,26 @@ export default function SettingsPage() {
                 <div className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Maximum Amount
+                      Maximum Amount <span className="text-xs text-gray-500">(shown on card subtitle)</span>
                     </label>
                     <input
                       type="text"
                       value={editMaxAmount}
                       onChange={(e) => setEditMaxAmount(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
-                      placeholder="e.g., Loans up to ₹50 Lakhs"
+                      placeholder="e.g., Loans up to ₹50 Lakhs or Up to ₹2 Crores"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Interest Rate
+                      Interest Rate <span className="text-xs text-gray-500">(shown on card tag as ROI)</span>
                     </label>
                     <input
                       type="text"
                       value={editInterestRate}
                       onChange={(e) => setEditInterestRate(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
-                      placeholder="e.g., Interest rates starting @ 10.49% p.a."
+                      placeholder="e.g., Interest rates starting @ 10.49% p.a. (will show as @10.49% ROI on card)"
                     />
                   </div>
                 </div>
