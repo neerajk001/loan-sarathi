@@ -68,7 +68,7 @@ const Hero = () => {
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
           
           {/* Left Content */}
-          <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+          <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left -mt-2">
             
             <h1 className="text-4xl tracking-tight font-extrabold text-blue-900 sm:text-5xl md:text-6xl lg:text-6xl">
               <span className="block">Empowering your</span>
@@ -96,7 +96,7 @@ const Hero = () => {
                 </button>
               </div>
               
-              <div className="mt-6 flex items-center gap-6 text-sm text-gray-600 justify-center lg:justify-start">
+              <div className="mt-2 flex items-center gap-6 text-sm text-gray-600 justify-center lg:justify-start">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-blue-900" />
                   <span>20+ Lender Partners</span>
@@ -114,7 +114,7 @@ const Hero = () => {
           </div>
 
           {/* Right Image - Auto Rotating Slideshow */}
-          <div className="mt-12 lg:-mt-12 lg:col-span-6 flex items-center justify-center lg:justify-end">
+          <div className="mt-16 lg:mt-0 lg:col-span-6 flex items-center justify-center lg:justify-end">
             <div className="relative w-full">
               {heroImages.map((image, index) => (
                 <img
