@@ -123,7 +123,14 @@ const InsuranceProducts = () => {
               }`}
             >
               {/* Top Tag */}
-              <div className="px-3 py-1 rounded-full text-[10px] md:text-xs font-bold mb-3 bg-white border border-black text-gray-900">
+              <div className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-bold mb-3 ${
+                product.color === 'blue' ? 'bg-blue-50 text-blue-800' :
+                product.color === 'green' ? 'bg-green-50 text-green-800' :
+                product.color === 'orange' ? 'bg-orange-50 text-orange-800' :
+                product.color === 'purple' ? 'bg-purple-50 text-purple-800' :
+                product.color === 'indigo' ? 'bg-indigo-50 text-indigo-800' :
+                'bg-rose-50 text-rose-800'
+              }`}>
                 {product.tag}
               </div>
 
