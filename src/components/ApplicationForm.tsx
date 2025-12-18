@@ -460,9 +460,6 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                 <h3 className="text-2xl font-bold text-gray-900">{isBusinessLoan || isHomeLoan || isLAP ? 'Basic Details' : 'Personal Details'}</h3>
                 <p className="text-gray-500 text-sm mt-1">Please provide your basic personal information</p>
               </div>
-              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
-                Special Offer: Rates start @9.99%
-              </span>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -586,9 +583,6 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                 <h3 className="text-2xl font-bold text-gray-900">Employment Info</h3>
                 <p className="text-gray-500 text-sm mt-1">Tell us about your work to check eligibility</p>
               </div>
-              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
-                Starting @9.99%
-              </span>
             </div>
 
               <div className="space-y-6">
@@ -706,9 +700,6 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                 <h3 className="text-2xl font-bold text-gray-900">Business Details</h3>
                 <p className="text-gray-500 text-sm mt-1">Quick approval</p>
               </div>
-              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
-                Starting @9.99%
-              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -814,9 +805,6 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                 <h3 className="text-2xl font-bold text-gray-900">Property Details</h3>
                 <p className="text-gray-500 text-sm mt-1">Low interest rates</p>
               </div>
-              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
-                Starting @8.50%
-              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1350,9 +1338,6 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
                 <h3 className="text-2xl font-bold text-gray-900">Loan Requirement</h3>
                 <p className="text-gray-500 text-sm mt-1">Tell us about your loan needs</p>
               </div>
-              <span className="hidden md:inline-block text-sm font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm">
-                Starting @9.99%
-              </span>
             </div>
 
             {/* Info Box */}

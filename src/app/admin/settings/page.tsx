@@ -10,7 +10,9 @@ import {
   CheckCircle,
   Loader2,
   Globe,
-  UserCog
+  UserCog,
+  DollarSign,
+  Edit2
 } from 'lucide-react';
 
 interface SettingsData {
@@ -24,6 +26,13 @@ interface SettingsData {
     maintenanceMode: boolean;
     allowPublicApplications: boolean;
   };
+}
+
+interface LoanProduct {
+  slug: string;
+  title: string;
+  maxAmount: string;
+  interestRate: string;
 }
 
 export default function SettingsPage() {
@@ -43,9 +52,14 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [loanProducts, setLoanProducts] = useState<LoanProduct[]>([]);
+  const [editingProduct, setEditingProduct] = useState<string | null>(null);
+  const [editMaxAmount, setEditMaxAmount] = useState('');
+  const [editInterestRate, setEditInterestRate] = useState('');
 
   useEffect(() => {
     fetchSettings();
+    fetchLoanProducts();
   }, []);
 
   const fetchSettings = async () => {
@@ -104,6 +118,64 @@ export default function SettingsPage() {
       ...settings,
       adminEmails: settings.adminEmails.filter(e => e !== email),
     });
+  };
+
+  const fetchLoanProducts = async () => {
+    try {
+      const response = await fetch('/api/loan-products');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.products) {
+          setLoanProducts(data.products);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching loan products:', error);
+    }
+  };
+
+  const handleEditProduct = (product: LoanProduct) => {
+    setEditingProduct(product.slug);
+    setEditMaxAmount(product.maxAmount);
+    setEditInterestRate(product.interestRate);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProduct(null);
+    setEditMaxAmount('');
+    setEditInterestRate('');
+  };
+
+  const handleSaveProduct = async (slug: string) => {
+    try {
+      const response = await fetch('/api/loan-products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          maxAmount: editMaxAmount,
+          interestRate: editInterestRate,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update local state
+        setLoanProducts(prev => prev.map(p => 
+          p.slug === slug 
+            ? { ...p, maxAmount: editMaxAmount, interestRate: editInterestRate }
+            : p
+        ));
+        handleCancelEdit();
+        alert('Loan product updated successfully!');
+      } else {
+        alert(data.error || 'Failed to update loan product');
+      }
+    } catch (error) {
+      console.error('Error saving loan product:', error);
+      alert('Failed to update loan product');
+    }
   };
 
   return (
@@ -315,6 +387,96 @@ export default function SettingsPage() {
               className="w-5 h-5 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
             />
           </label>
+        </div>
+      </div>
+
+      {/* Loan Products Management */}
+      <div className="bg-white border border-gray-900 rounded-2xl p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+            <DollarSign className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Loan Products</h2>
+            <p className="text-sm text-gray-500">Manage loan amounts and interest rates</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {loanProducts.map((product) => (
+            <div
+              key={product.slug}
+              className="p-4 bg-gray-50 rounded-xl border border-gray-200"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-gray-900">{product.title}</h3>
+                {editingProduct === product.slug ? (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSaveProduct(product.slug)}
+                      className="px-4 py-1.5 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-4 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleEditProduct(product)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Edit
+                  </button>
+                )}
+              </div>
+
+              {editingProduct === product.slug ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Maximum Amount
+                    </label>
+                    <input
+                      type="text"
+                      value={editMaxAmount}
+                      onChange={(e) => setEditMaxAmount(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
+                      placeholder="e.g., Loans up to ₹50 Lakhs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Interest Rate
+                    </label>
+                    <input
+                      type="text"
+                      value={editInterestRate}
+                      onChange={(e) => setEditInterestRate(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
+                      placeholder="e.g., Interest rates starting @ 10.49% p.a."
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-32">Max Amount:</span>
+                    <span className="text-gray-900 font-medium">{product.maxAmount}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-32">Interest Rate:</span>
+                    <span className="text-gray-900 font-medium">{product.interestRate}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 

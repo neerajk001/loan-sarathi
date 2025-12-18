@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -12,6 +12,8 @@ const productDetails: Record<string, any> = {
     title: 'Personal Loan',
     heroImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=2000',
     description: 'Get instant funds for your personal needs with minimal documentation. Whether it is a medical emergency, wedding expenses, or travel plans, our personal loans offer flexible repayment options.',
+    maxAmount: 'Loans up to ₹50 Lakhs',
+    interestRate: 'Interest rates starting @ 10.49% p.a.',
     features: [
       'Loans up to ₹50 Lakhs',
       'Interest rates starting @ 10.49% p.a.',
@@ -41,6 +43,8 @@ const productDetails: Record<string, any> = {
     title: 'Business Loan',
     heroImage: '/loan/business.png',
     description: 'Fuel your business growth with our collateral-free business loans. Designed for Proprietorships, Partnerships, Pvt Ltd, and LLPs to manage working capital, expansion, or equipment purchase.',
+    maxAmount: 'Loans up to ₹2 Crores',
+    interestRate: 'Interest rates starting @ 14.00% p.a.',
     features: [
       'Loans up to ₹2 Crores (Collateral-free)',
       'Supports Proprietorship, Partnership, Pvt Ltd, & LLP',
@@ -70,6 +74,8 @@ const productDetails: Record<string, any> = {
     title: 'Home Loan',
     heroImage: '/loan/home.png',
     description: 'Make your dream home a reality with our affordable home loans. We cover New Purchases, Resale Properties, Construction, and Plot Purchases.',
+    maxAmount: 'Loans up to ₹5 Crores',
+    interestRate: 'Low interest rates starting @ 7.15% p.a.',
     features: [
       'Loans up to ₹5 Crores',
       'Low interest rates starting @ 8.50% p.a.',
@@ -100,6 +106,8 @@ const productDetails: Record<string, any> = {
     title: 'Loan Against Property',
     heroImage: '/loan/property.png',
     description: 'Unlock the hidden value of your property to meet your high-value financial needs. We accept Residential, Commercial, Industrial properties and Plots.',
+    maxAmount: 'Loans up to 70%',
+    interestRate: 'Interest rates starting @ 8.75% p.a.',
     features: [
       'High loan amount sanctions (up to 70% of Market Value)',
       'Accepts: Residential, Commercial, Industrial, & Plots',
@@ -128,6 +136,8 @@ const productDetails: Record<string, any> = {
     title: 'Education Loan',
     heroImage: '/loan/education.png',
     description: 'Invest in your future with our comprehensive education loans. Cover tuition fees, living expenses, and other educational costs for studies in India or abroad.',
+    maxAmount: 'Loans up to ₹2 Crores',
+    interestRate: 'Interest rates starting @ 9.50% p.a.',
     features: [
       'Loans up to ₹1.5 Crores for abroad studies',
       'Covers tuition fees, living expenses & travel',
@@ -158,6 +168,8 @@ const productDetails: Record<string, any> = {
     title: 'Car Loan',
     heroImage: '/loan/car.png',
     description: 'Drive your dream car home with our flexible car loans. We offer financing for new cars, used cars, and pre-owned vehicles with competitive interest rates and flexible tenure options.',
+    maxAmount: 'Loans up to 90%',
+    interestRate: 'Interest rates starting @ 8.50% p.a.',
     features: [
       'Loans up to 90% of car value (On-Road Price)',
       'Interest rates starting @ 8.50% p.a.',
@@ -191,6 +203,33 @@ export default function LoanDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
   const product = productDetails[slug];
+  const [loanProductData, setLoanProductData] = useState<{
+    maxAmount: string;
+    interestRate: string;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLoanProduct = async () => {
+      try {
+        const response = await fetch(`/api/loan-products?slug=${slug}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.product) {
+            setLoanProductData(data.product);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching loan product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (slug) {
+      fetchLoanProduct();
+    }
+  }, [slug]);
 
   if (!product) {
     return (
@@ -234,8 +273,26 @@ export default function LoanDetailPage() {
                 Key Features
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {product.features.map((feature: string, index: number) => (
-                  <div key={index} className="flex items-start gap-3 bg-blue-50 p-4 rounded-xl">
+                {/* First two cards with blue circular icons */}
+                <div className="flex items-center gap-3 bg-blue-50 p-4 rounded-xl">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-gray-700 font-medium">
+                    {loading ? 'Loading...' : (loanProductData?.maxAmount || product.maxAmount)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 bg-blue-50 p-4 rounded-xl">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-gray-700 font-medium">
+                    {loading ? 'Loading...' : (loanProductData?.interestRate || product.interestRate)}
+                  </span>
+                </div>
+                {/* Remaining features as regular cards */}
+                {product.features.slice(2).map((feature: string, index: number) => (
+                  <div key={index + 2} className="flex items-start gap-3 bg-blue-50 p-4 rounded-xl">
                     <CheckCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                     <span className="text-gray-700 font-medium">{feature}</span>
                   </div>
@@ -307,7 +364,7 @@ export default function LoanDetailPage() {
 
               <Link 
                 href={product.applyLink}
-                className="block w-full bg-orange-600 text-white text-center font-bold py-4 rounded-xl hover:bg-orange-700 transition-colors shadow-lg hover:shadow-orange-200 mb-4 flex items-center justify-center gap-2"
+                className="flex w-full bg-orange-600 text-white text-center font-bold py-4 rounded-xl hover:bg-orange-700 transition-colors shadow-lg hover:shadow-orange-200 mb-4 items-center justify-center gap-2"
               >
                 Apply Now <ArrowRight className="w-5 h-5" />
               </Link>
