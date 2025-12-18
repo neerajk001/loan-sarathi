@@ -123,19 +123,12 @@ const InsuranceProducts = () => {
               }`}
             >
               {/* Top Tag */}
-              <div className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-bold mb-3 shadow-sm ${
-                product.color === 'blue' ? 'bg-blue-200 text-blue-800' :
-                product.color === 'green' ? 'bg-green-200 text-green-800' :
-                product.color === 'orange' ? 'bg-orange-200 text-orange-800' :
-                product.color === 'purple' ? 'bg-purple-200 text-purple-800' :
-                product.color === 'indigo' ? 'bg-indigo-200 text-indigo-800' :
-                'bg-rose-200 text-rose-800'
-              }`}>
+              <div className="px-3 py-1 rounded-full text-[10px] md:text-xs font-bold mb-3 bg-white border border-black text-gray-900">
                 {product.tag}
               </div>
 
               {/* Icon Box */}
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 shadow-md bg-white border border-gray-300">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 bg-gray-100 border border-black">
                 <Image 
                   src={product.iconPath} 
                   alt={product.title}

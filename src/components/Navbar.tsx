@@ -1,9 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, Info, Calculator, CheckCircle, Home, Shield, FileText, Phone, Wallet, Building2, GraduationCap, Heart, Car, Bike, ShieldCheck, ChevronDown } from 'lucide-react';
+import { Menu, X, Info, Calculator, CheckCircle, Phone, ChevronDown, Home, Wallet, Shield, FileText } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import MovingBanner from './MovingBanner';
+import Image from 'next/image';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +84,7 @@ const Navbar = () => {
                       href="/loan/personal-loan" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-blue-50 transition-colors group"
                     >
-                      <Wallet className="h-4 w-4 text-blue-600" />
+                      <Image src="/card-logo/PersonalLoan.png" alt="Personal Loan" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Personal Loan</span>
                     </Link>
                     
@@ -91,7 +92,7 @@ const Navbar = () => {
                       href="/loan/business-loan" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-purple-50 transition-colors group"
                     >
-                      <Building2 className="h-4 w-4 text-purple-600" />
+                      <Image src="/card-logo/BusinessLoan.png" alt="Business Loan" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Business Loan</span>
                     </Link>
                     
@@ -99,7 +100,7 @@ const Navbar = () => {
                       href="/loan/home-loan" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-green-50 transition-colors group"
                     >
-                      <Home className="h-4 w-4 text-green-600" />
+                      <Image src="/card-logo/HomeLoan (2).png" alt="Home Loan" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Home Loan</span>
                     </Link>
                     
@@ -107,7 +108,7 @@ const Navbar = () => {
                       href="/loan/loan-against-property" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-orange-50 transition-colors group"
                     >
-                      <FileText className="h-4 w-4 text-orange-600" />
+                      <Image src="/card-logo/LAP (2).png" alt="Loan Against Property" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Loan Against Property</span>
                     </Link>
                     
@@ -115,7 +116,7 @@ const Navbar = () => {
                       href="/loan/education-loan" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-indigo-50 transition-colors group"
                     >
-                      <GraduationCap className="h-4 w-4 text-indigo-600" />
+                      <Image src="/card-logo/EducationLoan.png" alt="Education Loan" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Education Loan</span>
                     </Link>
                     
@@ -123,7 +124,7 @@ const Navbar = () => {
                       href="/loan/car-loan" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-teal-50 transition-colors group"
                     >
-                      <Car className="h-4 w-4 text-teal-600" />
+                      <Image src="/card-logo/CarLoan (2).png" alt="Car Loan" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Car Loan</span>
                     </Link>
                     </div>
@@ -153,7 +154,7 @@ const Navbar = () => {
                       href="/insurance/health-insurance" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-rose-50 transition-colors group"
                     >
-                      <Heart className="h-4 w-4 text-rose-600" />
+                      <Image src="/card-logo/HealthInsurance.png" alt="Health Insurance" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Health Insurance</span>
                     </Link>
                     
@@ -161,7 +162,7 @@ const Navbar = () => {
                       href="/insurance/term-life-insurance" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-blue-50 transition-colors group"
                     >
-                      <Shield className="h-4 w-4 text-blue-600" />
+                      <Image src="/card-logo/terminsurance.png" alt="Term Life" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Term Life</span>
                     </Link>
                     
@@ -169,7 +170,7 @@ const Navbar = () => {
                       href="/insurance/car-insurance" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-green-50 transition-colors group"
                     >
-                      <Car className="h-4 w-4 text-green-600" />
+                      <Image src="/card-logo/CarInsurance.png" alt="Car Insurance" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Car Insurance</span>
                     </Link>
                     
@@ -177,7 +178,7 @@ const Navbar = () => {
                       href="/insurance/bike-insurance" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-orange-50 transition-colors group"
                     >
-                      <Bike className="h-4 w-4 text-orange-600" />
+                      <Image src="/card-logo/BikeInsurance.png" alt="Bike Insurance" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Bike Insurance</span>
                     </Link>
                     
@@ -185,7 +186,7 @@ const Navbar = () => {
                       href="/insurance/loan-protector" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-purple-50 transition-colors group"
                     >
-                      <ShieldCheck className="h-4 w-4 text-purple-600" />
+                      <Image src="/card-logo/LoanProtector.png" alt="Loan Protector" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">Loan Protector</span>
                     </Link>
                     
@@ -193,7 +194,7 @@ const Navbar = () => {
                       href="/insurance/emi-protector" 
                       className="flex items-center gap-2 px-3 py-2 hover:bg-indigo-50 transition-colors group"
                     >
-                      <Wallet className="h-4 w-4 text-indigo-600" />
+                      <Image src="/card-logo/EMI Protector.png" alt="EMI Protector" width={16} height={16} className="object-contain" />
                       <span className="text-sm font-medium text-gray-900">EMI Protector</span>
                     </Link>
                     </div>
@@ -287,27 +288,27 @@ const Navbar = () => {
                   {showMobileLoanDropdown && (
                     <div className="ml-8 mt-2 space-y-2">
                       <Link href="/loan/personal-loan" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-blue-50 transition-colors">
-                        <Wallet className="h-5 w-5 text-blue-600" />
+                        <Image src="/card-logo/PersonalLoan.png" alt="Personal Loan" width={20} height={20} className="object-contain" />
                         Personal Loan
                       </Link>
                       <Link href="/loan/business-loan" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-purple-50 transition-colors">
-                        <Building2 className="h-5 w-5 text-purple-600" />
+                        <Image src="/card-logo/BusinessLoan.png" alt="Business Loan" width={20} height={20} className="object-contain" />
                         Business Loan
                       </Link>
                       <Link href="/loan/home-loan" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-green-50 transition-colors">
-                        <Home className="h-5 w-5 text-green-600" />
+                        <Image src="/card-logo/HomeLoan (2).png" alt="Home Loan" width={20} height={20} className="object-contain" />
                         Home Loan
                       </Link>
                       <Link href="/loan/loan-against-property" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-orange-50 transition-colors">
-                        <FileText className="h-5 w-5 text-orange-600" />
+                        <Image src="/card-logo/LAP (2).png" alt="Loan Against Property" width={20} height={20} className="object-contain" />
                         Loan Against Property
                       </Link>
                       <Link href="/loan/education-loan" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-indigo-50 transition-colors">
-                        <GraduationCap className="h-5 w-5 text-indigo-600" />
+                        <Image src="/card-logo/EducationLoan.png" alt="Education Loan" width={20} height={20} className="object-contain" />
                         Education Loan
                       </Link>
                       <Link href="/loan/car-loan" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-teal-50 transition-colors">
-                        <Car className="h-5 w-5 text-teal-600" />
+                        <Image src="/card-logo/CarLoan (2).png" alt="Car Loan" width={20} height={20} className="object-contain" />
                         Car Loan
                       </Link>
                     </div>
@@ -333,27 +334,27 @@ const Navbar = () => {
                   {showMobileInsuranceDropdown && (
                     <div className="ml-8 mt-2 space-y-2">
                       <Link href="/insurance/health-insurance" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-rose-50 transition-colors">
-                        <Heart className="h-5 w-5 text-rose-600" />
+                        <Image src="/card-logo/HealthInsurance.png" alt="Health Insurance" width={20} height={20} className="object-contain" />
                         Health Insurance
                       </Link>
                       <Link href="/insurance/term-life-insurance" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-blue-50 transition-colors">
-                        <Shield className="h-5 w-5 text-blue-600" />
+                        <Image src="/card-logo/terminsurance.png" alt="Term Life" width={20} height={20} className="object-contain" />
                         Term Life
                       </Link>
                       <Link href="/insurance/car-insurance" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-green-50 transition-colors">
-                        <Car className="h-5 w-5 text-green-600" />
+                        <Image src="/card-logo/CarInsurance.png" alt="Car Insurance" width={20} height={20} className="object-contain" />
                         Car Insurance
                       </Link>
                       <Link href="/insurance/bike-insurance" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-orange-50 transition-colors">
-                        <Bike className="h-5 w-5 text-orange-600" />
+                        <Image src="/card-logo/BikeInsurance.png" alt="Bike Insurance" width={20} height={20} className="object-contain" />
                         Bike Insurance
                       </Link>
                       <Link href="/insurance/loan-protector" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-purple-50 transition-colors">
-                        <ShieldCheck className="h-5 w-5 text-purple-600" />
+                        <Image src="/card-logo/LoanProtector.png" alt="Loan Protector" width={20} height={20} className="object-contain" />
                         Loan Protector
                       </Link>
                       <Link href="/insurance/emi-protector" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-gray-700 hover:bg-indigo-50 transition-colors">
-                        <Wallet className="h-5 w-5 text-indigo-600" />
+                        <Image src="/card-logo/EMI Protector.png" alt="EMI Protector" width={20} height={20} className="object-contain" />
                         EMI Protector
                       </Link>
                     </div>

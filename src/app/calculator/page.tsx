@@ -864,7 +864,7 @@ const DetailedCalculatorContent = () => {
           <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex overflow-x-auto max-w-full">
             <button
               onClick={() => setActiveTab('emi')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-6 py-6 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === 'emi'
                   ? 'bg-blue-900 text-white shadow-md'
                   : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'
@@ -875,7 +875,7 @@ const DetailedCalculatorContent = () => {
             </button>
             <button
               onClick={() => setActiveTab('eligibility')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-6 py-6 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === 'eligibility'
                   ? 'bg-blue-900 text-white shadow-md'
                   : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'
@@ -886,7 +886,7 @@ const DetailedCalculatorContent = () => {
             </button>
             <button
               onClick={() => setActiveTab('balance')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-6 py-6 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === 'balance'
                   ? 'bg-blue-900 text-white shadow-md'
                   : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'
@@ -897,7 +897,7 @@ const DetailedCalculatorContent = () => {
             </button>
             <button
               onClick={() => setActiveTab('part-payment')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-6 py-6 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === 'part-payment'
                   ? 'bg-blue-900 text-white shadow-md'
                   : 'text-gray-500 hover:text-blue-900 hover:bg-blue-50'

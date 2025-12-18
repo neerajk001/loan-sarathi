@@ -296,11 +296,11 @@ const InsuranceApplicationForm = ({ insuranceType = 'health' }: InsuranceApplica
       </div>
 
       {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-white">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-white">
         
         {/* Step 1: Basic Details */}
         {showBasicDetails && (
-          <div className="space-y-6 max-w-2xl mx-auto pb-20">
+          <div className="space-y-6 max-w-2xl mx-auto pb-8">
             <div className="border-b border-gray-100 pb-4">
               <h3 className="text-2xl font-bold text-gray-900">Basic Details</h3>
               <p className="text-gray-500 text-sm mt-1">
@@ -554,7 +554,7 @@ const InsuranceApplicationForm = ({ insuranceType = 'health' }: InsuranceApplica
 
         {/* Step 2: Review & Submit */}
         {showReview && (
-          <div className="space-y-6 max-w-2xl mx-auto pb-20">
+          <div className="space-y-6 max-w-2xl mx-auto pb-8">
             <div className="text-center mb-8">
               <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto animate-bounce mb-4 ${
                 formDetails.color === 'rose' ? 'bg-rose-100' :

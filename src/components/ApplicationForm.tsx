@@ -450,11 +450,11 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       </div>
 
       {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-white">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-white">
         
         {/* Step 1: Personal Details */}
         {showPersonalDetails && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">{isBusinessLoan || isHomeLoan || isLAP ? 'Basic Details' : 'Personal Details'}</h3>
@@ -577,7 +577,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
         {/* Step 2: Employment Info */}
         {showEmploymentInfo && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Employment Info</h3>
@@ -694,7 +694,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
         {/* Step 3 (Business Only): Business Details */}
         {showBusinessDetails && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Business Details</h3>
@@ -799,7 +799,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
         {/* Step 3 (Home Loan Only): Property Details */}
         {showPropertyDetails && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Property Details</h3>
@@ -898,7 +898,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
         {/* Step 3 (LAP Only): Property Info */}
         {showLAPDetails && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Property Info</h3>
@@ -1076,7 +1076,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
         {/* Step 3: Vehicle Details (Car Loan) */}
         {showCarDetails && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Vehicle Details</h3>
@@ -1220,7 +1220,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
         {/* Step 3: Education Details (Education Loan) */}
         {isEducationLoan && currentStep === 3 && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Education Details</h3>
@@ -1332,7 +1332,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
 
         {/* Step 3/4: Loan Requirement */}
         {showLoanRequirement && (
-          <div className="space-y-5 max-w-4xl mx-auto pb-20">
+          <div className="space-y-5 max-w-4xl mx-auto pb-8">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Loan Requirement</h3>

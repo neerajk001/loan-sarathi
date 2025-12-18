@@ -7,22 +7,22 @@ import { formatCurrency } from '@/lib/utils';
 const Calculator = () => {
   const [activeTab, setActiveTab] = useState<'emi' | 'eligibility' | 'balance'>('emi');
 
-  // EMI State
-  const [amount, setAmount] = useState(0);
-  const [rate, setRate] = useState(0);
-  const [years, setYears] = useState(0);
+  // EMI State - Default: 10 Lakhs, 10.5%, 5 years
+  const [amount, setAmount] = useState(1000000);
+  const [rate, setRate] = useState(10.5);
+  const [years, setYears] = useState(5);
   const [emi, setEmi] = useState(0);
 
-  // Eligibility State
-  const [income, setIncome] = useState(0);
-  const [existingEmi, setExistingEmi] = useState(0);
+  // Eligibility State - Default: 50k income, 10k existing EMI
+  const [income, setIncome] = useState(50000);
+  const [existingEmi, setExistingEmi] = useState(10000);
   const [eligibleAmount, setEligibleAmount] = useState(0);
 
-  // Balance Transfer State
-  const [btIncome, setBtIncome] = useState(0);
-  const [outstanding, setOutstanding] = useState(0);
-  const [btExistingEmi, setBtExistingEmi] = useState(0);
-  const [btTenure, setBtTenure] = useState(1);
+  // Balance Transfer State - Default: 50k income, 5L outstanding, 10k existing EMI, 5 years
+  const [btIncome, setBtIncome] = useState(50000);
+  const [outstanding, setOutstanding] = useState(500000);
+  const [btExistingEmi, setBtExistingEmi] = useState(10000);
+  const [btTenure, setBtTenure] = useState(5);
   
   // BT Results
   const [btMaxEmi, setBtMaxEmi] = useState(0);
@@ -93,11 +93,11 @@ const Calculator = () => {
     <div id="calculators" className="py-6 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Plan Your Finances Smartly</h2>
+          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Financial Tools</h2>
           <p className="mt-4 text-gray-600">Use our tools to estimate your payments instantly.</p>
         </div>
 
-        <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div className="max-w-5xl mx-auto bg-gray-100 rounded-2xl border border-black overflow-hidden">
           {/* Tabs */}
           <div className="flex border-b border-gray-200 overflow-x-auto">
             <button 
