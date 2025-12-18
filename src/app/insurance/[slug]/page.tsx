@@ -274,15 +274,15 @@ export default function InsuranceDetailPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">2</div>
-                  <span className="text-sm font-medium text-gray-600">Login</span>
+                  <span className="text-sm font-medium text-gray-600">Get The Quote</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">3</div>
-                  <span className="text-sm font-medium text-gray-600">Approval</span>
+                  <span className="text-sm font-medium text-gray-600">Login</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">4</div>
-                  <span className="text-sm font-medium text-gray-600">Disbursement</span>
+                  <span className="text-sm font-medium text-gray-600">Policy Issued</span>
                 </div>
               </div>
 

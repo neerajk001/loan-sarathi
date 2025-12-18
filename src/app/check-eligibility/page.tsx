@@ -7,9 +7,9 @@ import { Calculator, Wallet, CreditCard, Calendar, ArrowRight, CheckCircle2, Per
 import { formatCurrency } from '@/lib/utils';
 
 const CheckEligibility = () => {
-  const [income, setIncome] = useState(0);
-  const [existingEmi, setExistingEmi] = useState(0);
-  const [tenure, setTenure] = useState(1);
+  const [income, setIncome] = useState<string>('');
+  const [existingEmi, setExistingEmi] = useState<string>('');
+  const [tenure, setTenure] = useState<string>('');
   
   const [maxEmiCapacity, setMaxEmiCapacity] = useState(0);
   const [maxLoanAmount, setMaxLoanAmount] = useState(0);
@@ -20,13 +20,17 @@ const CheckEligibility = () => {
   }, [income, existingEmi, tenure]);
 
   const calculateEligibility = () => {
+    const incomeNum = Number(income) || 0;
+    const existingEmiNum = Number(existingEmi) || 0;
+    const tenureNum = Number(tenure) || 1;
+    
     const foir = 0.50;
-    const maxEmi = (income * foir) - existingEmi;
+    const maxEmi = (incomeNum * foir) - existingEmiNum;
     const safeMaxEmi = Math.max(0, maxEmi);
     setMaxEmiCapacity(Math.round(safeMaxEmi));
 
     const r = ROI / 12 / 100;
-    const n = tenure * 12;
+    const n = tenureNum * 12;
 
     if (r > 0 && n > 0 && safeMaxEmi > 0) {
       const loanAmount = safeMaxEmi * ( (1 - Math.pow(1 + r, -n)) / r );
@@ -79,7 +83,8 @@ const CheckEligibility = () => {
                     <input 
                       type="number" 
                       value={income}
-                      onChange={(e) => setIncome(Number(e.target.value))}
+                      onChange={(e) => setIncome(e.target.value)}
+                      placeholder="0"
                       className="w-full pl-10 pr-4 py-4 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-orange-100 focus:border-orange-500 outline-none font-bold text-gray-900 text-lg transition-all shadow-sm"
                     />
                   </div>
@@ -97,7 +102,8 @@ const CheckEligibility = () => {
                     <input 
                       type="number" 
                       value={existingEmi}
-                      onChange={(e) => setExistingEmi(Number(e.target.value))}
+                      onChange={(e) => setExistingEmi(e.target.value)}
+                      placeholder="0"
                       className="w-full pl-10 pr-4 py-4 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-orange-100 focus:border-orange-500 outline-none font-bold text-gray-900 text-lg transition-all shadow-sm"
                     />
                   </div>
@@ -108,17 +114,17 @@ const CheckEligibility = () => {
                     <div className="p-1.5 bg-orange-50 rounded-lg text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all">
                       <Calendar className="h-4 w-4" />
                     </div>
-                    Preferred Tenure
+                    Preferred Tenure (Years)
                   </label>
-                  <select 
+                  <input 
+                    type="number" 
                     value={tenure}
-                    onChange={(e) => setTenure(Number(e.target.value))}
-                    className="w-full px-4 py-4 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-orange-100 focus:border-orange-500 outline-none font-bold text-gray-900 text-lg transition-all cursor-pointer appearance-none shadow-sm"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7].map((y) => (
-                      <option key={y} value={y}>{y} Years</option>
-                    ))}
-                  </select>
+                    onChange={(e) => setTenure(e.target.value)}
+                    placeholder="1"
+                    min="1"
+                    max="30"
+                    className="w-full px-4 py-4 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-orange-100 focus:border-orange-500 outline-none font-bold text-gray-900 text-lg transition-all shadow-sm"
+                  />
                 </div>
               </div>
             </div>

@@ -42,9 +42,9 @@ const DetailedCalculatorContent = () => {
   }, [searchParams]);
 
   // EMI Calculator State
-  const [loanAmount, setLoanAmount] = useState(0);
-  const [interestRate, setInterestRate] = useState(0);
-  const [tenure, setTenure] = useState(0);
+  const [loanAmount, setLoanAmount] = useState(1000000); // Default: 10 Lakhs
+  const [interestRate, setInterestRate] = useState(10.5); // Default: 10.5%
+  const [tenure, setTenure] = useState(5); // Default: 5 years
   const [tenureType, setTenureType] = useState<'years' | 'months'>('years');
   
   const [emi, setEmi] = useState(0);
@@ -70,9 +70,9 @@ const DetailedCalculatorContent = () => {
   }, [amortizationSchedule.length]);
 
   // Eligibility Calculator State
-  const [income, setIncome] = useState(0);
-  const [existingEmi, setExistingEmi] = useState(0);
-  const [eligTenure, setEligTenure] = useState(1);
+  const [income, setIncome] = useState<string>('50000'); // Default: 50k
+  const [existingEmi, setExistingEmi] = useState<string>('10000'); // Default: 10k
+  const [eligTenure, setEligTenure] = useState<string>('5'); // Default: 5 years
   const [eligibleAmount, setEligibleAmount] = useState(0);
   const [maxEmiCapacity, setMaxEmiCapacity] = useState(0);
   const [applicableROI, setApplicableROI] = useState(11.0);
@@ -90,9 +90,9 @@ const DetailedCalculatorContent = () => {
   const [btNetInHand, setBtNetInHand] = useState(0);
 
   // Part Payment State
-  const [ppLoanAmount, setPpLoanAmount] = useState(0);
-  const [ppInterestRate, setPpInterestRate] = useState(0);
-  const [ppTenure, setPpTenure] = useState(1); // in years
+  const [ppLoanAmount, setPpLoanAmount] = useState(1000000); // Default: 10 Lakhs
+  const [ppInterestRate, setPpInterestRate] = useState(10.5); // Default: 10.5%
+  const [ppTenure, setPpTenure] = useState(5); // Default: 5 years
   const [ppReductionType, setPpReductionType] = useState<'emi' | 'tenure'>('emi');
   const [partPayments, setPartPayments] = useState<{ amount: number; month: number }[]>([]);
 
@@ -418,14 +418,18 @@ const DetailedCalculatorContent = () => {
 
   // Eligibility Calculation
   useEffect(() => {
+    const incomeNum = Number(income) || 0;
+    const existingEmiNum = Number(existingEmi) || 0;
+    const eligTenureNum = Number(eligTenure) || 1;
+    
     const foir = 0.50;
-    const maxMonthlyEmi = (income * foir) - existingEmi;
+    const maxMonthlyEmi = (incomeNum * foir) - existingEmiNum;
     setMaxEmiCapacity(Math.round(Math.max(0, maxMonthlyEmi)));
     
     // Calculate Loan Amount for this Max EMI
     // Formula: P = (E * ( (1+r)^n - 1 ) ) / ( r * (1+r)^n )
     const r = applicableROI / 12 / 100;
-    const n = eligTenure * 12; // tenure in months
+    const n = eligTenureNum * 12; // tenure in months
 
     let loan = 0;
     if (maxMonthlyEmi > 0) {
@@ -1312,9 +1316,9 @@ const DetailedCalculatorContent = () => {
                   <input 
                     type="number" 
                     value={income}
-                    onChange={(e) => setIncome(Number(e.target.value))}
+                    onChange={(e) => setIncome(e.target.value)}
                     className="w-full px-4 py-3 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                    placeholder="50000"
+                    placeholder="0"
                   />
                   <p className="text-xs text-gray-500 mt-2">Salary deposited in bank</p>
                 </div>
@@ -1324,24 +1328,24 @@ const DetailedCalculatorContent = () => {
                   <input 
                     type="number" 
                     value={existingEmi}
-                    onChange={(e) => setExistingEmi(Number(e.target.value))}
+                    onChange={(e) => setExistingEmi(e.target.value)}
                     className="w-full px-4 py-3 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                    placeholder="10000"
+                    placeholder="0"
                   />
                   <p className="text-xs text-gray-500 mt-2">Don't Include Balance transfer loan EMIs</p>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Desired Tenure (Years)</label>
-                  <select 
+                  <input 
+                    type="number" 
                     value={eligTenure}
-                    onChange={(e) => setEligTenure(Number(e.target.value))}
-                    className="w-full px-4 py-3 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all cursor-pointer"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30].map((y) => (
-                      <option key={y} value={y}>{y} Years</option>
-                    ))}
-                  </select>
+                    onChange={(e) => setEligTenure(e.target.value)}
+                    min="1"
+                    max="30"
+                    className="w-full px-4 py-3 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    placeholder="1"
+                  />
                   <p className="text-xs text-gray-500 mt-2">Repayment period you prefer</p>
                 </div>
               </div>
@@ -1364,7 +1368,7 @@ const DetailedCalculatorContent = () => {
                   <div>
                     <div className="text-sm text-gray-500 mb-2">Per Lakh EMI</div>
                     <div className="text-3xl font-bold text-orange-600">₹{formatCurrency(Math.round((maxEmiCapacity / (eligibleAmount / 100000)) || 0))}</div>
-                    <p className="text-xs text-gray-500 mt-1">@ {applicableROI.toFixed(2)}% on {eligTenure} Years</p>
+                    <p className="text-xs text-gray-500 mt-1">@ {applicableROI.toFixed(2)}% on {eligTenure || '1'} Years</p>
                   </div>
                   
                   <div>
