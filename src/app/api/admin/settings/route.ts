@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS = {
     newConsultancy: true,
     statusUpdate: true,
   },
-  adminEmails: ['workwithneeraj.01@gmail.com', 'shashichanyal@gmail.com'],
+  adminEmails: ['admin@smartsolutionsmumbai.com', 'shashichanyal@gmail.com'],
   systemSettings: {
     maintenanceMode: false,
     allowPublicApplications: true,
@@ -33,9 +33,18 @@ export async function GET(request: NextRequest) {
     
     const settings = await collection.findOne({ _id: 'main' } as any);
     
+    const currentSettings = settings?.settings || DEFAULT_SETTINGS;
+    
+    // Normalize admin emails to lowercase
+    if (currentSettings.adminEmails && Array.isArray(currentSettings.adminEmails)) {
+      currentSettings.adminEmails = currentSettings.adminEmails.map((email: string) => 
+        email.toLowerCase().trim()
+      );
+    }
+    
     return NextResponse.json({
       success: true,
-      settings: settings?.settings || DEFAULT_SETTINGS,
+      settings: currentSettings,
     });
   } catch (error) {
     console.error('Error fetching settings:', error);
@@ -66,8 +75,9 @@ export async function POST(request: NextRequest) {
         );
       }
       
-      // Validate email format
+      // Validate email format and normalize to lowercase
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const normalizedEmails: string[] = [];
       for (const email of body.adminEmails) {
         if (!emailRegex.test(email)) {
           return NextResponse.json(
@@ -75,16 +85,28 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
+        // Normalize to lowercase
+        normalizedEmails.push(email.toLowerCase().trim());
       }
+      // Replace with normalized emails
+      body.adminEmails = normalizedEmails;
     }
     
-    // Merge with existing settings
+    // Get existing settings
     const existing = await collection.findOne({ _id: 'main' } as any);
+    const existingSettings = existing?.settings || DEFAULT_SETTINGS;
+    
+    // Merge settings - body values take precedence, especially for adminEmails
     const mergedSettings = {
       ...DEFAULT_SETTINGS,
-      ...(existing?.settings || {}),
+      ...existingSettings,
       ...body,
     };
+    
+    // If adminEmails is provided in body, use it directly (don't merge)
+    if (body.adminEmails && Array.isArray(body.adminEmails)) {
+      mergedSettings.adminEmails = body.adminEmails;
+    }
     
     // Update or insert settings
     await collection.updateOne(

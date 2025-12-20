@@ -8,6 +8,7 @@ const SETTINGS_COLLECTION = 'adminSettings';
 // Default admin emails - these are fallback if database doesn't have any
 const DEFAULT_ADMIN_EMAILS = [
   'admin@smartsolutionsmumbai.com',
+  'shashichanyal@gmail.com',
 ];
 
 // Function to get admin emails from database
@@ -18,13 +19,22 @@ async function getAdminEmails(): Promise<string[]> {
     const settings = await db.collection(SETTINGS_COLLECTION).findOne({ _id: 'main' } as any);
     
     if (settings?.settings?.adminEmails && Array.isArray(settings.settings.adminEmails)) {
-      return settings.settings.adminEmails;
+      // Normalize all emails to lowercase and trim whitespace
+      const normalizedEmails = settings.settings.adminEmails.map((email: string) => 
+        email.toLowerCase().trim()
+      ).filter((email: string) => email.length > 0);
+      
+      if (normalizedEmails.length > 0) {
+        console.log('Admin emails from database:', normalizedEmails);
+        return normalizedEmails;
+      }
     }
     
-    return DEFAULT_ADMIN_EMAILS;
+    console.log('Using default admin emails:', DEFAULT_ADMIN_EMAILS);
+    return DEFAULT_ADMIN_EMAILS.map(email => email.toLowerCase());
   } catch (error) {
     console.error('Error fetching admin emails:', error);
-    return DEFAULT_ADMIN_EMAILS;
+    return DEFAULT_ADMIN_EMAILS.map(email => email.toLowerCase());
   }
 }
 
@@ -43,20 +53,28 @@ export const authOptions: AuthOptions = {
     async signIn({ user }) {
       // Check if the user's email is in the admin list
       const adminEmails = await getAdminEmails();
-      const userEmail = user.email?.toLowerCase();
+      const userEmail = user.email?.toLowerCase().trim();
+      
+      console.log('Sign in attempt - User email:', userEmail);
+      console.log('Sign in attempt - Admin emails:', adminEmails);
       
       if (!userEmail) {
+        console.log('Sign in failed - No user email provided');
         return false;
       }
       
       const isAdmin = adminEmails.some(
-        (email) => email.toLowerCase() === userEmail
+        (email) => email.toLowerCase().trim() === userEmail
       );
       
+      console.log('Sign in attempt - Is admin:', isAdmin);
+      
       if (!isAdmin) {
+        console.log('Sign in failed - Access denied for email:', userEmail);
         return '/admin/signin?error=AccessDenied';
       }
       
+      console.log('Sign in successful - Access granted for email:', userEmail);
       return true;
     },
     async session({ session, token }) {

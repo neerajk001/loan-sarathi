@@ -45,7 +45,7 @@ export default function SettingsPage() {
       newConsultancy: true,
       statusUpdate: true,
     },
-    adminEmails: ['workwithneeraj.01@gmail.com', 'shashichanyal@gmail.com'],
+    adminEmails: ['admin@smartsolutionsmumbai.com', 'shashichanyal@gmail.com'],
     systemSettings: {
       maintenanceMode: false,
       allowPublicApplications: true,
