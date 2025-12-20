@@ -1,10 +1,10 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, ShieldCheck, Mail, AlertCircle } from 'lucide-react';
 
-export default function AdminSignInPage() {
+function SignInContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -123,5 +123,22 @@ export default function AdminSignInPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminSignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <Loader2 className="h-10 w-10 animate-spin text-gray-900 mx-auto mb-4" />
+            <p className="text-gray-500 font-medium">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }
