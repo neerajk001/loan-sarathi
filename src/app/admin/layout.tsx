@@ -1,11 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   LayoutDashboard, 
   FileText, 
-  Users, 
   Settings, 
   LogOut, 
   Loader2, 
@@ -15,7 +16,7 @@ import {
   Search,
   ChevronRight,
   Home,
-  Lock
+  ShieldCheck
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -23,108 +24,40 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
+  // Redirect to signin if not authenticated
   useEffect(() => {
-    // Check if admin is already authenticated
-    const adminAuth = localStorage.getItem('adminAuth');
-    if (adminAuth === 'true') {
-      setIsAuthenticated(true);
+    if (status === 'unauthenticated' && pathname !== '/admin/signin') {
+      router.push('/admin/signin');
     }
-    setIsLoading(false);
-  }, []);
+  }, [status, pathname, router]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  // Don't apply layout to signin page
+  if (pathname === '/admin/signin') {
+    return <>{children}</>;
+  }
 
-    try {
-      // Verify password with API
-      const response = await fetch('/api/admin/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('adminAuth', 'true');
-        setIsAuthenticated(true);
-        setPassword('');
-      } else {
-        setError('Invalid password');
-      }
-    } catch (err) {
-      setError('Authentication failed');
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
-    setIsAuthenticated(false);
-    router.push('/');
-  };
-
-  if (isLoading) {
+  // Show loading state
+  if (status === 'loading' || status === 'unauthenticated') {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin text-gray-900 mx-auto mb-4" />
-          <p className="text-gray-500 font-medium">Loading...</p>
+          <p className="text-gray-500 font-medium">
+            {status === 'loading' ? 'Loading...' : 'Redirecting to sign in...'}
+          </p>
         </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-orange-50">
-        <div className="w-full max-w-md p-8">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-blue-900 rounded-2xl flex items-center justify-center">
-                <Lock className="w-8 h-8 text-white" />
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
-              Admin Access
-            </h2>
-            <p className="text-center text-gray-500 mb-6">
-              Enter password to continue
-            </p>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Admin Password"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  required
-                />
-              </div>
-              {error && (
-                <p className="text-red-600 text-sm text-center">{error}</p>
-              )}
-              <button
-                type="submit"
-                className="w-full bg-blue-900 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors"
-              >
-                Access Admin Panel
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
 
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -171,6 +104,35 @@ export default function AdminLayout({
             </div>
           </div>
 
+          {/* Admin Info */}
+          {session?.user && (
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                {session.user.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name || 'Admin'}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5 text-blue-600" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 text-sm truncate">
+                    {session.user.name || 'Admin'}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {session.user.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Menu</p>
@@ -213,7 +175,7 @@ export default function AdminLayout({
               className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-semibold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors"
             >
               <LogOut className="h-4 w-4" />
-              Logout
+              Sign Out
             </button>
           </div>
         </div>
@@ -251,8 +213,6 @@ export default function AdminLayout({
                 <Bell className="w-5 h-5 text-gray-600" />
                 <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
               </button>
-
-
             </div>
           </div>
         </header>

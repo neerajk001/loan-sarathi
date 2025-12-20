@@ -1,21 +1,20 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { 
   Settings, 
   Mail, 
-  Bell, 
-  Shield, 
   Database,
   Save,
   CheckCircle,
   Loader2,
-  Globe,
   UserCog,
   DollarSign,
   Edit2,
-  Lock,
-  Eye,
-  EyeOff
+  Shield,
+  X,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 interface SettingsData {
@@ -39,6 +38,7 @@ interface LoanProduct {
 }
 
 export default function SettingsPage() {
+  const { data: session } = useSession();
   const [settings, setSettings] = useState<SettingsData>({
     emailNotifications: {
       newApplication: true,
@@ -55,21 +55,11 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [loanProducts, setLoanProducts] = useState<LoanProduct[]>([]);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editMaxAmount, setEditMaxAmount] = useState('');
   const [editInterestRate, setEditInterestRate] = useState('');
-  
-  // Password change state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -117,20 +107,52 @@ export default function SettingsPage() {
     }
   };
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleAddAdminEmail = () => {
-    if (newAdminEmail && !settings.adminEmails.includes(newAdminEmail)) {
-      setSettings({
-        ...settings,
-        adminEmails: [...settings.adminEmails, newAdminEmail],
-      });
-      setNewAdminEmail('');
+    setEmailError('');
+    
+    if (!newAdminEmail) {
+      setEmailError('Please enter an email address');
+      return;
     }
+    
+    if (!validateEmail(newAdminEmail)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    
+    if (settings.adminEmails.some(e => e.toLowerCase() === newAdminEmail.toLowerCase())) {
+      setEmailError('This email is already in the admin list');
+      return;
+    }
+    
+    setSettings({
+      ...settings,
+      adminEmails: [...settings.adminEmails, newAdminEmail.toLowerCase()],
+    });
+    setNewAdminEmail('');
   };
 
   const handleRemoveAdminEmail = (email: string) => {
+    // Don't allow removing if only one admin email exists
+    if (settings.adminEmails.length <= 1) {
+      alert('At least one admin email is required');
+      return;
+    }
+    
+    // Don't allow removing the current user's email
+    if (session?.user?.email?.toLowerCase() === email.toLowerCase()) {
+      alert('You cannot remove your own admin email');
+      return;
+    }
+    
     setSettings({
       ...settings,
-      adminEmails: settings.adminEmails.filter(e => e !== email),
+      adminEmails: settings.adminEmails.filter(e => e.toLowerCase() !== email.toLowerCase()),
     });
   };
 
@@ -158,53 +180,6 @@ export default function SettingsPage() {
     setEditingProduct(null);
     setEditMaxAmount('');
     setEditInterestRate('');
-  };
-
-  const handleChangePassword = async () => {
-    setPasswordError('');
-    setPasswordSuccess(false);
-    
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError('All password fields are required');
-      return;
-    }
-    
-    if (newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters long');
-      return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-      setPasswordError('New passwords do not match');
-      return;
-    }
-    
-    setPasswordLoading(true);
-    
-    try {
-      const response = await fetch('/api/admin/password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setPasswordSuccess(true);
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setTimeout(() => setPasswordSuccess(false), 5000);
-      } else {
-        setPasswordError(data.error || 'Failed to change password');
-      }
-    } catch (error) {
-      console.error('Error changing password:', error);
-      setPasswordError('Failed to change password');
-    } finally {
-      setPasswordLoading(false);
-    }
   };
 
   const handleSaveProduct = async (slug: string) => {
@@ -343,114 +318,104 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Change Password */}
+      {/* Admin Access Management */}
       <div className="bg-white border border-gray-900 rounded-2xl p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-            <Lock className="h-6 w-6 text-red-600" />
+          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+            <Shield className="h-6 w-6 text-purple-600" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Change Admin Password</h2>
-            <p className="text-sm text-gray-500">Update your admin panel login password</p>
+            <h2 className="text-xl font-bold text-gray-900">Admin Access</h2>
+            <p className="text-sm text-gray-500">Manage who can access the admin panel via Google Sign-In</p>
           </div>
         </div>
 
         <div className="space-y-4">
-          {passwordError && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-              {passwordError}
+          {/* Current Admin Info */}
+          {session?.user && (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <div>
+                  <p className="font-semibold text-green-800">You are signed in as</p>
+                  <p className="text-sm text-green-700">{session.user.email}</p>
+                </div>
+              </div>
             </div>
           )}
-          
-          {passwordSuccess && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />
-              Password changed successfully!
-            </div>
-          )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-            <div className="relative">
+          {/* Add New Admin Email */}
+          <div className="p-4 bg-gray-50 rounded-xl">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Add New Admin Email</label>
+            <div className="flex gap-2">
               <input
-                type={showCurrentPassword ? 'text' : 'password'}
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter current password"
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
+                type="email"
+                value={newAdminEmail}
+                onChange={(e) => {
+                  setNewAdminEmail(e.target.value);
+                  setEmailError('');
+                }}
+                placeholder="Enter email address"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddAdminEmail();
+                  }
+                }}
               />
               <button
-                type="button"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                onClick={handleAddAdminEmail}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
-                {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                <Plus className="w-4 h-4" />
+                Add
               </button>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-            <div className="relative">
-              <input
-                type={showNewPassword ? 'text' : 'password'}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password (min 6 characters)"
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-
-          <button
-            onClick={handleChangePassword}
-            disabled={passwordLoading}
-            className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {passwordLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Changing Password...
-              </>
-            ) : (
-              <>
-                <Lock className="w-5 h-5" />
-                Change Password
-              </>
+            {emailError && (
+              <p className="text-red-600 text-sm mt-2">{emailError}</p>
             )}
-          </button>
-          
-          <p className="text-xs text-gray-500 mt-2">
-            Note: After changing the password, you&apos;ll need to use the new password for future logins.
-            The initial password is set in the ADMIN_PASSWORD environment variable.
-          </p>
+            <p className="text-xs text-gray-500 mt-2">
+              Users with these email addresses can sign in with Google to access the admin panel.
+            </p>
+          </div>
+
+          {/* Admin Emails List */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Authorized Admin Emails</label>
+            <div className="space-y-2">
+              {settings.adminEmails.map((email, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-900">{email}</span>
+                    {session?.user?.email?.toLowerCase() === email.toLowerCase() && (
+                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                        You
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleRemoveAdminEmail(email)}
+                    disabled={settings.adminEmails.length <= 1 || session?.user?.email?.toLowerCase() === email.toLowerCase()}
+                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={
+                      settings.adminEmails.length <= 1 
+                        ? 'At least one admin is required' 
+                        : session?.user?.email?.toLowerCase() === email.toLowerCase()
+                        ? 'Cannot remove your own email'
+                        : 'Remove admin'
+                    }
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

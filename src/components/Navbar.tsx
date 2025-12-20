@@ -48,20 +48,20 @@ const Navbar = () => {
     <>
     <MovingBanner />
     <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-18">
-        <div className="flex justify-between items-center h-24 ml-5">
+      <div className="max-w-[1400px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+        <div className="flex justify-between items-center h-24">
           
           {/* Left: Logo */}
-          <div className="shrink-0 flex items-center cursor-pointer z-50 relative -ml-3">
+          <div className="shrink-0 flex items-center cursor-pointer z-50 relative">
             <Link href="/" className="flex items-center">
-              <img src="/logoc.svg" alt="Loan Sarathi Logo" className="h-32 md:h-48 w-auto object-contain" />
+              <img src="/logoc.svg" alt="Loan Sarathi Logo" className="h-32 md:h-40 lg:h-44 xl:h-48 w-auto object-contain" />
             </Link>
           </div>
 
           {/* Center: Navigation Links */}
-          <div className="hidden md:flex items-center justify-center space-x-6 flex-1 px-4">
-            <Link href="/" className={`${isActive('/')} whitespace-nowrap transition-colors`}>Home</Link>
-            <Link href="/about" className={`${isActive('/about')} whitespace-nowrap transition-colors`}>About Us</Link>
+          <div className="hidden md:flex items-center justify-center space-x-4 lg:space-x-6 xl:space-x-10 2xl:space-x-12 flex-1 px-4 lg:px-8">
+            <Link href="/" className={`${isActive('/')} whitespace-nowrap transition-colors text-sm lg:text-base`}>Home</Link>
+            <Link href="/about" className={`${isActive('/about')} whitespace-nowrap transition-colors text-sm lg:text-base`}>About Us</Link>
             
             {/* Loans Dropdown */}
             <div 
@@ -70,7 +70,7 @@ const Navbar = () => {
               onMouseLeave={() => setShowLoanDropdown(false)}
             >
               <div 
-                className={`${isActive('/loan')} whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer`}
+                className={`${isActive('/loan')} whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer text-sm lg:text-base`}
               >
                 Loans
                 <ChevronDown className={`h-4 w-4 transition-transform ${showLoanDropdown ? 'rotate-180' : ''}`} />
@@ -140,7 +140,7 @@ const Navbar = () => {
               onMouseLeave={() => setShowInsuranceDropdown(false)}
             >
               <div 
-                className={`${isActive('/insurance')} whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer`}
+                className={`${isActive('/insurance')} whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer text-sm lg:text-base`}
               >
                 Insurance
                 <ChevronDown className={`h-4 w-4 transition-transform ${showInsuranceDropdown ? 'rotate-180' : ''}`} />
@@ -202,10 +202,10 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-            <Link href="/calculator" className={`${isActive('/calculator')} whitespace-nowrap transition-colors`}>Calculator</Link>
+            <Link href="/calculator" className={`${isActive('/calculator')} whitespace-nowrap transition-colors text-sm lg:text-base`}>Calculator</Link>
             <Link 
               href={pathname === '/' ? '#articles' : '/#articles'} 
-              className="text-gray-600 hover:text-orange-600 font-medium whitespace-nowrap transition-colors"
+              className="text-gray-600 hover:text-orange-600 font-medium whitespace-nowrap transition-colors text-sm lg:text-base"
               onClick={(e) => {
                 if (pathname === '/') {
                   e.preventDefault();
@@ -217,11 +217,11 @@ const Navbar = () => {
             </Link>
             <Link 
               href="/contact" 
-              className={`${isActive('/contact')} whitespace-nowrap transition-colors`}
+              className={`${isActive('/contact')} whitespace-nowrap transition-colors text-sm lg:text-base`}
             >
               Contact Us
             </Link>
-            <Link href="/consultancy" className="bg-orange-600 text-white px-5 py-2 rounded-full font-medium hover:bg-orange-700 transition-colors shadow-sm whitespace-nowrap text-sm ml-10 mr-4">
+            <Link href="/consultancy" className="bg-orange-600 text-white px-5 lg:px-6 py-2.5 rounded-full font-medium hover:bg-orange-700 transition-colors shadow-sm whitespace-nowrap text-sm lg:text-base ml-2 lg:ml-4">
               Get Free Consultancy
             </Link>
           </div>
