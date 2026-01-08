@@ -99,7 +99,7 @@ export async function processImageUploads(
     const file = files[i];
     if (file instanceof File) {
       const { imageUrl, imagePath } = await uploadImage(file, eventId);
-      const altText = typeof altTexts[i] === 'string' ? altTexts[i] : undefined;
+      const altText = typeof altTexts[i] === 'string' ? altTexts[i] as string : undefined;
       images.push({ imageUrl, imagePath, altText });
     }
   }

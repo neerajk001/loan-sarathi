@@ -173,7 +173,7 @@ export default function EditGalleryEvent({ params }: { params: Promise<{ id: str
       if (data.success) {
         setSelectedFiles([]);
         setPreviewUrls([]);
-        fetchEvent(); // Refresh event data
+        fetchEvent(eventId); // Refresh event data
       } else {
         alert('Failed to add images: ' + data.error);
       }
