@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { detectSource } from '@/lib/source-detection';
 
 /**
- * Health check endpoint for gallery API
+ * Health check endpoint for gallery API 
  * GET /api/gallery/health
  * 
  * Use this to verify:
