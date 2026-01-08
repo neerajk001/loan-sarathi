@@ -8,10 +8,24 @@ import {
   validateConsultancyRequest,
 } from '@/models/ConsultancyRequest';
 import { sendEmail } from '@/lib/email';
+import { detectSource, isSourceAllowed } from '@/lib/source-detection';
 
 // POST /api/consultancy - Submit a new consultancy request
+// NOTE: This endpoint is ONLY available for loan-sarathi, NOT for smartmumbaisolutions
 export async function POST(request: NextRequest) {
   try {
+    // Detect source and check if allowed
+    const source = detectSource(request);
+    if (!isSourceAllowed(source, '/api/consultancy')) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Consultancy service is not available for this source. This endpoint is only available for Loan Sarathi.' 
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     
     // Validate the request data
@@ -50,13 +64,13 @@ export async function POST(request: NextRequest) {
           status: 'pending',
           updatedAt: new Date(),
           updatedBy: 'system',
-          notes: 'Consultancy request submitted',
+          notes: `Consultancy request submitted from ${source}`,
         },
       ],
       createdAt: new Date(),
       updatedAt: new Date(),
       ipAddress,
-      source: 'web',
+      source: source,
     };
     
     // Insert into database

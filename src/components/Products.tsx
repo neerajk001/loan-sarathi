@@ -198,7 +198,7 @@ const Products = () => {
               </div>
 
               {/* Icon Box */}
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 bg-gray-100 border border-black">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 border border-black/20">
                 <Image 
                   src={product.iconPath} 
                   alt={product.title}

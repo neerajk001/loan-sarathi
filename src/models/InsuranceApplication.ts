@@ -58,7 +58,7 @@ export interface InsuranceApplication {
   createdAt: Date;
   updatedAt: Date;
   ipAddress?: string;
-  source: 'web' | 'mobile' | 'agent';
+  source: 'loan-sarathi' | 'smartmumbaisolutions' | 'web' | 'mobile' | 'agent';
   
   // Admin Notes
   adminNotes?: string;

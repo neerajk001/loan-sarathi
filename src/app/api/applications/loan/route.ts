@@ -12,6 +12,7 @@ import {
   createLoanApplicationConfirmationEmail,
   createAdminNotificationEmail,
 } from '@/lib/email';
+import { detectSource } from '@/lib/source-detection';
 
 // POST /api/applications/loan - Submit a new loan application
 export async function POST(request: NextRequest) {
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
                      request.headers.get('x-real-ip') || 
                      'unknown';
     
+    // Detect source (loan-sarathi or smartmumbaisolutions)
+    const source = detectSource(request);
+    
     // Create application document
     const application: LoanApplication = {
       applicationId,
@@ -60,13 +64,13 @@ export async function POST(request: NextRequest) {
           status: 'pending',
           updatedAt: new Date(),
           updatedBy: 'system',
-          notes: 'Application submitted',
+          notes: `Application submitted from ${source}`,
         },
       ],
       createdAt: new Date(),
       updatedAt: new Date(),
       ipAddress,
-      source: 'web',
+      source: source,
     };
     
     // Insert into database

@@ -6,10 +6,17 @@ export function middleware(request: NextRequest) {
   
   // List of allowed domains - update this when you have your frontend domains
   const allowedOrigins = [
+    // Loan Sarathi domains (default)
     'https://loansarathi.com',
     'https://www.loansarathi.com',
-    'https://smartsolutions.com',
-    'https://www.smartsolutions.com',
+    // Smart Mumbai Solutions domains
+    'https://smartmumbaisolutions.com',
+    'https://www.smartmumbaisolutions.com',
+    'https://smartmumbai.com',
+    'https://www.smartmumbai.com',
+    'https://smartsolutionsmumbai.com',
+    'https://www.smartsolutionsmumbai.com',
+    // Development domains
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
@@ -28,7 +35,7 @@ export function middleware(request: NextRequest) {
     );
     response.headers.set(
       'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With'
+      'Content-Type, Authorization, X-Requested-With, X-Application-Source'
     );
     response.headers.set('Access-Control-Max-Age', '86400'); // 24 hours
   }

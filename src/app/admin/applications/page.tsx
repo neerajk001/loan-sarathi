@@ -11,7 +11,8 @@ import {
   ChevronRight,
   Download,
   SlidersHorizontal,
-  Loader2
+  Loader2,
+  Globe
 } from 'lucide-react';
 
 interface Application {
@@ -28,11 +29,13 @@ interface Application {
   status: string;
   createdAt: Date | string;
   type: 'loan' | 'insurance' | 'consultancy';
+  source?: string;
 }
 
 export default function ApplicationsPage() {
   const router = useRouter();
   const [filter, setFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +57,7 @@ export default function ApplicationsPage() {
     }, search ? 500 : 0); // Debounce search by 500ms
 
     return () => clearTimeout(timeoutId);
-  }, [filter, search]);
+  }, [filter, search, sourceFilter]);
 
   useEffect(() => {
     fetchApplications();
@@ -81,7 +84,17 @@ export default function ApplicationsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setApplications(data.applications || []);
+        let filteredApps = data.applications || [];
+        
+        // Filter by source
+        if (sourceFilter !== 'all') {
+          filteredApps = filteredApps.filter((app: Application) => {
+            const appSource = app.source || 'loan-sarathi';
+            return appSource === sourceFilter;
+          });
+        }
+        
+        setApplications(filteredApps);
         if (data.stats) {
           setStats(data.stats);
         }
@@ -150,6 +163,24 @@ export default function ApplicationsPage() {
     }
   };
 
+  const getSourceBadge = (source?: string) => {
+    const appSource = source || 'loan-sarathi';
+    if (appSource === 'smartmumbaisolutions') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-200">
+          <Globe className="w-3 h-3" />
+          Smart Mumbai
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+        <Globe className="w-3 h-3" />
+        Loan Sarathi
+      </span>
+    );
+  };
+
   const handleView = (app: Application) => {
     const id = app.applicationId || app.id;
     if (id) {
@@ -213,6 +244,42 @@ export default function ApplicationsPage() {
                 </span>
               </button>
             ))}
+            
+            {/* Source Filter */}
+            <div className="flex gap-2 border-l border-gray-200 pl-2">
+              <button
+                onClick={() => setSourceFilter('all')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  sourceFilter === 'all'
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                All Sources
+              </button>
+              <button
+                onClick={() => setSourceFilter('loan-sarathi')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-1 ${
+                  sourceFilter === 'loan-sarathi'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                }`}
+              >
+                <Globe className="w-3 h-3" />
+                Loan Sarathi
+              </button>
+              <button
+                onClick={() => setSourceFilter('smartmumbaisolutions')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-1 ${
+                  sourceFilter === 'smartmumbaisolutions'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                }`}
+              >
+                <Globe className="w-3 h-3" />
+                Smart Mumbai
+              </button>
+            </div>
           </div>
 
           {/* Search & More Filters */}
@@ -242,6 +309,7 @@ export default function ApplicationsPage() {
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Applicant</th>
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Source</th>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Loan Details</th>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Documents</th>
@@ -252,14 +320,14 @@ export default function ApplicationsPage() {
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto" />
                     <p className="text-gray-500 mt-2">Loading applications...</p>
                   </td>
                 </tr>
               ) : applications.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <p className="text-gray-500">No applications found</p>
                   </td>
                 </tr>
@@ -276,6 +344,9 @@ export default function ApplicationsPage() {
                           <p className="text-sm text-gray-500">{app.applicationId || app.id}</p>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {getSourceBadge(app.source)}
                     </td>
                     <td className="px-6 py-4">
                       {app.type === 'consultancy' ? (

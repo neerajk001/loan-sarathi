@@ -16,7 +16,8 @@ import {
   Search,
   ChevronRight,
   Home,
-  ShieldCheck
+  ShieldCheck,
+  Images
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -62,6 +63,7 @@ export default function AdminLayout({
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Applications', href: '/admin/applications', icon: FileText },
+    { name: 'Gallery', href: '/admin/gallery', icon: Images },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 

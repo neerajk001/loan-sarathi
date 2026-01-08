@@ -61,12 +61,16 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    console.log('Received settings update request:', JSON.stringify(body, null, 2));
+    console.log('Admin emails in request:', body.adminEmails);
+    
     const client = await clientPromise;
     const db = client.db('loan-sarathi');
     const collection = db.collection<AdminSettings>(SETTINGS_COLLECTION);
     
     // Validate admin emails
     if (body.adminEmails && Array.isArray(body.adminEmails)) {
+      console.log('Processing admin emails:', body.adminEmails);
       // Ensure at least one admin email
       if (body.adminEmails.length === 0) {
         return NextResponse.json(
@@ -106,10 +110,11 @@ export async function POST(request: NextRequest) {
     // If adminEmails is provided in body, use it directly (don't merge)
     if (body.adminEmails && Array.isArray(body.adminEmails)) {
       mergedSettings.adminEmails = body.adminEmails;
+      console.log('Final admin emails to save:', mergedSettings.adminEmails);
     }
     
     // Update or insert settings
-    await collection.updateOne(
+    const updateResult = await collection.updateOne(
       { _id: 'main' } as any,
       {
         $set: {
@@ -121,10 +126,21 @@ export async function POST(request: NextRequest) {
       { upsert: true }
     );
     
+    console.log('Database update result:', {
+      matchedCount: updateResult.matchedCount,
+      modifiedCount: updateResult.modifiedCount,
+      upsertedCount: updateResult.upsertedCount,
+    });
+    
+    // Verify the save by reading it back
+    const verifySettings = await collection.findOne({ _id: 'main' } as any);
+    console.log('Verified saved admin emails:', verifySettings?.settings?.adminEmails);
+    
     return NextResponse.json({
       success: true,
       message: 'Settings updated successfully',
       settings: mergedSettings,
+      savedAdminEmails: verifySettings?.settings?.adminEmails,
     });
   } catch (error) {
     console.error('Error updating settings:', error);

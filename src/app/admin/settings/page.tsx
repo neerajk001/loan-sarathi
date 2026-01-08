@@ -14,7 +14,11 @@ import {
   Shield,
   X,
   Plus,
-  Trash2
+  Trash2,
+  Globe,
+  Lock,
+  Unlock,
+  BarChart3
 } from 'lucide-react';
 
 interface SettingsData {
@@ -60,11 +64,55 @@ export default function SettingsPage() {
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editMaxAmount, setEditMaxAmount] = useState('');
   const [editInterestRate, setEditInterestRate] = useState('');
+  const [sourceStats, setSourceStats] = useState({
+    loanSarathi: { loans: 0, insurance: 0, consultancy: 0 },
+    smartMumbai: { loans: 0, insurance: 0, consultancy: 0 }
+  });
+  const [loadingStats, setLoadingStats] = useState(false);
 
   useEffect(() => {
     fetchSettings();
     fetchLoanProducts();
+    fetchSourceStats();
   }, []);
+
+  const fetchSourceStats = async () => {
+    setLoadingStats(true);
+    try {
+      // Fetch all applications (loans, insurance, consultancy)
+      const response = await fetch('/api/admin/applications?type=all&limit=10000');
+      const data = await response.json();
+      
+      // Count by source
+      const stats = {
+        loanSarathi: { loans: 0, insurance: 0, consultancy: 0 },
+        smartMumbai: { loans: 0, insurance: 0, consultancy: 0 }
+      };
+      
+      if (data.success && data.applications) {
+        data.applications.forEach((app: any) => {
+          const source = app.source || 'loan-sarathi'; // Default to loan-sarathi if source not set
+          
+          if (app.type === 'loan') {
+            if (source === 'loan-sarathi') stats.loanSarathi.loans++;
+            else if (source === 'smartmumbaisolutions') stats.smartMumbai.loans++;
+          } else if (app.type === 'insurance') {
+            if (source === 'loan-sarathi') stats.loanSarathi.insurance++;
+            else if (source === 'smartmumbaisolutions') stats.smartMumbai.insurance++;
+          } else if (app.type === 'consultancy') {
+            if (source === 'loan-sarathi') stats.loanSarathi.consultancy++;
+            else if (source === 'smartmumbaisolutions') stats.smartMumbai.consultancy++;
+          }
+        });
+      }
+      
+      setSourceStats(stats);
+    } catch (error) {
+      console.error('Error fetching source stats:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const fetchSettings = async () => {
     try {
@@ -85,6 +133,9 @@ export default function SettingsPage() {
     setSaved(false);
     
     try {
+      console.log('Saving settings:', settings);
+      console.log('Admin emails being sent:', settings.adminEmails);
+      
       const response = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,16 +143,22 @@ export default function SettingsPage() {
       });
 
       const data = await response.json();
+      console.log('Save response:', data);
       
       if (data.success) {
         setSaved(true);
+        // Refresh settings from server to get the saved values
+        await fetchSettings();
+        console.log('Settings refreshed. Saved admin emails:', data.savedAdminEmails || data.settings?.adminEmails);
+        alert(`Settings saved successfully! Admin emails: ${(data.savedAdminEmails || data.settings?.adminEmails || []).join(', ')}`);
         setTimeout(() => setSaved(false), 3000);
       } else {
+        console.error('Save failed:', data.error);
         alert(data.error || 'Failed to save settings');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('Failed to save settings');
+      alert('Failed to save settings. Check console for details.');
     } finally {
       setLoading(false);
     }
@@ -112,7 +169,7 @@ export default function SettingsPage() {
     return emailRegex.test(email);
   };
 
-  const handleAddAdminEmail = () => {
+  const handleAddAdminEmail = async () => {
     setEmailError('');
     
     if (!newAdminEmail) {
@@ -125,19 +182,55 @@ export default function SettingsPage() {
       return;
     }
     
-    if (settings.adminEmails.some(e => e.toLowerCase() === newAdminEmail.toLowerCase())) {
+    const normalizedEmail = newAdminEmail.toLowerCase().trim();
+    
+    if (settings.adminEmails.some(e => e.toLowerCase() === normalizedEmail)) {
       setEmailError('This email is already in the admin list');
       return;
     }
     
-    setSettings({
+    const updatedEmails = [...settings.adminEmails, normalizedEmail];
+    console.log('Adding admin email:', normalizedEmail);
+    console.log('Updated admin emails list:', updatedEmails);
+    
+    // Update local state immediately
+    const updatedSettings = {
       ...settings,
-      adminEmails: [...settings.adminEmails, newAdminEmail.toLowerCase()],
-    });
+      adminEmails: updatedEmails,
+    };
+    setSettings(updatedSettings);
     setNewAdminEmail('');
+    
+    // Auto-save to database
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+        console.log('Admin email added and saved:', normalizedEmail);
+      } else {
+        setEmailError('Failed to save: ' + (data.error || 'Unknown error'));
+        // Revert local state
+        setSettings(settings);
+      }
+    } catch (error) {
+      console.error('Error saving admin email:', error);
+      setEmailError('Failed to save. Please try again.');
+      // Revert local state
+      setSettings(settings);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRemoveAdminEmail = (email: string) => {
+  const handleRemoveAdminEmail = async (email: string) => {
     // Don't allow removing if only one admin email exists
     if (settings.adminEmails.length <= 1) {
       alert('At least one admin email is required');
@@ -150,10 +243,42 @@ export default function SettingsPage() {
       return;
     }
     
-    setSettings({
+    const updatedEmails = settings.adminEmails.filter(e => e.toLowerCase() !== email.toLowerCase());
+    const updatedSettings = {
       ...settings,
-      adminEmails: settings.adminEmails.filter(e => e.toLowerCase() !== email.toLowerCase()),
-    });
+      adminEmails: updatedEmails,
+    };
+    
+    // Update local state immediately
+    setSettings(updatedSettings);
+    
+    // Auto-save to database
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings),
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+        console.log('Admin email removed and saved:', email);
+      } else {
+        alert('Failed to save: ' + (data.error || 'Unknown error'));
+        // Revert local state
+        setSettings(settings);
+      }
+    } catch (error) {
+      console.error('Error removing admin email:', error);
+      alert('Failed to save. Please try again.');
+      // Revert local state
+      setSettings(settings);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchLoanProducts = async () => {
@@ -469,6 +594,193 @@ export default function SettingsPage() {
               className="w-5 h-5 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
             />
           </label>
+        </div>
+      </div>
+
+      {/* Source Management */}
+      <div className="bg-white border border-gray-900 rounded-2xl p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center">
+            <Globe className="h-6 w-6 text-teal-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Source Management</h2>
+            <p className="text-sm text-gray-500">Manage API access for different frontend applications</p>
+          </div>
+        </div>
+
+        {/* Source Status Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Loan Sarathi Card */}
+          <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Loan Sarathi</h3>
+                  <p className="text-xs text-gray-600">Default Source</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold">Active</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Loan Applications:</span>
+                <span className="font-bold text-gray-900">{loadingStats ? '...' : sourceStats.loanSarathi.loans}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Insurance Applications:</span>
+                <span className="font-bold text-gray-900">{loadingStats ? '...' : sourceStats.loanSarathi.insurance}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Consultancy Requests:</span>
+                <span className="font-bold text-gray-900">{loadingStats ? '...' : sourceStats.loanSarathi.consultancy}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Smart Mumbai Solutions Card */}
+          <div className="p-5 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <Globe className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Smart Mumbai Solutions</h3>
+                  <p className="text-xs text-gray-600">External Source</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold">Active</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Loan Applications:</span>
+                <span className="font-bold text-gray-900">{loadingStats ? '...' : sourceStats.smartMumbai.loans}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Insurance Applications:</span>
+                <span className="font-bold text-gray-900">{loadingStats ? '...' : sourceStats.smartMumbai.insurance}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Consultancy Requests:</span>
+                <span className="font-bold text-red-600 flex items-center gap-1">
+                  {loadingStats ? '...' : sourceStats.smartMumbai.consultancy}
+                  <Lock className="w-3 h-3" />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Endpoint Access Control */}
+        <div className="border-t border-gray-200 pt-6">
+          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-5 h-5" />
+            API Endpoint Access Control
+          </h3>
+          <div className="space-y-3">
+            {/* Loan Application Endpoint */}
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="font-semibold text-gray-900">POST /api/applications/loan</span>
+                </div>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                  <span className="text-gray-600">Loan Sarathi: <span className="font-semibold text-green-600">Allowed</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-600"></div>
+                  <span className="text-gray-600">Smart Mumbai: <span className="font-semibold text-green-600">Allowed</span></span>
+                </div>
+              </div>
+            </div>
+
+            {/* Insurance Application Endpoint */}
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="font-semibold text-gray-900">POST /api/applications/insurance</span>
+                </div>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                  <span className="text-gray-600">Loan Sarathi: <span className="font-semibold text-green-600">Allowed</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-600"></div>
+                  <span className="text-gray-600">Smart Mumbai: <span className="font-semibold text-green-600">Allowed</span></span>
+                </div>
+              </div>
+            </div>
+
+            {/* Consultancy Endpoint */}
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-red-600" />
+                  <span className="font-semibold text-gray-900">POST /api/consultancy</span>
+                </div>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                  <span className="text-gray-600">Loan Sarathi: <span className="font-semibold text-green-600">Allowed</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-600"></div>
+                  <span className="text-gray-600">Smart Mumbai: <span className="font-semibold text-red-600">Blocked</span></span>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2 italic">
+                Consultancy service is only available for Loan Sarathi. Smart Mumbai Solutions will receive a 403 error.
+              </p>
+            </div>
+
+            {/* Loan Products Endpoint */}
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="font-semibold text-gray-900">GET /api/loan-products</span>
+                </div>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                  <span className="text-gray-600">Loan Sarathi: <span className="font-semibold text-green-600">Allowed</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-600"></div>
+                  <span className="text-gray-600">Smart Mumbai: <span className="font-semibold text-green-600">Allowed</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Source Detection Info */}
+        <div className="border-t border-gray-200 pt-6 mt-6">
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              How Source Detection Works
+            </h4>
+            <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+              <li>Source is automatically detected from request headers (Origin/Referer)</li>
+              <li>Default source: <span className="font-semibold">loan-sarathi</span></li>
+              <li>Smart Mumbai Solutions is detected when domain contains &quot;smartmumbaisolutions&quot; or &quot;smartmumbai&quot;</li>
+              <li>All applications are stored with their source for tracking and analytics</li>
+            </ul>
+          </div>
         </div>
       </div>
 

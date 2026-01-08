@@ -12,6 +12,7 @@ import {
   createInsuranceApplicationConfirmationEmail,
   createAdminNotificationEmail,
 } from '@/lib/email';
+import { detectSource } from '@/lib/source-detection';
 
 // POST /api/applications/insurance - Submit a new insurance application
 export async function POST(request: NextRequest) {
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
                      request.headers.get('x-real-ip') || 
                      'unknown';
     
+    // Detect source (loan-sarathi or smartmumbaisolutions)
+    const source = detectSource(request);
+    
     // Create application document
     const application: InsuranceApplication = {
       applicationId,
@@ -59,13 +63,13 @@ export async function POST(request: NextRequest) {
           status: 'pending',
           updatedAt: new Date(),
           updatedBy: 'system',
-          notes: 'Quote request submitted',
+          notes: `Quote request submitted from ${source}`,
         },
       ],
       createdAt: new Date(),
       updatedAt: new Date(),
       ipAddress,
-      source: 'web',
+      source: source,
     };
     
     // Insert into database

@@ -9,10 +9,14 @@ const SETTINGS_COLLECTION = 'adminSettings';
 const DEFAULT_ADMIN_EMAILS = [
   'admin@smartsolutionsmumbai.com',
   'shashichanyal@gmail.com',
+  'pratik@smartsolutionsmumbai.com',
 ];
 
 // Function to get admin emails from database
 async function getAdminEmails(): Promise<string[]> {
+  // Always include default admin emails
+  const defaultEmails = DEFAULT_ADMIN_EMAILS.map(email => email.toLowerCase().trim());
+  
   try {
     const client = await clientPromise;
     const db = client.db('loan-sarathi');
@@ -20,21 +24,21 @@ async function getAdminEmails(): Promise<string[]> {
     
     if (settings?.settings?.adminEmails && Array.isArray(settings.settings.adminEmails)) {
       // Normalize all emails to lowercase and trim whitespace
-      const normalizedEmails = settings.settings.adminEmails.map((email: string) => 
+      const dbEmails = settings.settings.adminEmails.map((email: string) => 
         email.toLowerCase().trim()
       ).filter((email: string) => email.length > 0);
       
-      if (normalizedEmails.length > 0) {
-        console.log('Admin emails from database:', normalizedEmails);
-        return normalizedEmails;
-      }
+      // Merge default emails with database emails (remove duplicates)
+      const allEmails = [...new Set([...defaultEmails, ...dbEmails])];
+      console.log('Admin emails (merged from defaults + database):', allEmails);
+      return allEmails;
     }
     
-    console.log('Using default admin emails:', DEFAULT_ADMIN_EMAILS);
-    return DEFAULT_ADMIN_EMAILS.map(email => email.toLowerCase());
+    console.log('Using default admin emails:', defaultEmails);
+    return defaultEmails;
   } catch (error) {
     console.error('Error fetching admin emails:', error);
-    return DEFAULT_ADMIN_EMAILS.map(email => email.toLowerCase());
+    return defaultEmails;
   }
 }
 

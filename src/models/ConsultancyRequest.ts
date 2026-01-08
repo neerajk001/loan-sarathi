@@ -18,7 +18,7 @@ export interface ConsultancyRequest {
   createdAt: Date;
   updatedAt: Date;
   ipAddress?: string;
-  source?: string;
+  source?: 'loan-sarathi' | 'smartmumbaisolutions' | 'web' | 'mobile' | 'agent';
 }
 
 export const CONSULTANCY_REQUESTS_COLLECTION = 'consultancyRequests';

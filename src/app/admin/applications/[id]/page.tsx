@@ -18,7 +18,8 @@ import {
   Clock,
   Edit,
   Save,
-  X as XIcon
+  X as XIcon,
+  Globe
 } from 'lucide-react';
 
 interface ApplicationDetail {
@@ -94,6 +95,7 @@ interface ApplicationDetail {
   createdAt: Date | string;
   updatedAt: Date | string;
   userEmail?: string;
+  source?: string;
 }
 
 export default function ApplicationDetailPage() {
@@ -278,6 +280,24 @@ export default function ApplicationDetailPage() {
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
+  const getSourceBadge = (source?: string) => {
+    const appSource = source || 'loan-sarathi';
+    if (appSource === 'smartmumbaisolutions') {
+      return (
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-semibold bg-orange-100 text-orange-700 border border-orange-200">
+          <Globe className="w-4 h-4" />
+          Smart Mumbai Solutions
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+        <Globe className="w-4 h-4" />
+        Loan Sarathi
+      </span>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -325,7 +345,10 @@ export default function ApplicationDetailPage() {
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Application Details</h1>
-            <p className="text-gray-500 mt-1">Application ID: {application.applicationId}</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-gray-500">Application ID: {application.applicationId}</p>
+              {getSourceBadge(application.source)}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-3">

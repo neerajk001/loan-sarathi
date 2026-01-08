@@ -6,11 +6,12 @@ import {
   CheckCircle, 
   Clock, 
   TrendingUp, 
-  ArrowUpRight, 
+  ArrowUpRight,
   ArrowDownRight,
   MoreHorizontal,
   Eye,
-  Loader2
+  Loader2,
+  Globe
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -42,6 +43,10 @@ export default function AdminDashboard() {
     approved: 0,
     totalLoanAmount: 0,
   });
+  const [sourceStats, setSourceStats] = useState({
+    loanSarathi: 0,
+    smartMumbai: 0,
+  });
   const [recentApplications, setRecentApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +56,8 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/admin/applications?limit=5&type=all');
+      // Fetch all applications for accurate stats
+      const response = await fetch('/api/admin/applications?limit=10000&type=all');
       const data = await response.json();
       
       if (data.success && data.applications) {
@@ -71,6 +77,14 @@ export default function AdminDashboard() {
           totalLoanAmount: totalAmount,
         });
 
+        // Calculate source statistics
+        const loanSarathiCount = allApps.filter((app: any) => (app.source || 'loan-sarathi') === 'loan-sarathi').length;
+        const smartMumbaiCount = allApps.filter((app: any) => app.source === 'smartmumbaisolutions').length;
+        setSourceStats({
+          loanSarathi: loanSarathiCount,
+          smartMumbai: smartMumbaiCount,
+        });
+
         // Format recent applications
         const recent = allApps.slice(0, 5).map((app: any) => ({
           id: app.applicationId || app.id,
@@ -80,6 +94,7 @@ export default function AdminDashboard() {
           status: app.status,
           date: app.createdAt || app.date,
           appType: app.type,
+          source: app.source || 'loan-sarathi',
         }));
 
         setRecentApplications(recent);
@@ -104,6 +119,23 @@ export default function AdminDashboard() {
       default:
         return 'bg-gray-100 text-gray-700';
     }
+  };
+
+  const getSourceBadge = (source: string) => {
+    if (source === 'smartmumbaisolutions') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-200">
+          <Globe className="w-3 h-3" />
+          Smart Mumbai
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+        <Globe className="w-3 h-3" />
+        Loan Sarathi
+      </span>
+    );
   };
 
   return (
@@ -179,7 +211,10 @@ export default function AdminDashboard() {
                       {app.name !== 'N/A' ? app.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'N/A'}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{app.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-gray-900">{app.name}</p>
+                        {getSourceBadge(app.source)}
+                      </div>
                       <p className="text-sm text-gray-500">{app.id} • {app.type}</p>
                     </div>
                   </div>
@@ -278,6 +313,46 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Source Breakdown Card */}
+          <div className="bg-white border border-gray-900 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Globe className="w-5 h-5 text-gray-600" />
+              <h3 className="font-bold text-gray-900">Source Breakdown</h3>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                    <span className="text-gray-600">Loan Sarathi</span>
+                  </div>
+                  <span className="font-bold text-gray-900">{sourceStats.loanSarathi}</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-600 rounded-full" 
+                    style={{ width: stats.totalApplications > 0 ? `${(sourceStats.loanSarathi / stats.totalApplications) * 100}%` : '0%' }}
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-orange-600"></div>
+                    <span className="text-gray-600">Smart Mumbai Solutions</span>
+                  </div>
+                  <span className="font-bold text-gray-900">{sourceStats.smartMumbai}</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-orange-600 rounded-full" 
+                    style={{ width: stats.totalApplications > 0 ? `${(sourceStats.smartMumbai / stats.totalApplications) * 100}%` : '0%' }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -304,9 +379,12 @@ export default function AdminDashboard() {
                     app.status === 'pending' || app.status === 'reviewing' ? 'bg-blue-500' : 'bg-gray-300'
                   }`} />
                   <div className="flex-1">
-                    <p className="text-sm text-gray-700">
-                      Application {app.id} - {app.name} ({app.type})
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-700">
+                        Application {app.id} - {app.name} ({app.type})
+                      </p>
+                      {getSourceBadge(app.source)}
+                    </div>
                   </div>
                   <span className="text-xs text-gray-400 whitespace-nowrap">{timeAgo}</span>
                 </div>
