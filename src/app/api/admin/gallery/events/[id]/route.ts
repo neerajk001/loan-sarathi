@@ -11,6 +11,53 @@ import {
 } from '@/models/GalleryEvent';
 import { deleteEventDirectory } from '@/lib/fileUpload';
 
+// GET /api/admin/gallery/events/:id - Get single gallery event (admin)
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Check admin authentication
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Admin access required' },
+        { status: 401 }
+      );
+    }
+
+    // Await params in Next.js 16+
+    const { id } = await params;
+
+    const client = await clientPromise;
+    const db = client.db('loan-sarathi');
+    const collection = db.collection<GalleryEvent>(GALLERY_EVENTS_COLLECTION);
+
+    // Find event by ObjectId (no filters for admin)
+    const event = await collection.findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!event) {
+      return NextResponse.json(
+        { success: false, error: 'Event not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      event: formatGalleryEventForResponse(event),
+    });
+  } catch (error) {
+    console.error('Error fetching gallery event:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch gallery event' },
+      { status: 500 }
+    );
+  }
+}
+
 // PUT /api/admin/gallery/events/:id - Update gallery event
 export async function PUT(
   request: NextRequest,

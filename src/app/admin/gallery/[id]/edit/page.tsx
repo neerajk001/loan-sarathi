@@ -64,7 +64,7 @@ export default function EditGalleryEvent({ params }: { params: Promise<{ id: str
 
   const fetchEvent = async (id: string) => {
     try {
-      const response = await fetch(`/api/gallery/events/${id}`);
+      const response = await fetch(`/api/admin/gallery/events/${id}`);
       const data = await response.json();
       
       if (data.success) {
