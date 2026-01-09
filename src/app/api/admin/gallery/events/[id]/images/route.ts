@@ -10,6 +10,10 @@ import {
 } from '@/models/GalleryEvent';
 import { processImageUploads } from '@/lib/fileUpload';
 
+// Configure route for file uploads
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // POST /api/admin/gallery/events/:id/images - Upload more images to existing event
 export async function POST(
   request: NextRequest,

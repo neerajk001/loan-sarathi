@@ -13,6 +13,10 @@ import {
 import { processImageUploads } from '@/lib/fileUpload';
 import { detectSource } from '@/lib/source-detection';
 
+// Configure route for file uploads
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // POST /api/admin/gallery/events - Create new gallery event
 export async function POST(request: NextRequest) {
   try {
@@ -58,8 +62,11 @@ export async function POST(request: NextRequest) {
     // Process image uploads
     let uploadedImages: Array<{ imageUrl: string; imagePath: string; altText?: string }>;
     try {
+      console.log('Starting image upload for event:', eventId);
       uploadedImages = await processImageUploads(formData, eventId);
+      console.log('Successfully uploaded', uploadedImages.length, 'images');
     } catch (uploadError: any) {
+      console.error('Image upload error:', uploadError);
       return NextResponse.json(
         { success: false, error: uploadError.message || 'Failed to upload images' },
         { status: 400 }
