@@ -4,24 +4,31 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   
-  // List of allowed domains - update this when you have your frontend domains
-  const allowedOrigins = [
+  // List of allowed domains for CORS
+  // Production domains
+  const productionOrigins = [
     // Loan Sarathi domains (default)
     'https://loansarathi.com',
     'https://www.loansarathi.com',
-    // Smart Mumbai Solutions domains
+    // Smart Mumbai Solutions domains (primary: smartsolutionsmumbai.com)
+    'https://smartsolutionsmumbai.com',
+    'https://www.smartsolutionsmumbai.com',
+    // Additional Smart Mumbai Solutions domains (redirects/aliases)
     'https://smartmumbaisolutions.com',
     'https://www.smartmumbaisolutions.com',
     'https://smartmumbai.com',
     'https://www.smartmumbai.com',
-    'https://smartsolutionsmumbai.com',
-    'https://www.smartsolutionsmumbai.com',
-    // Development domains
+  ];
+  
+  // Development domains (only in development mode)
+  const developmentOrigins = process.env.NODE_ENV === 'development' ? [
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
     'http://localhost:3003',
-  ];
+  ] : [];
+  
+  const allowedOrigins = [...productionOrigins, ...developmentOrigins];
 
   const origin = request.headers.get('origin');
 
