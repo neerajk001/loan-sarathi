@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     // Parse form data
     const formData = await request.formData();
-    
+
     const eventData = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
@@ -62,9 +62,7 @@ export async function POST(request: NextRequest) {
     // Process image uploads
     let uploadedImages: Array<{ imageUrl: string; imagePath: string; altText?: string }>;
     try {
-      console.log('Starting image upload for event:', eventId);
       uploadedImages = await processImageUploads(formData, eventId);
-      console.log('Successfully uploaded', uploadedImages.length, 'images');
     } catch (uploadError: any) {
       console.error('Image upload error:', uploadError);
       return NextResponse.json(
@@ -153,7 +151,7 @@ export async function GET(request: NextRequest) {
     if (sourceFilter) {
       query.source = sourceFilter;
     }
-    
+
     const events = await collection
       .find(query)
       .sort({ eventDate: -1, createdAt: -1 })

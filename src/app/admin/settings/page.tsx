@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { 
-  Settings, 
-  Mail, 
+import {
+  Settings,
+  Mail,
   Database,
   Save,
   CheckCircle,
@@ -55,7 +55,7 @@ export default function SettingsPage() {
       allowPublicApplications: true,
     },
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
@@ -82,17 +82,17 @@ export default function SettingsPage() {
       // Fetch all applications (loans, insurance, consultancy)
       const response = await fetch('/api/admin/applications?type=all&limit=10000');
       const data = await response.json();
-      
+
       // Count by source
       const stats = {
         loanSarathi: { loans: 0, insurance: 0, consultancy: 0 },
         smartMumbai: { loans: 0, insurance: 0, consultancy: 0 }
       };
-      
+
       if (data.success && data.applications) {
         data.applications.forEach((app: any) => {
           const source = app.source || 'loan-sarathi'; // Default to loan-sarathi if source not set
-          
+
           if (app.type === 'loan') {
             if (source === 'loan-sarathi') stats.loanSarathi.loans++;
             else if (source === 'smartmumbaisolutions') stats.smartMumbai.loans++;
@@ -105,7 +105,7 @@ export default function SettingsPage() {
           }
         });
       }
-      
+
       setSourceStats(stats);
     } catch (error) {
       console.error('Error fetching source stats:', error);
@@ -131,11 +131,8 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setLoading(true);
     setSaved(false);
-    
+
     try {
-      console.log('Saving settings:', settings);
-      console.log('Admin emails being sent:', settings.adminEmails);
-      
       const response = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -143,13 +140,11 @@ export default function SettingsPage() {
       });
 
       const data = await response.json();
-      console.log('Save response:', data);
-      
+
       if (data.success) {
         setSaved(true);
         // Refresh settings from server to get the saved values
         await fetchSettings();
-        console.log('Settings refreshed. Saved admin emails:', data.savedAdminEmails || data.settings?.adminEmails);
         alert(`Settings saved successfully! Admin emails: ${(data.savedAdminEmails || data.settings?.adminEmails || []).join(', ')}`);
         setTimeout(() => setSaved(false), 3000);
       } else {
@@ -171,28 +166,26 @@ export default function SettingsPage() {
 
   const handleAddAdminEmail = async () => {
     setEmailError('');
-    
+
     if (!newAdminEmail) {
       setEmailError('Please enter an email address');
       return;
     }
-    
+
     if (!validateEmail(newAdminEmail)) {
       setEmailError('Please enter a valid email address');
       return;
     }
-    
+
     const normalizedEmail = newAdminEmail.toLowerCase().trim();
-    
+
     if (settings.adminEmails.some(e => e.toLowerCase() === normalizedEmail)) {
       setEmailError('This email is already in the admin list');
       return;
     }
-    
+
     const updatedEmails = [...settings.adminEmails, normalizedEmail];
-    console.log('Adding admin email:', normalizedEmail);
-    console.log('Updated admin emails list:', updatedEmails);
-    
+
     // Update local state immediately
     const updatedSettings = {
       ...settings,
@@ -200,7 +193,7 @@ export default function SettingsPage() {
     };
     setSettings(updatedSettings);
     setNewAdminEmail('');
-    
+
     // Auto-save to database
     try {
       setLoading(true);
@@ -214,7 +207,6 @@ export default function SettingsPage() {
       if (data.success) {
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
-        console.log('Admin email added and saved:', normalizedEmail);
       } else {
         setEmailError('Failed to save: ' + (data.error || 'Unknown error'));
         // Revert local state
@@ -236,22 +228,22 @@ export default function SettingsPage() {
       alert('At least one admin email is required');
       return;
     }
-    
+
     // Don't allow removing the current user's email
     if (session?.user?.email?.toLowerCase() === email.toLowerCase()) {
       alert('You cannot remove your own admin email');
       return;
     }
-    
+
     const updatedEmails = settings.adminEmails.filter(e => e.toLowerCase() !== email.toLowerCase());
     const updatedSettings = {
       ...settings,
       adminEmails: updatedEmails,
     };
-    
+
     // Update local state immediately
     setSettings(updatedSettings);
-    
+
     // Auto-save to database
     try {
       setLoading(true);
@@ -260,12 +252,11 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings),
       });
-      
+
       const data = await response.json();
       if (data.success) {
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
-        console.log('Admin email removed and saved:', email);
       } else {
         alert('Failed to save: ' + (data.error || 'Unknown error'));
         // Revert local state
@@ -320,11 +311,11 @@ export default function SettingsPage() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         // Update local state
-        setLoanProducts(prev => prev.map(p => 
-          p.slug === slug 
+        setLoanProducts(prev => prev.map(p =>
+          p.slug === slug
             ? { ...p, maxAmount: editMaxAmount, interestRate: editInterestRate }
             : p
         ));
@@ -528,11 +519,11 @@ export default function SettingsPage() {
                     disabled={settings.adminEmails.length <= 1 || session?.user?.email?.toLowerCase() === email.toLowerCase()}
                     className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title={
-                      settings.adminEmails.length <= 1 
-                        ? 'At least one admin is required' 
+                      settings.adminEmails.length <= 1
+                        ? 'At least one admin is required'
                         : session?.user?.email?.toLowerCase() === email.toLowerCase()
-                        ? 'Cannot remove your own email'
-                        : 'Remove admin'
+                          ? 'Cannot remove your own email'
+                          : 'Remove admin'
                     }
                   >
                     <Trash2 className="w-4 h-4" />

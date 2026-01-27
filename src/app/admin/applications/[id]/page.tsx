@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { 
-  ArrowLeft, 
-  Check, 
-  X, 
+import {
+  ArrowLeft,
+  Check,
+  X,
   Loader2,
   User,
   Phone,
@@ -102,7 +102,7 @@ export default function ApplicationDetailPage() {
   const params = useParams();
   const router = useRouter();
   const applicationId = params.id as string;
-  
+
   const [application, setApplication] = useState<ApplicationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -122,12 +122,12 @@ export default function ApplicationDetailPage() {
     try {
       // Try to fetch as application first
       let response = await fetch(`/api/admin/applications/${applicationId}`);
-      
+
       if (response.status === 404) {
         // If not found, try as consultancy request
         response = await fetch(`/api/admin/consultancy/${applicationId}`);
       }
-      
+
       if (!response.ok) {
         if (response.status === 401) {
           setError('Unauthorized. Please login as admin.');
@@ -142,34 +142,32 @@ export default function ApplicationDetailPage() {
       }
 
       const data = await response.json();
-      
-      console.log('API Response:', data); // Debug log
 
       if (data.success && (data.application || data.request)) {
         // Handle both application and consultancy request
         const item = data.application || data.request;
         const app = { ...item };
-        
+
         // If it's a consultancy request, normalize the structure
         if (data.request) {
           app.type = 'consultancy';
           app.applicationId = app.requestId;
         }
-        
+
         // Handle personalInfo dates
         if (app.personalInfo?.dob) {
           if (typeof app.personalInfo.dob === 'string') {
             app.personalInfo.dob = new Date(app.personalInfo.dob);
           }
         }
-        
+
         // Handle basicInfo dates
         if (app.basicInfo?.dob) {
           if (typeof app.basicInfo.dob === 'string') {
             app.basicInfo.dob = new Date(app.basicInfo.dob);
           }
         }
-        
+
         // Handle main dates
         if (app.createdAt && typeof app.createdAt === 'string') {
           app.createdAt = new Date(app.createdAt);
@@ -177,7 +175,7 @@ export default function ApplicationDetailPage() {
         if (app.updatedAt && typeof app.updatedAt === 'string') {
           app.updatedAt = new Date(app.updatedAt);
         }
-        
+
         // Handle status history dates
         if (app.statusHistory && Array.isArray(app.statusHistory)) {
           app.statusHistory = app.statusHistory.map((entry: any) => ({
@@ -185,11 +183,9 @@ export default function ApplicationDetailPage() {
             updatedAt: typeof entry.updatedAt === 'string' ? new Date(entry.updatedAt) : entry.updatedAt,
           }));
         }
-        
-        console.log('Processed Application:', app); // Debug log
+
         setApplication(app);
       } else {
-        console.error('API Error:', data); // Debug log
         setError(data.error || 'Application/Request not found');
       }
     } catch (err) {
@@ -210,10 +206,10 @@ export default function ApplicationDetailPage() {
     try {
       // Determine which API to call based on application type
       const isConsultancy = application?.type === 'consultancy' || application?.requestId;
-      const apiUrl = isConsultancy 
+      const apiUrl = isConsultancy
         ? `/api/admin/consultancy/${applicationId}`
         : `/api/admin/applications/${applicationId}`;
-      
+
       const response = await fetch(apiUrl, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -617,12 +613,11 @@ export default function ApplicationDetailPage() {
             <div className="space-y-3">
               {application.statusHistory.map((entry, index) => (
                 <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                    entry.status === 'approved' || entry.status === 'disbursed' ? 'bg-green-500' :
-                    entry.status === 'pending' ? 'bg-amber-500' :
-                    entry.status === 'rejected' ? 'bg-red-500' :
-                    'bg-blue-500'
-                  }`} />
+                  <div className={`w-2 h-2 rounded-full mt-2 ${entry.status === 'approved' || entry.status === 'disbursed' ? 'bg-green-500' :
+                      entry.status === 'pending' ? 'bg-amber-500' :
+                        entry.status === 'rejected' ? 'bg-red-500' :
+                          'bg-blue-500'
+                    }`} />
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusStyle(entry.status)}`}>
