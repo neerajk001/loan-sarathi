@@ -13,7 +13,7 @@ export function detectSource(request: NextRequest): 'loan-sarathi' | 'smartmumba
   }
   if (explicitSource === 'loan-sarathi' || explicitSource === 'loansarathi') {
     return 'loan-sarathi';
-  }
+  }  
 
   const origin = (request.headers.get('origin') || '').toLowerCase();
   const referer = (request.headers.get('referer') || '').toLowerCase();
