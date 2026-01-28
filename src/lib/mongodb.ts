@@ -1,11 +1,19 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, MongoClientOptions } from 'mongodb';
 
 if (!process.env.MONGO_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGO_URI"');
 }
 
 const uri = process.env.MONGO_URI;
-const options = {};
+
+// MongoDB connection pool options for optimal performance
+const options: MongoClientOptions = {
+  maxPoolSize: 10,           // Maximum connections in the pool
+  minPoolSize: 2,            // Minimum connections to maintain
+  maxIdleTimeMS: 30000,      // Close idle connections after 30 seconds
+  serverSelectionTimeoutMS: 5000, // Timeout for server selection
+  socketTimeoutMS: 45000,    // Socket timeout
+};
 
 let client;
 let clientPromise: Promise<MongoClient>;

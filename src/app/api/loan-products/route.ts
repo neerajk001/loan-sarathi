@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
+import { apiCache, CACHE_TTL } from '@/lib/cache';
 
 const LOAN_PRODUCTS_COLLECTION = 'loanProducts';
+
+// Cache key for loan products
+const CACHE_KEY_ALL = 'loan_products:all';
+const CACHE_KEY_PREFIX = 'loan_products:';
 
 interface LoanProduct {
   _id: string;
@@ -58,6 +63,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
 
+    // Generate cache key
+    const cacheKey = slug ? `${CACHE_KEY_PREFIX}${slug}` : CACHE_KEY_ALL;
+
+    // Check cache first
+    const cachedData = apiCache.get<any>(cacheKey);
+    if (cachedData) {
+      const response = NextResponse.json(cachedData);
+      response.headers.set('X-Cache', 'HIT');
+      return response;
+    }
+
     const client = await clientPromise;
     const db = client.db('loan-sarathi');
     const collection = db.collection<LoanProduct>(LOAN_PRODUCTS_COLLECTION);
@@ -65,35 +81,45 @@ export async function GET(request: NextRequest) {
     if (slug) {
       // Get specific loan product
       const product = await collection.findOne({ slug });
+      let responseData;
+
       if (product) {
-        return NextResponse.json({
+        responseData = {
           success: true,
           product: {
             maxAmount: product.maxAmount,
             interestRate: product.interestRate,
           },
-        });
+        };
       } else {
         // Return default if not found in DB
         const defaultProduct = DEFAULT_LOAN_PRODUCTS.find(p => p.slug === slug);
         if (defaultProduct) {
-          return NextResponse.json({
+          responseData = {
             success: true,
             product: {
               maxAmount: defaultProduct.maxAmount,
               interestRate: defaultProduct.interestRate,
             },
-          });
+          };
+        } else {
+          return NextResponse.json(
+            { success: false, error: 'Loan product not found' },
+            { status: 404 }
+          );
         }
-        return NextResponse.json(
-          { success: false, error: 'Loan product not found' },
-          { status: 404 }
-        );
       }
+
+      // Cache the response
+      apiCache.set(cacheKey, responseData, CACHE_TTL.MEDIUM);
+
+      const response = NextResponse.json(responseData);
+      response.headers.set('X-Cache', 'MISS');
+      return response;
     } else {
       // Get all loan products
       const products = await collection.find({}).toArray();
-      
+
       // Merge with defaults for any missing products
       const allProducts = DEFAULT_LOAN_PRODUCTS.map(defaultProduct => {
         const dbProduct = products.find(p => p.slug === defaultProduct.slug);
@@ -105,10 +131,17 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      return NextResponse.json({
+      const responseData = {
         success: true,
         products: allProducts,
-      });
+      };
+
+      // Cache the response
+      apiCache.set(cacheKey, responseData, CACHE_TTL.MEDIUM);
+
+      const response = NextResponse.json(responseData);
+      response.headers.set('X-Cache', 'MISS');
+      return response;
     }
   } catch (error) {
     console.error('Error fetching loan products:', error);
@@ -160,6 +193,9 @@ export async function POST(request: NextRequest) {
       },
       { upsert: true }
     );
+
+    // Invalidate loan products cache
+    apiCache.deletePattern('loan_products');
 
     return NextResponse.json({
       success: true,
