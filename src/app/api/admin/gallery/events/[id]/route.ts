@@ -10,6 +10,7 @@ import {
   formatGalleryEventForResponse,
 } from '@/models/GalleryEvent';
 import { deleteEventDirectory } from '@/lib/fileUpload';
+import { apiCache } from '@/lib/cache';
 
 // GET /api/admin/gallery/events/:id - Get single gallery event (admin)
 export async function GET(
@@ -96,7 +97,7 @@ export async function PUT(
         eventDate: body.eventDate || new Date(),
         location: body.location || 'Valid Location',
       });
-      
+
       if (!validation.valid) {
         return NextResponse.json(
           { success: false, errors: validation.errors },
@@ -124,6 +125,9 @@ export async function PUT(
         { status: 404 }
       );
     }
+
+    // Invalidate gallery cache to ensure fresh data is served
+    apiCache.deletePattern('gallery_events');
 
     return NextResponse.json({
       success: true,
@@ -163,7 +167,7 @@ export async function DELETE(
 
     // Find event first to get image count
     const event = await collection.findOne({ _id: new ObjectId(id) });
-    
+
     if (!event) {
       return NextResponse.json(
         { success: false, error: 'Event not found' },
@@ -183,6 +187,9 @@ export async function DELETE(
 
     // Delete event directory and all images
     await deleteEventDirectory(id);
+
+    // Invalidate gallery cache to ensure fresh data is served
+    apiCache.deletePattern('gallery_events');
 
     return NextResponse.json({
       success: true,

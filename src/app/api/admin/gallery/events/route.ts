@@ -12,6 +12,7 @@ import {
 } from '@/models/GalleryEvent';
 import { processImageUploads } from '@/lib/fileUpload';
 import { detectSource } from '@/lib/source-detection';
+import { apiCache } from '@/lib/cache';
 
 // Configure route for file uploads
 export const runtime = 'nodejs';
@@ -105,6 +106,9 @@ export async function POST(request: NextRequest) {
     if (!result.acknowledged) {
       throw new Error('Failed to create gallery event');
     }
+
+    // Invalidate gallery cache to ensure fresh data is served
+    apiCache.deletePattern('gallery_events');
 
     return NextResponse.json(
       {
