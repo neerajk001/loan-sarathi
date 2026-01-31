@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const client = await clientPromise;
     const db = client.db('loan-sarathi');
-    
+
     // Get query parameters for filtering
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
@@ -19,18 +19,18 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
-    
+
     let allApplications: any[] = [];
-    
+
     // Fetch loan applications
     if (!type || type === 'all' || type === 'loan') {
       const loanCollection = db.collection<LoanApplication>(LOAN_APPLICATIONS_COLLECTION);
       let loanQuery: any = {};
-      
+
       if (status && status !== 'all') {
         loanQuery.status = status;
       }
-      
+
       if (search) {
         loanQuery.$or = [
           { applicationId: { $regex: search, $options: 'i' } },
@@ -39,12 +39,12 @@ export async function GET(request: NextRequest) {
           { 'personalInfo.mobileNumber': { $regex: search, $options: 'i' } },
         ];
       }
-      
+
       const loanApps = await loanCollection
         .find(loanQuery)
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       allApplications.push(...loanApps.map(app => ({
         _id: app._id,
         id: app.applicationId,
@@ -63,16 +63,16 @@ export async function GET(request: NextRequest) {
         statusHistory: app.statusHistory,
       })));
     }
-    
+
     // Fetch insurance applications
     if (!type || type === 'all' || type === 'insurance') {
       const insuranceCollection = db.collection<InsuranceApplication>(INSURANCE_APPLICATIONS_COLLECTION);
       let insuranceQuery: any = {};
-      
+
       if (status && status !== 'all') {
         insuranceQuery.status = status;
       }
-      
+
       if (search) {
         insuranceQuery.$or = [
           { applicationId: { $regex: search, $options: 'i' } },
@@ -80,12 +80,12 @@ export async function GET(request: NextRequest) {
           { 'basicInfo.mobileNumber': { $regex: search, $options: 'i' } },
         ];
       }
-      
+
       const insuranceApps = await insuranceCollection
         .find(insuranceQuery)
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       allApplications.push(...insuranceApps.map(app => ({
         _id: app._id,
         id: app.applicationId,
@@ -104,16 +104,16 @@ export async function GET(request: NextRequest) {
         statusHistory: app.statusHistory,
       })));
     }
-    
+
     // Fetch consultancy requests
     if (!type || type === 'all' || type === 'consultancy') {
       const consultancyCollection = db.collection<ConsultancyRequest>(CONSULTANCY_REQUESTS_COLLECTION);
       let consultancyQuery: any = {};
-      
+
       if (status && status !== 'all') {
         consultancyQuery.status = status;
       }
-      
+
       if (search) {
         consultancyQuery.$or = [
           { requestId: { $regex: search, $options: 'i' } },
@@ -122,12 +122,12 @@ export async function GET(request: NextRequest) {
           { email: { $regex: search, $options: 'i' } },
         ];
       }
-      
+
       const consultancyRequests = await consultancyCollection
         .find(consultancyQuery)
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       allApplications.push(...consultancyRequests.map(req => ({
         _id: req._id,
         id: req.requestId,
@@ -146,16 +146,16 @@ export async function GET(request: NextRequest) {
         statusHistory: req.statusHistory,
       })));
     }
-    
+
     // Sort all applications by creation date
-    allApplications.sort((a, b) => 
+    allApplications.sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-    
+
     // Apply pagination
     const total = allApplications.length;
     const paginatedApplications = allApplications.slice(skip, skip + limit);
-    
+
     // Calculate statistics
     const stats = {
       total: total,
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
         .reduce((sum, a) => sum + (a.amount || 0), 0),
     };
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       applications: paginatedApplications,
       pagination: {
