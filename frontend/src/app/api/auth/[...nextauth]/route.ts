@@ -10,6 +10,7 @@ const DEFAULT_ADMIN_EMAILS = [
   'admin@smartsolutionsmumbai.com',
   'shashichanyal@gmail.com',
   'pratik@smartsolutionsmumbai.com',
+  'neerajkushwaha0401@gmail.com',
 ];
 
 // Function to get admin emails from database
