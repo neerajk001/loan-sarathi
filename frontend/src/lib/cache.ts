@@ -102,6 +102,18 @@ class MemoryCache {
             }
         }
     }
+
+    /**
+     * Destroy the cache and cleanup intervals
+     * Call this during shutdown or cleanup
+     */
+    destroy(): void {
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+            this.cleanupInterval = null;
+        }
+        this.cache.clear();
+    }
 }
 
 // Export a singleton instance

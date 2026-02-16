@@ -54,6 +54,15 @@ class MemoryCache {
             }
         }
     }
+    
+    // Destroy method for graceful shutdown
+    destroy() {
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+            this.cleanupInterval = null;
+        }
+        this.cache.clear();
+    }
 }
 
 const apiCache = new MemoryCache();
@@ -63,5 +72,14 @@ const CACHE_TTL = {
     MEDIUM: 5 * 60 * 1000,
     LONG: 15 * 60 * 1000,
 };
+
+// Cleanup on process exit
+process.on('SIGINT', () => {
+    apiCache.destroy();
+});
+
+process.on('SIGTERM', () => {
+    apiCache.destroy();
+});
 
 module.exports = { apiCache, CACHE_TTL };

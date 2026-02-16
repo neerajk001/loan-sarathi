@@ -11,18 +11,38 @@ const PORT = process.env.PORT || 5000;
 app.set('trust proxy', 1);
 
 // Middleware
-app.use(express.json({ limit: '10kb' })); // Body limit is 10kb
+app.use(express.json({ limit: '5mb' })); // Body limit is 5mb
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Security Headers
 const helmet = require('helmet');
 app.use(helmet());
 
 // Cross-Origin Resource Sharing
+const getAllowedOrigins = () => {
+    if (process.env.NODE_ENV === 'production') {
+        // Use environment variable for allowed origins in production
+        if (process.env.ALLOWED_ORIGINS) {
+            return process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
+        }
+        // Fallback to hardcoded production domains
+        return [
+            'https://loansarathi.com',
+            'https://www.loansarathi.com',
+            'https://smartsolutionsmumbai.com',
+            'https://www.smartsolutionsmumbai.com',
+            'https://smartmumbaisolutions.com',
+            'https://www.smartmumbaisolutions.com'
+        ];
+    }
+    return ['http://localhost:3000', 'http://localhost:3001'];
+};
+
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production'
-        ? ['https://loansarathi.com', 'https://www.loansarathi.com', 'https://smartsolutionsmumbai.com']
-        : ['http://localhost:3000'],
-    credentials: true
+    origin: getAllowedOrigins(),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Application-Source']
 }));
 
 // Rate Limiting
@@ -68,10 +88,37 @@ app.use((err, req, res, next) => {
 });
 
 // DB Connection and Server Start
+let server;
+
 connectToDb((err) => {
-    if (!err) {
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+    if (err) {
+        console.error('Failed to start server due to database connection error');
+        process.exit(1);
+    }
+    
+    server = app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`🔗 Backend URL: http://localhost:${PORT}`);
+    });
+});
+
+// Graceful shutdown
+const gracefulShutdown = async (signal) => {
+    console.log(`\n${signal} received, shutting down gracefully...`);
+    
+    if (server) {
+        server.close(() => {
+            console.log('HTTP server closed');
         });
     }
-});
+    
+    // MongoDB connection will be closed by db.js shutdown handler
+    setTimeout(() => {
+        console.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+    }, 10000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));

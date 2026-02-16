@@ -8,10 +8,19 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ path: string[] }> }
+    context: { params: Promise<{ path: string[] }> }
 ) {
     try {
-        const { path: pathSegments } = await params;
+        // Await the params
+        const resolvedParams = await context.params;
+        const pathSegments = resolvedParams.path;
+
+        if (!pathSegments || pathSegments.length === 0) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid path' },
+                { status: 400 }
+            );
+        }
 
         // Decode path segments to handle spaces and special characters
         const decodedSegments = pathSegments.map(segment => decodeURIComponent(segment));
@@ -35,6 +44,7 @@ export async function GET(
         // Check if file exists
         if (!existsSync(filePath)) {
             console.warn(`[File Not Found] ${filePath}`);
+            console.warn(`Looking for file at: ${filePath}`);
             return NextResponse.json(
                 { success: false, error: 'File not found' },
                 { status: 404 }

@@ -13,6 +13,7 @@ import {
   createAdminNotificationEmail,
 } from '@/lib/email';
 import { detectSource } from '@/lib/source-detection';
+import { getAdminEmails } from '@/lib/adminSettings';
 
 // POST /api/applications/loan - Submit a new loan application
 export async function POST(request: NextRequest) {
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
     
     // Send notification to admins
     try {
-      const adminEmails = ['workwithneeraj.01@gmail.com', 'shashichanyal@gmail.com'];
+      const adminEmails = await getAdminEmails();
       for (const adminEmail of adminEmails) {
         const adminEmail_notification = createAdminNotificationEmail(
           adminEmail,

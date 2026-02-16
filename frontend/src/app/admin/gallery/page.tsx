@@ -238,12 +238,20 @@ export default function GalleryManagement() {
                     src={event.images.find(img => img.isFeatured)?.imageUrl || event.images[0].imageUrl}
                     alt={event.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      if (target.nextElementSibling) {
+                        (target.nextElementSibling as HTMLElement).style.display = 'flex';
+                      }
+                    }}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ImageIcon className="w-16 h-16 text-gray-300" />
-                  </div>
-                )}
+                ) : null}
+                {/* Fallback placeholder - shown if no images or image fails to load */}
+                <div className="w-full h-full flex items-center justify-center" style={{ display: event.images.length === 0 ? 'flex' : 'none' }}>
+                  <ImageIcon className="w-16 h-16 text-gray-300" />
+                </div>
                 {/* Badges */}
                 <div className="absolute top-3 right-3 flex gap-2">
                   {event.isFeatured && (

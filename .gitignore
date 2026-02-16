@@ -20,3 +20,11 @@ logs/
 # Editor
 .vscode/
 .idea/
+
+# Documentation (deployment and internal guides)
+PRODUCTION_CHECKLIST.md
+SECURITY_AUDIT.md
+HOSTINGER_DEPLOYMENT_GUIDE.md
+QUICK_DEPLOY_COMMANDS.md
+DEPLOYMENT_FLOWCHART.md
+GALLERY_IMAGE_FIX.md

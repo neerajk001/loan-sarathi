@@ -9,12 +9,17 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    // Allow local images from uploads directory
+    unoptimized: false, // Keep optimization enabled
   },
   async rewrites() {
+    // Use environment variable for backend URL, fallback to localhost for development
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    
     return [
       {
         source: '/api/gallery/:path*',
-        destination: 'http://localhost:5000/api/gallery/:path*',
+        destination: `${backendUrl}/api/gallery/:path*`,
       },
       // Routes that are not yet migrated will be handled by Next.js automatically
       // because the rewrite only captures what we define here.
@@ -44,6 +49,10 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()'
           }
         ]
       }
