@@ -4,7 +4,8 @@ import path from 'path';
 import { ObjectId } from 'mongodb';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'gallery');
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per image (client compresses before upload)
+export const MAX_IMAGES_PER_EVENT = 15;
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 // Ensure upload directory exists
@@ -95,6 +96,10 @@ export async function processImageUploads(
   const images: Array<{ imageUrl: string; imagePath: string; altText?: string }> = [];
   const files = formData.getAll('images[]');
   const altTexts = formData.getAll('imageAltTexts[]');
+
+  if (files.length > MAX_IMAGES_PER_EVENT) {
+    throw new Error(`Maximum ${MAX_IMAGES_PER_EVENT} images per event. You sent ${files.length}.`);
+  }
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];

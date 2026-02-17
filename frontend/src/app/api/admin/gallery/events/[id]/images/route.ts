@@ -8,7 +8,7 @@ import {
   GalleryImage,
   GALLERY_EVENTS_COLLECTION,
 } from '@/models/GalleryEvent';
-import { processImageUploads } from '@/lib/fileUpload';
+import { processImageUploads, MAX_IMAGES_PER_EVENT } from '@/lib/fileUpload';
 
 // Configure route for file uploads
 export const runtime = 'nodejs';
@@ -46,6 +46,17 @@ export async function POST(
       return NextResponse.json(
         { success: false, error: 'Event not found' },
         { status: 404 }
+      );
+    }
+
+    const formDataFileCount = formData.getAll('images[]').filter(f => f instanceof File).length;
+    if (event.images.length + formDataFileCount > MAX_IMAGES_PER_EVENT) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Maximum ${MAX_IMAGES_PER_EVENT} images per event. Event has ${event.images.length}, you tried to add ${formDataFileCount}.`,
+        },
+        { status: 400 }
       );
     }
 

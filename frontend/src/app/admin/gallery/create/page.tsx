@@ -1,5 +1,58 @@
 'use client';
 import React, { useState } from 'react';
+
+const MAX_IMAGES_PER_EVENT = 15;
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB per image - keeps total payload under server limits
+const TARGET_MAX_SIZE = 400 * 1024; // 400KB per image - 15 images ~6MB (under Vercel 4.5MB needs ~300KB)
+const MAX_DIMENSION = 1920;
+
+/** Compress image to reduce upload size and avoid 413 errors */
+async function compressImage(file: File): Promise<File> {
+  if (file.size <= TARGET_MAX_SIZE) return file;
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        if (width > height) {
+          height = (height / width) * MAX_DIMENSION;
+          width = MAX_DIMENSION;
+        } else {
+          width = (width / height) * MAX_DIMENSION;
+          height = MAX_DIMENSION;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
+        },
+        'image/jpeg',
+        0.8
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+    img.src = url;
+  });
+}
+
 import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
@@ -37,23 +90,28 @@ export default function CreateGalleryEvent() {
     // Validate files
     const validFiles = files.filter(file => {
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      const maxSize = 5 * 1024 * 1024; // 5MB
       
       if (!validTypes.includes(file.type)) {
         alert(`${file.name} is not a valid image format`);
         return false;
       }
-      if (file.size > maxSize) {
-        alert(`${file.name} is too large (max 5MB)`);
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name} is too large (max 2MB per image for multi-photo uploads)`);
         return false;
       }
       return true;
     });
 
-    setSelectedFiles(prev => [...prev, ...validFiles]);
+    const slotsLeft = MAX_IMAGES_PER_EVENT - selectedFiles.length;
+    const filesToAdd = validFiles.slice(0, Math.max(0, slotsLeft));
+    if (validFiles.length > slotsLeft) {
+      alert(`Maximum ${MAX_IMAGES_PER_EVENT} images per event. Adding first ${filesToAdd.length} of the ${validFiles.length} selected.`);
+    }
+
+    setSelectedFiles(prev => [...prev, ...filesToAdd]);
 
     // Create preview URLs
-    validFiles.forEach(file => {
+    filesToAdd.forEach(file => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrls(prev => [...prev, reader.result as string]);
@@ -78,6 +136,9 @@ export default function CreateGalleryEvent() {
     setLoading(true);
 
     try {
+      // Compress images to avoid 413 Payload Too Large (e.g. Vercel 4.5MB limit)
+      const compressedFiles = await Promise.all(selectedFiles.map(compressImage));
+
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
       formDataToSend.append('description', formData.description);
@@ -87,8 +148,8 @@ export default function CreateGalleryEvent() {
       formDataToSend.append('isPublished', formData.isPublished.toString());
       formDataToSend.append('source', formData.source);
 
-      // Append all images
-      selectedFiles.forEach((file, index) => {
+      // Append all images (compressed)
+      compressedFiles.forEach((file, index) => {
         formDataToSend.append('images[]', file);
         formDataToSend.append('imageAltTexts[]', `${formData.title} - Photo ${index + 1}`);
       });
@@ -256,7 +317,7 @@ export default function CreateGalleryEvent() {
             <label htmlFor="file-upload" className="cursor-pointer">
               <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-900 font-medium mb-1">Click to upload images</p>
-              <p className="text-sm text-gray-500">JPEG, PNG, WebP up to 5MB each</p>
+              <p className="text-sm text-gray-500">JPEG, PNG, WebP · Max {MAX_IMAGES_PER_EVENT} images, 2MB each (auto-compressed)</p>
             </label>
           </div>
 
@@ -287,7 +348,7 @@ export default function CreateGalleryEvent() {
             </div>
           )}
           <p className="text-xs text-gray-500 mt-2">
-            {selectedFiles.length} {selectedFiles.length === 1 ? 'image' : 'images'} selected. The first image will be the featured image.
+            {selectedFiles.length} / {MAX_IMAGES_PER_EVENT} images selected. The first image will be the featured image.
           </p>
         </div>
 

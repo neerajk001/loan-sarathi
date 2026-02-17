@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '50mb', // Allow large gallery event uploads (up to 15 images)
+    },
+  },
   images: {
     remotePatterns: [
       {
