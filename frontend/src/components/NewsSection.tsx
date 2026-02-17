@@ -251,13 +251,11 @@ const NewsSection = () => {
                     <a
                       href={article.url}
                       target="_blank"
-                      rel="noopener noreferrer nofollow"
+                      rel="noopener noreferrer"
                       onClick={(e) => {
-                        // Ensure link opens in new tab even if default behavior is prevented
-                        e.preventDefault();
-                        window.open(article.url, '_blank', 'noopener,noreferrer');
+                        e.stopPropagation();
                       }}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors mt-auto group/link"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors mt-auto group/link relative z-10"
                     >
                       Read Full Article <ExternalLink className="h-3 w-3 group-hover/link:translate-x-0.5 transition-transform" />
                     </a>
