@@ -105,19 +105,22 @@ const NewsSection = () => {
           return;
         }
 
+        console.log("Fetching news from API...");
         const response = await fetch(
           `https://newsapi.org/v2/everything?q=bank+loan+insurance+finance&language=en&sortBy=publishedAt&domains=economictimes.indiatimes.com,livemint.com,business-standard.com,moneycontrol.com&pageSize=12&apiKey=${apiKey}`
         );
 
         if (!response.ok) {
+          console.error('News API response not OK:', response.status, response.statusText);
           throw new Error('Network response was not ok');
         }
 
         const data = await response.json();
+        console.log("News API response:", data);
 
         if (data.articles && data.articles.length > 0) {
           const mappedArticles = data.articles
-            .filter((article: any) => article.title) // Less strict filtering
+            .filter((article: any) => article.title && article.url && article.url !== '#') // Filter out invalid URLs
             .slice(0, 12)
             .map((article: any, index: number) => ({
               id: `news-${index}`,
@@ -129,17 +132,21 @@ const NewsSection = () => {
                 day: 'numeric',
                 year: 'numeric'
               }),
-              imageUrl: article.urlToImage || "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=400", // Fallback image
+              imageUrl: article.urlToImage || "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=400",
               url: article.url
             }));
 
-          // If we get fewer than 4 articles, append some mock ones to fill the space
-          if (mappedArticles.length < 4) {
-            setArticles([...mappedArticles, ...mockNewsArticles.slice(0, 8 - mappedArticles.length)]);
-          } else {
+          console.log(`Fetched ${mappedArticles.length} valid articles from API`);
+
+          // Only use real articles if we have at least 4, otherwise use mock data
+          if (mappedArticles.length >= 4) {
             setArticles(mappedArticles);
+          } else {
+            console.log(`Only ${mappedArticles.length} articles found, using mock data instead`);
+            setArticles(mockNewsArticles);
           }
         } else {
+          console.log("No articles in API response, using mock data");
           setArticles(mockNewsArticles);
         }
       } catch (err) {
