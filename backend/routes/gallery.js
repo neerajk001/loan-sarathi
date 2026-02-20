@@ -66,7 +66,12 @@ router.get('/events', async (req, res) => {
 
         const db = getDb();
         if (!db) {
-            throw new Error('Database not connected');
+            console.error('[Gallery API] Database not connected');
+            return res.status(503).json({
+                success: false,
+                error: 'Service temporarily unavailable',
+                details: 'Database not connected',
+            });
         }
         const collection = db.collection(GALLERY_EVENTS_COLLECTION);
 
@@ -103,10 +108,11 @@ router.get('/events', async (req, res) => {
 
         const total = await collection.countDocuments(query);
 
+        const formatted = events.map(formatGalleryEventForResponse).filter(Boolean);
         const responseData = {
             success: true,
             total,
-            events: events.map(formatGalleryEventForResponse),
+            events: formatted,
         };
 
         apiCache.set(cacheKey, responseData, CACHE_TTL.MEDIUM);
@@ -119,7 +125,7 @@ router.get('/events', async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Failed to fetch gallery events',
-            details: error.message || 'Unknown error',
+            details: process.env.NODE_ENV !== 'production' ? (error.message || String(error)) : 'Unknown error',
         });
     }
 });
@@ -132,7 +138,11 @@ router.get('/events/:id', async (req, res) => {
 
         const db = getDb();
         if (!db) {
-            throw new Error('Database not connected');
+            return res.status(503).json({
+                success: false,
+                error: 'Service temporarily unavailable',
+                details: 'Database not connected',
+            });
         }
         const collection = db.collection(GALLERY_EVENTS_COLLECTION);
 

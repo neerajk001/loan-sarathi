@@ -53,25 +53,35 @@ function generateGalleryEventId(sequenceNumber) {
     return `LS-GE-${new Date().getFullYear()}-${paddedNumber}`;
 }
 
+/** Safely format a value to ISO date string (date-only or full). Handles Date, string, number, null, undefined. */
+function toISOStringSafe(value, dateOnly = false) {
+    if (value == null) return null;
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) return null;
+    const str = d.toISOString();
+    return dateOnly ? str.split('T')[0] : str;
+}
+
 function formatGalleryEventForResponse(event) {
+    if (!event || typeof event !== 'object') return null;
     return {
-        id: event._id?.toString(),
-        title: event.title,
-        description: event.description,
-        eventDate: event.eventDate.toISOString().split('T')[0],
-        location: event.location,
-        isFeatured: event.isFeatured,
-        isPublished: event.isPublished,
-        source: event.source,
-        images: event.images ? event.images.map((img, index) => ({
-            id: img._id?.toString() || index.toString(),
-            imageUrl: img.imageUrl,
-            altText: img.altText,
-            displayOrder: img.displayOrder,
-            isFeatured: img.isFeatured,
+        id: event._id?.toString?.() ?? event._id ?? null,
+        title: event.title ?? '',
+        description: event.description ?? '',
+        eventDate: toISOStringSafe(event.eventDate, true) ?? '',
+        location: event.location ?? '',
+        isFeatured: Boolean(event.isFeatured),
+        isPublished: Boolean(event.isPublished),
+        source: event.source ?? null,
+        images: Array.isArray(event.images) ? event.images.map((img, index) => ({
+            id: (img && (img._id?.toString?.() ?? img._id)) || String(index),
+            imageUrl: img?.imageUrl ?? '',
+            altText: img?.altText ?? '',
+            displayOrder: img?.displayOrder ?? index,
+            isFeatured: Boolean(img?.isFeatured),
         })) : [],
-        createdAt: event.createdAt ? event.createdAt.toISOString() : null,
-        updatedAt: event.updatedAt ? event.updatedAt.toISOString() : null,
+        createdAt: toISOStringSafe(event.createdAt) ?? null,
+        updatedAt: toISOStringSafe(event.updatedAt) ?? null,
     };
 }
 
