@@ -150,7 +150,12 @@ router.get('/events', async (req, res) => {
 router.get('/events/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const source = detectSource(req);
+        let source = 'loan-sarathi';
+        try {
+            source = detectSource(req);
+        } catch (detectErr) {
+            console.warn('[Gallery API] detectSource failed (single event), using default:', detectErr?.message);
+        }
 
         const db = getDb();
         if (!db) {
@@ -179,15 +184,24 @@ router.get('/events/:id', async (req, res) => {
             return res.status(404).json({ success: false, error: 'Event not found' });
         }
 
+        const formatted = formatGalleryEventForResponse(event);
+        if (!formatted) {
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to format gallery event',
+            });
+        }
         res.json({
             success: true,
-            event: formatGalleryEventForResponse(event),
+            event: formatted,
         });
     } catch (error) {
-        console.error('Error fetching gallery event:', error);
+        console.error('[Gallery API] Error fetching gallery event:', error);
+        const exposeDetails = process.env.NODE_ENV !== 'production' || process.env.EXPOSE_GALLERY_ERROR === 'true';
         res.status(500).json({
             success: false,
             error: 'Failed to fetch gallery event',
+            details: exposeDetails ? (error.message || String(error)) : 'Unknown error',
         });
     }
 });
