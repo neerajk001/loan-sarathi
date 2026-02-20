@@ -50,14 +50,25 @@ router.get('/health', (req, res) => {
 // GET /events
 router.get('/events', async (req, res) => {
     try {
-        const source = detectSource(req);
+        let source = 'loan-sarathi';
+        try {
+            source = detectSource(req);
+        } catch (detectErr) {
+            console.warn('[Gallery API] detectSource failed, using default:', detectErr?.message);
+        }
+
         const { featured } = req.query;
-        const limit = parseInt(req.query.limit || '50');
-        const offset = parseInt(req.query.offset || '0');
+        const limit = parseInt(req.query.limit || '50', 10) || 50;
+        const offset = parseInt(req.query.offset || '0', 10) || 0;
 
         const cacheKey = generateCacheKey(source, featured, limit, offset);
 
-        const cachedResponse = apiCache.get(cacheKey);
+        let cachedResponse = null;
+        try {
+            cachedResponse = apiCache.get(cacheKey);
+        } catch (cacheErr) {
+            console.warn('[Gallery API] Cache get failed:', cacheErr?.message);
+        }
         if (cachedResponse) {
             res.set('X-Cache', 'HIT');
             res.set('Cache-Control', 'private, max-age=300');
@@ -115,17 +126,22 @@ router.get('/events', async (req, res) => {
             events: formatted,
         };
 
-        apiCache.set(cacheKey, responseData, CACHE_TTL.MEDIUM);
+        try {
+            apiCache.set(cacheKey, responseData, CACHE_TTL.MEDIUM);
+        } catch (cacheErr) {
+            console.warn('[Gallery API] Cache set failed:', cacheErr?.message);
+        }
 
         res.set('X-Cache', 'MISS');
         res.set('Cache-Control', 'private, max-age=300');
         res.json(responseData);
     } catch (error) {
         console.error('[Gallery API] Error fetching gallery events:', error);
+        const exposeDetails = process.env.NODE_ENV !== 'production' || process.env.EXPOSE_GALLERY_ERROR === 'true';
         res.status(500).json({
             success: false,
             error: 'Failed to fetch gallery events',
-            details: process.env.NODE_ENV !== 'production' ? (error.message || String(error)) : 'Unknown error',
+            details: exposeDetails ? (error.message || String(error)) : 'Unknown error',
         });
     }
 });
