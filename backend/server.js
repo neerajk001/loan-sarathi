@@ -42,7 +42,8 @@ app.use(cors({
     origin: getAllowedOrigins(),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Application-Source']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Application-Source'],
+    optionsSuccessStatus: 204  // Some clients expect 204 for preflight
 }));
 
 // Rate Limiting

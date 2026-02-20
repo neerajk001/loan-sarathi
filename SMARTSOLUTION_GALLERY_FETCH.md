@@ -306,7 +306,7 @@ You should get JSON with `"success": true` and `"message": "Gallery API is worki
 - In **this app’s admin**, go to **Gallery** and create an event with **source = Smart Mumbai Solutions** and **Publish** it.
 - If you don’t create any, the API still works; it will return `{ success: true, total: 0, events: [] }`.
 
-### Step 6: No CORS change needed for SmartSolution
+### Step 6: CORS when SmartSolution calls the backend directly from the browser
 
 SmartSolution’s **browser** only calls SmartSolution’s own domain. SmartSolution’s **server** then calls `loansarathi.com` in the background. That server-to-server request does not use CORS. The backend already allows common origins; you don’t need to change anything for SmartSolution to start fetching.
 
@@ -319,5 +319,6 @@ SmartSolution’s **browser** only calls SmartSolution’s own domain. SmartSolu
 - [ ] Backend process **restarted** after deploy.
 - [ ] `GET https://loansarathi.com/api/gallery/health` returns success.
 - [ ] (Optional) At least one published gallery event with source **Smart Mumbai Solutions** for testing.
+- [ ] If cross-origin: backend CORS allows SmartSolution origin (set `ALLOWED_ORIGINS` on production and restart; see Step 6).
 
 Once these are done, SmartSolution’s frontend can start fetching gallery events. If you still get 500, use backend logs or `EXPOSE_GALLERY_ERROR=true` to see the exact error (see section 9).
