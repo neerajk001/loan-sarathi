@@ -11,8 +11,8 @@ const {
 
 const CACHE_PREFIX = 'gallery_events';
 
-function generateCacheKey(source, featured, limit, offset) {
-    return `${CACHE_PREFIX}:${source}:${featured || 'all'}:${limit}:${offset}`;
+function generateCacheKey(featured, limit, offset) {
+    return `${CACHE_PREFIX}:${featured || 'all'}:${limit}:${offset}`;
 }
 
 // GET /health
@@ -47,21 +47,14 @@ router.get('/health', (req, res) => {
     }
 });
 
-// GET /events
+// GET /events - returns all published gallery events (no source filter; used by Smart Mumbai Solutions)
 router.get('/events', async (req, res) => {
     try {
-        let source = 'loan-sarathi';
-        try {
-            source = detectSource(req);
-        } catch (detectErr) {
-            console.warn('[Gallery API] detectSource failed, using default:', detectErr?.message);
-        }
-
         const { featured } = req.query;
         const limit = parseInt(req.query.limit || '50', 10) || 50;
         const offset = parseInt(req.query.offset || '0', 10) || 0;
 
-        const cacheKey = generateCacheKey(source, featured, limit, offset);
+        const cacheKey = generateCacheKey(featured, limit, offset);
 
         let cachedResponse = null;
         try {
@@ -86,26 +79,13 @@ router.get('/events', async (req, res) => {
         }
         const collection = db.collection(GALLERY_EVENTS_COLLECTION);
 
-        const query = {
-            source: source,
-            isPublished: true,
-        };
-
+        const query = { isPublished: true };
         if (featured === 'true') {
             query.isFeatured = true;
         }
 
-        // Allow Smart Mumbai Solutions to show Loan Sarathi gallery events (shared gallery)
-        const sourceFilter = source === 'smartmumbaisolutions'
-            ? { $in: ['smartmumbaisolutions', 'loan-sarathi'] }
-            : source;
-        const finalQuery = {
-            ...query,
-            source: sourceFilter,
-        };
-
         const events = await collection
-            .find(finalQuery, {
+            .find(query, {
                 projection: {
                     _id: 1,
                     title: 1,
@@ -126,7 +106,7 @@ router.get('/events', async (req, res) => {
             .limit(limit)
             .toArray();
 
-        const total = await collection.countDocuments(finalQuery);
+        const total = await collection.countDocuments(query);
 
         const formatted = events.map(formatGalleryEventForResponse).filter(Boolean);
         const responseData = {
@@ -155,16 +135,10 @@ router.get('/events', async (req, res) => {
     }
 });
 
-// GET /events/:id
+// GET /events/:id - returns a single published event by id (no source filter)
 router.get('/events/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        let source = 'loan-sarathi';
-        try {
-            source = detectSource(req);
-        } catch (detectErr) {
-            console.warn('[Gallery API] detectSource failed (single event), using default:', detectErr?.message);
-        }
 
         const db = getDb();
         if (!db) {
@@ -185,9 +159,6 @@ router.get('/events/:id', async (req, res) => {
 
         const event = await collection.findOne({
             _id: objectId,
-            ...(source === 'smartmumbaisolutions'
-                ? { source: { $in: ['smartmumbaisolutions', 'loan-sarathi'] } }
-                : { source: source }),
             isPublished: true,
         });
 
