@@ -95,8 +95,17 @@ router.get('/events', async (req, res) => {
             query.isFeatured = true;
         }
 
+        // Allow Smart Mumbai Solutions to show Loan Sarathi gallery events (shared gallery)
+        const sourceFilter = source === 'smartmumbaisolutions'
+            ? { $in: ['smartmumbaisolutions', 'loan-sarathi'] }
+            : source;
+        const finalQuery = {
+            ...query,
+            source: sourceFilter,
+        };
+
         const events = await collection
-            .find(query, {
+            .find(finalQuery, {
                 projection: {
                     _id: 1,
                     title: 1,
@@ -117,7 +126,7 @@ router.get('/events', async (req, res) => {
             .limit(limit)
             .toArray();
 
-        const total = await collection.countDocuments(query);
+        const total = await collection.countDocuments(finalQuery);
 
         const formatted = events.map(formatGalleryEventForResponse).filter(Boolean);
         const responseData = {
@@ -176,7 +185,9 @@ router.get('/events/:id', async (req, res) => {
 
         const event = await collection.findOne({
             _id: objectId,
-            source: source,
+            ...(source === 'smartmumbaisolutions'
+                ? { source: { $in: ['smartmumbaisolutions', 'loan-sarathi'] } }
+                : { source: source }),
             isPublished: true,
         });
 
