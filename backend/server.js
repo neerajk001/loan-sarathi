@@ -73,6 +73,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../frontend/public/uplo
 
 // Routes
 app.use('/api/gallery', require('./routes/gallery'));
+// If NGINX forwards backend under /api/backend (without path rewrite),
+// expose the same gallery routes there too.
+app.use('/api/backend/gallery', require('./routes/gallery'));
 
 // 404 Handler
 app.use((req, res, next) => {
