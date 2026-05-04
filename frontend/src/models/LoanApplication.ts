@@ -3,18 +3,19 @@ import { ObjectId } from 'mongodb';
 export interface PersonalInfo {
   fullName: string;
   mobileNumber: string;
-  email: string;
   pincode: string;
-  dob: Date;
-  city: string;
-  panCard: string;
+  email?: string;
+  dob?: Date;
+  city?: string;
+  panCard?: string;
 }
 
 export interface EmploymentInfo {
   employmentType: 'salaried' | 'self-employed';
-  monthlyIncome: number;
-  employerName: string;
-  existingEmi: number;
+  annualIncome?: number;
+  monthlyIncome?: number;
+  employerName?: string;
+  existingEmi?: number;
 }
 
 export interface BusinessDetails {
@@ -35,9 +36,9 @@ export interface PropertyDetails {
 }
 
 export interface LoanRequirement {
-  loanAmount: number;
-  tenure: number;
-  loanPurpose: string;
+  loanAmount?: number;
+  tenure?: number;
+  loanPurpose?: string;
 }
 
 export interface StatusHistoryEntry {
@@ -109,45 +110,26 @@ export function validateLoanApplication(data: any): { valid: boolean; errors: Re
     errors.mobileNumber = 'Valid 10-digit mobile number is required';
   }
   
-  if (!data.personalInfo?.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.personalInfo.email)) {
-    errors.email = 'Valid email address is required';
-  }
-  
   if (!data.personalInfo?.pincode || !/^\d{6}$/.test(data.personalInfo.pincode)) {
     errors.pincode = 'Valid 6-digit pincode is required';
   }
   
-  if (!data.personalInfo?.panCard || !/^[A-Z]{5}\d{4}[A-Z]$/.test(data.personalInfo.panCard)) {
+  // Optional but valid format if provided
+  if (data.personalInfo?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.personalInfo.email)) {
+    errors.email = 'Valid email address is required';
+  }
+  
+  if (data.personalInfo?.panCard && !/^[A-Z]{5}\d{4}[A-Z]$/.test(data.personalInfo.panCard)) {
     errors.panCard = 'Valid PAN card number is required (e.g., ABCDE1234F)';
   }
   
   // Employment Info validation
-  if (!data.employmentInfo?.monthlyIncome || data.employmentInfo.monthlyIncome < 0) {
-    errors.monthlyIncome = 'Valid monthly income is required';
+  if (!data.employmentInfo?.annualIncome || data.employmentInfo.annualIncome < 0) {
+    errors.annualIncome = 'Valid annual income is required';
   }
   
-  // Loan Requirement validation
-  if (!data.loanRequirement?.loanAmount || data.loanRequirement.loanAmount < 10000) {
-    errors.loanAmount = 'Loan amount must be at least ₹10,000';
-  }
-  
-  if (!data.loanRequirement?.tenure || data.loanRequirement.tenure < 1 || data.loanRequirement.tenure > 30) {
-    errors.tenure = 'Loan tenure must be between 1 and 30 years';
-  }
-  
-  // Business Loan specific validation
-  if (data.loanType === 'business' && data.businessDetails) {
-    if (!data.businessDetails.turnover || data.businessDetails.turnover < 0) {
-      errors.turnover = 'Valid business turnover is required for business loans';
-    }
-  }
-  
-  // Home/LAP specific validation
-  if ((data.loanType === 'home' || data.loanType === 'lap') && data.propertyDetails) {
-    if (data.loanType === 'home' && (!data.propertyDetails.propertyCost || data.propertyDetails.propertyCost < 0)) {
-      errors.propertyCost = 'Valid property cost is required for home loans';
-    }
-    if (data.loanType === 'lap' && (!data.propertyDetails.currentMarketValue || data.propertyDetails.currentMarketValue < 0)) {
+  return { valid: Object.keys(errors).length === 0, errors };
+}
       errors.currentMarketValue = 'Valid property market value is required for loan against property';
     }
   }

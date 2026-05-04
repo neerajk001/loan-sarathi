@@ -49,16 +49,16 @@ export async function POST(request: NextRequest) {
     const application: LoanApplication = {
       applicationId,
       userId: undefined,
-      userEmail: body.personalInfo.email,
+      userEmail: body.personalInfo?.email || 'N/A',
       loanType: body.loanType,
       personalInfo: {
         ...body.personalInfo,
-        dob: new Date(body.personalInfo.dob),
+        dob: body.personalInfo?.dob ? new Date(body.personalInfo.dob) : undefined,
       },
       employmentInfo: body.employmentInfo,
       businessDetails: body.businessDetails,
       propertyDetails: body.propertyDetails,
-      loanRequirement: body.loanRequirement,
+      loanRequirement: body.loanRequirement || {},
       status: 'pending',
       statusHistory: [
         {
@@ -84,14 +84,16 @@ export async function POST(request: NextRequest) {
     
     // Send confirmation email to applicant
     try {
-      const confirmationEmail = createLoanApplicationConfirmationEmail(
-        body.personalInfo.fullName,
-        applicationId,
-        body.personalInfo.email,
-        body.loanType,
-        body.loanRequirement.loanAmount
-      );
-      await sendEmail(confirmationEmail);
+      if (body.personalInfo?.email) {
+        const confirmationEmail = createLoanApplicationConfirmationEmail(
+          body.personalInfo.fullName,
+          applicationId,
+          body.personalInfo.email,
+          body.loanType,
+          body.loanRequirement?.loanAmount || 0
+        );
+        await sendEmail(confirmationEmail);
+      }
     } catch (emailError) {
       console.error('Failed to send confirmation email:', emailError);
       // Don't fail the request if email fails
