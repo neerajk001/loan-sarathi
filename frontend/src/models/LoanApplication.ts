@@ -100,6 +100,12 @@ export function generateLoanApplicationId(sequenceNumber: number): string {
 // Validation helper
 export function validateLoanApplication(data: any): { valid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
+
+  // Loan type validation (defaulted by API route if missing)
+  const validLoanTypes: LoanType[] = ['personal', 'business', 'home', 'lap'];
+  if (!data.loanType || !validLoanTypes.includes(data.loanType)) {
+    errors.loanType = 'Valid loan type is required';
+  }
   
   // Personal Info validation
   if (!data.personalInfo?.fullName || data.personalInfo.fullName.length < 2) {
@@ -124,20 +130,15 @@ export function validateLoanApplication(data: any): { valid: boolean; errors: Re
   }
   
   // Employment Info validation
-  if (!data.employmentInfo?.annualIncome || data.employmentInfo.annualIncome < 0) {
+  if (!data.employmentInfo?.employmentType || !['salaried', 'self-employed'].includes(data.employmentInfo.employmentType)) {
+    errors.employmentType = 'Employment type must be salaried or self-employed';
+  }
+
+  if (typeof data.employmentInfo?.annualIncome !== 'number' || !Number.isFinite(data.employmentInfo.annualIncome) || data.employmentInfo.annualIncome <= 0) {
     errors.annualIncome = 'Valid annual income is required';
   }
   
   return { valid: Object.keys(errors).length === 0, errors };
-}
-      errors.currentMarketValue = 'Valid property market value is required for loan against property';
-    }
-  }
-  
-  return {
-    valid: Object.keys(errors).length === 0,
-    errors
-  };
 }
 
 // Get next sequence number for application ID

@@ -15,10 +15,101 @@ import {
 import { detectSource } from '@/lib/source-detection';
 import { getAdminEmails } from '@/lib/adminSettings';
 
+function normalizeEmploymentType(value: any): 'salaried' | 'self-employed' | undefined {
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase().replace(/[_\s]+/g, '-');
+  if (normalized === 'salaried' || normalized === 'salary') return 'salaried';
+  if (
+    normalized === 'self-employed' ||
+    normalized === 'selfemployed' ||
+    normalized === 'self-employed/owner' ||
+    normalized === 'self-employed-business'
+  ) {
+    return 'self-employed';
+  }
+  // Common variants
+  if (normalized.includes('self') && normalized.includes('employ')) return 'self-employed';
+  return undefined;
+}
+
+function toCleanString(value: any): string {
+  if (value === null || value === undefined) return '';
+  return String(value).trim();
+}
+
+function toNumber(value: any): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value !== 'string') return undefined;
+  const cleaned = value.replace(/[^0-9.]/g, '');
+  if (!cleaned) return undefined;
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function normalizeLoanApplicationBody(raw: any) {
+  const body = raw && typeof raw === 'object' ? { ...raw } : {};
+
+  // Allow flat payloads from external sources (e.g., SmartSolution)
+  if (!body.personalInfo) {
+    const fullName =
+      body.customerName ?? body.customer_name ?? body.fullName ?? body.name ?? '';
+    const mobileNumber =
+      body.mobileNo ?? body.mobile_number ?? body.mobileNumber ?? body.mobile ?? body.phone ?? '';
+    const pincode = body.pincode ?? body.pinCode ?? body.pin_code ?? '';
+    const email = body.email ?? body.userEmail;
+
+    if (fullName || mobileNumber || pincode || email) {
+      body.personalInfo = {
+        fullName: toCleanString(fullName),
+        mobileNumber: toCleanString(mobileNumber),
+        pincode: toCleanString(pincode),
+        ...(email ? { email: toCleanString(email) } : {}),
+      };
+    }
+  } else {
+    body.personalInfo = {
+      ...body.personalInfo,
+      fullName: toCleanString(body.personalInfo.fullName),
+      mobileNumber: toCleanString(body.personalInfo.mobileNumber),
+      pincode: toCleanString(body.personalInfo.pincode),
+      ...(body.personalInfo.email ? { email: toCleanString(body.personalInfo.email) } : {}),
+    };
+  }
+
+  if (!body.employmentInfo) {
+    const employmentType =
+      body.employmentType ?? body.employment_type ?? body.jobType ?? body.job_type;
+    const annualIncome = body.annualIncome ?? body.annual_income ?? body.income;
+
+    if (employmentType || annualIncome !== undefined) {
+      body.employmentInfo = {
+        employmentType: normalizeEmploymentType(employmentType),
+        annualIncome: toNumber(annualIncome),
+      };
+    }
+  } else {
+    body.employmentInfo = {
+      ...body.employmentInfo,
+      employmentType: normalizeEmploymentType(body.employmentInfo.employmentType),
+      annualIncome:
+        typeof body.employmentInfo.annualIncome === 'number'
+          ? body.employmentInfo.annualIncome
+          : toNumber(body.employmentInfo.annualIncome),
+    };
+  }
+
+  // Defaults for lightweight lead forms
+  if (!body.loanType) body.loanType = 'personal';
+  if (!body.loanRequirement) body.loanRequirement = {};
+
+  return body;
+}
+
 // POST /api/applications/loan - Submit a new loan application
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.json();
+    const body = normalizeLoanApplicationBody(rawBody);
     
     // Validate the application data
     const validation = validateLoanApplication(body);
