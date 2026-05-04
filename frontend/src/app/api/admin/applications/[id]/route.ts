@@ -117,15 +117,18 @@ export async function PATCH(
       if (result.modifiedCount > 0) {
         // Send email notification
         try {
-          const emailNotification = createStatusUpdateEmail(
-            loanApp.personalInfo.fullName,
-            applicationId,
-            loanApp.personalInfo.email,
-            loanApp.status,
-            status,
-            notes
-          );
-          await sendEmail(emailNotification);
+          const applicantEmail = loanApp.personalInfo.email;
+          if (applicantEmail && !applicantEmail.includes('@temp.com')) {
+            const emailNotification = createStatusUpdateEmail(
+              loanApp.personalInfo.fullName,
+              applicationId,
+              applicantEmail,
+              loanApp.status,
+              status,
+              notes
+            );
+            await sendEmail(emailNotification);
+          }
         } catch (emailError) {
           console.error('Failed to send status update email:', emailError);
         }
