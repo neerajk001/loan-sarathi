@@ -1,5 +1,4 @@
-// Email notification utility
-// For production, integrate with Resend, SendGrid, or AWS SES
+import { Resend } from 'resend';
 
 export interface EmailTemplate {
   to: string;
@@ -8,29 +7,39 @@ export interface EmailTemplate {
   text?: string;
 }
 
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+const FROM_EMAIL = 'Loan Sarathi <noreply@loansarathi.com>';
+
 export async function sendEmail(template: EmailTemplate): Promise<boolean> {
-  // TODO: Integrate with actual email service
-  // For now, just log the email that would be sent
-  
-  if (process.env.NODE_ENV === 'development') {
-    console.log('📧 Email would be sent:');
+  if (!resend) {
+    console.log('📧 RESEND_API_KEY not configured. Email would be sent:');
     console.log('To:', template.to);
     console.log('Subject:', template.subject);
     console.log('Body:', template.text || template.html);
     return true;
   }
-  
-  // Production implementation would go here
-  // Example with Resend:
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // await resend.emails.send({
-  //   from: 'noreply@loansarathi.com',
-  //   to: template.to,
-  //   subject: template.subject,
-  //   html: template.html,
-  // });
-  
-  return true;
+
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: template.to,
+      subject: template.subject,
+      html: template.html,
+      text: template.text,
+    });
+
+    if (error) {
+      console.error('Resend email error:', error);
+      return false;
+    }
+
+    console.log('✅ Email sent to:', template.to);
+    return true;
+  } catch (err) {
+    console.error('Failed to send email:', err);
+    return false;
+  }
 }
 
 export function createLoanApplicationConfirmationEmail(
@@ -329,6 +338,120 @@ View in Admin Panel: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:300
   
   return {
     to: adminEmail,
+    subject,
+    html,
+    text
+  };
+}
+
+export interface FormSubmissionDetails {
+  applicationId: string;
+  source: 'smartmumbaisolutions' | 'loan-sarathi';
+  type: 'loan' | 'insurance';
+  applicantName: string;
+  mobileNumber: string;
+  email?: string;
+  loanType?: string;
+  loanAmount?: number;
+  insuranceType?: string;
+}
+
+export function createFormSubmissionNotificationEmail(
+  notificationEmail: string,
+  details: FormSubmissionDetails
+): EmailTemplate {
+  const sourceLabel = details.source === 'smartmumbaisolutions' 
+    ? 'Smart Mumbai Solutions' 
+    : 'Loan Sarathi (Direct)';
+  
+  const sourceColor = details.source === 'smartmumbaisolutions' ? '#e11d48' : '#2563eb';
+  
+  const subject = `📝 New ${details.type === 'loan' ? 'Loan' : 'Insurance'} Form - ${details.source}`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h2 style="margin: 0;">📝 New Form Submission</h2>
+        </div>
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px;">
+          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${sourceColor};">
+            <p style="margin: 0;"><strong>Source:</strong> <span style="color: ${sourceColor}; font-weight: bold;">${sourceLabel}</span></p>
+          </div>
+          
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Application ID</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.applicationId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Type</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.type === 'loan' ? 'Loan Application' : 'Insurance Quote Request'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Applicant Name</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.applicantName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Mobile Number</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.mobileNumber}</td>
+            </tr>
+            ${details.email ? `
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Email</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.email}</td>
+            </tr>` : ''}
+            ${details.loanType ? `
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Loan Type</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.loanType}</td>
+            </tr>` : ''}
+            ${details.loanAmount ? `
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Loan Amount</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">₹${details.loanAmount.toLocaleString('en-IN')}</td>
+            </tr>` : ''}
+            ${details.insuranceType ? `
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Insurance Type</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.insuranceType}</td>
+            </tr>` : ''}
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Submitted At</td>
+              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${new Date().toLocaleString('en-IN')}</td>
+            </tr>
+          </table>
+          
+          <div style="margin-top: 20px; text-align: center;">
+            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin/applications" style="display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">View in Admin Panel</a>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+New Form Submission
+
+Source: ${sourceLabel}
+Application ID: ${details.applicationId}
+Type: ${details.type === 'loan' ? 'Loan Application' : 'Insurance Quote Request'}
+Applicant Name: ${details.applicantName}
+Mobile Number: ${details.mobileNumber}
+${details.email ? `Email: ${details.email}` : ''}
+${details.loanType ? `Loan Type: ${details.loanType}` : ''}
+${details.loanAmount ? `Loan Amount: ₹${details.loanAmount.toLocaleString('en-IN')}` : ''}
+${details.insuranceType ? `Insurance Type: ${details.insuranceType}` : ''}
+Submitted At: ${new Date().toLocaleString('en-IN')}
+
+View in Admin Panel: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin/applications
+  `;
+
+  return {
+    to: notificationEmail,
     subject,
     html,
     text

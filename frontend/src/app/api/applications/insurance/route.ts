@@ -11,9 +11,10 @@ import {
   sendEmail,
   createInsuranceApplicationConfirmationEmail,
   createAdminNotificationEmail,
+  createFormSubmissionNotificationEmail,
 } from '@/lib/email';
 import { detectSource } from '@/lib/source-detection';
-import { getAdminEmails } from '@/lib/adminSettings';
+import { getAdminEmails, getFormNotificationEmail } from '@/lib/adminSettings';
 
 // POST /api/applications/insurance - Submit a new insurance application
 export async function POST(request: NextRequest) {
@@ -111,6 +112,26 @@ export async function POST(request: NextRequest) {
       }
     } catch (emailError) {
       console.error('Failed to send admin notification:', emailError);
+    }
+    
+    // Send form submission notification to designated email
+    try {
+      const notificationEmail = await getFormNotificationEmail();
+      const formNotification = createFormSubmissionNotificationEmail(
+        notificationEmail,
+        {
+          applicationId,
+          source: source as 'smartmumbaisolutions' | 'loan-sarathi',
+          type: 'insurance',
+          applicantName: body.basicInfo.fullName,
+          mobileNumber: body.basicInfo.mobileNumber,
+          email: body.basicInfo.email,
+          insuranceType: body.insuranceType,
+        }
+      );
+      await sendEmail(formNotification);
+    } catch (emailError) {
+      console.error('Failed to send form notification:', emailError);
     }
     
     // Return success response with application ID

@@ -12,7 +12,10 @@ import {
   Download,
   SlidersHorizontal,
   Loader2,
-  Globe
+  Globe,
+  Trash2,
+  Square,
+  CheckSquare
 } from 'lucide-react';
 
 interface Application {
@@ -48,7 +51,68 @@ export default function ApplicationsPage() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedApps, setSelectedApps] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
   const limit = 20;
+
+  const formatDateTime = (date: Date | string | undefined) => {
+    if (!date) return 'N/A';
+    const d = new Date(date);
+    return d.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedApps.size === applications.length) {
+      setSelectedApps(new Set());
+    } else {
+      setSelectedApps(new Set(applications.map(app => app.applicationId || app.id)));
+    }
+  };
+
+  const toggleSelect = (appId: string) => {
+    const newSelected = new Set(selectedApps);
+    if (newSelected.has(appId)) {
+      newSelected.delete(appId);
+    } else {
+      newSelected.add(appId);
+    }
+    setSelectedApps(newSelected);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedApps.size === 0) return;
+    
+    const confirmDelete = window.confirm(`Delete ${selectedApps.size} selected application(s)?`);
+    if (!confirmDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch('/api/admin/applications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationIds: Array.from(selectedApps) }),
+      });
+
+      if (response.ok) {
+        setSelectedApps(new Set());
+        fetchApplications();
+      } else {
+        alert('Failed to delete applications');
+      }
+    } catch (error) {
+      console.error('Error deleting applications:', error);
+      alert('Failed to delete applications');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -215,10 +279,22 @@ export default function ApplicationsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Applications</h1>
           <p className="text-gray-500 mt-1">Manage and review loan applications</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors">
-          <Download className="w-4 h-4" />
-          Export Data
-        </button>
+        <div className="flex items-center gap-3">
+          {selectedApps.size > 0 && (
+            <button 
+              onClick={handleDeleteSelected}
+              disabled={isDeleting}
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete ({selectedApps.size})
+            </button>
+          )}
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors">
+            <Download className="w-4 h-4" />
+            Export Data
+          </button>
+        </div>
       </div>
 
       {/* Filters & Search */}
@@ -308,33 +384,55 @@ export default function ApplicationsPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Applicant</th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Source</th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Loan Details</th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Documents</th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="text-right px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-10">
+                  <button onClick={toggleSelectAll} className="p-1 hover:bg-gray-200 rounded">
+                    {selectedApps.size === applications.length && applications.length > 0 ? (
+                      <CheckSquare className="w-4 h-4 text-gray-600" />
+                    ) : (
+                      <Square className="w-4 h-4 text-gray-400" />
+                    )}
+                  </button>
+                </th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Applicant</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Source</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Loan Details</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Documents</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="text-right px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={9} className="px-6 py-12 text-center">
                     <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto" />
                     <p className="text-gray-500 mt-2">Loading applications...</p>
                   </td>
                 </tr>
               ) : applications.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={9} className="px-6 py-12 text-center">
                     <p className="text-gray-500">No applications found</p>
                   </td>
                 </tr>
               ) : (
-                applications.map((app) => (
-                  <tr key={app.applicationId || app.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4">
+                applications.map((app) => {
+                  const appId = app.applicationId || app.id;
+                  const isSelected = selectedApps.has(appId);
+                  return (
+                  <tr key={appId} className={`hover:bg-gray-50/50 transition-colors ${isSelected ? 'bg-blue-50/30' : ''}`}>
+                    <td className="px-4 py-4">
+                      <button onClick={() => toggleSelect(appId)} className="p-1 hover:bg-gray-200 rounded">
+                        {isSelected ? (
+                          <CheckSquare className="w-4 h-4 text-blue-600" />
+                        ) : (
+                          <Square className="w-4 h-4 text-gray-400" />
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-4 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-600">
                           {app.name && app.name !== 'N/A' ? app.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'N/A'}
@@ -345,10 +443,10 @@ export default function ApplicationsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       {getSourceBadge(app.source)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       {app.type === 'consultancy' ? (
                         <>
                           <p className="font-semibold text-gray-900">Consultancy Request</p>
@@ -361,19 +459,22 @@ export default function ApplicationsPage() {
                         </>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <p className="text-sm text-gray-900">{app.email || 'N/A'}</p>
                       <p className="text-sm text-gray-500">{app.phone || 'N/A'}</p>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <span className="text-sm text-gray-500">-</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
+                      <p className="text-sm text-gray-900 font-medium">{formatDateTime(app.createdAt)}</p>
+                    </td>
+                    <td className="px-4 py-4">
                       <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusStyle(app.status)}`}>
                         {app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('-', ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <div className="flex items-center justify-end gap-1">
                         <button 
                           onClick={() => handleView(app)}
@@ -403,7 +504,7 @@ export default function ApplicationsPage() {
                       </div>
                     </td>
                   </tr>
-                ))
+                )})}
               )}
             </tbody>
           </table>

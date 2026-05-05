@@ -85,3 +85,61 @@ export async function isAdminEmail(email: string): Promise<boolean> {
   const normalizedEmail = email.toLowerCase().trim();
   return adminEmails.some(adminEmail => adminEmail === normalizedEmail);
 }
+
+// Default notification email for form submissions
+const DEFAULT_FORM_NOTIFICATION_EMAIL = 'login@smartsolutionsmumbai.com';
+
+/**
+ * Get the notification email for form submissions
+ * @returns Promise<string> - Email address for form notifications
+ */
+export async function getFormNotificationEmail(): Promise<string> {
+  try {
+    const client = await clientPromise;
+    const db = client.db('loan-sarathi');
+    const settings = await db.collection(SETTINGS_COLLECTION).findOne({ _id: 'main' } as any);
+
+    if (settings?.settings?.formNotificationEmail) {
+      return settings.settings.formNotificationEmail.toLowerCase().trim();
+    }
+
+    return DEFAULT_FORM_NOTIFICATION_EMAIL;
+  } catch (error) {
+    console.error('Error fetching form notification email:', error);
+    return DEFAULT_FORM_NOTIFICATION_EMAIL;
+  }
+}
+
+/**
+ * Update the notification email for form submissions
+ * @param email - Email address
+ * @returns Promise<boolean> - Success status
+ */
+export async function updateFormNotificationEmail(email: string): Promise<boolean> {
+  try {
+    const client = await clientPromise;
+    const db = client.db('loan-sarathi');
+    
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail.includes('@')) {
+      console.error('Invalid email address:', email);
+      return false;
+    }
+
+    await db.collection(SETTINGS_COLLECTION).updateOne(
+      { _id: 'main' } as any,
+      { 
+        $set: { 
+          'settings.formNotificationEmail': normalizedEmail,
+          updatedAt: new Date()
+        } 
+      },
+      { upsert: true }
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Error updating form notification email:', error);
+    return false;
+  }
+}

@@ -186,3 +186,62 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { applicationIds } = body;
+
+    if (!applicationIds || !Array.isArray(applicationIds) || applicationIds.length === 0) {
+      return NextResponse.json({ error: 'No application IDs provided' }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db('loan-sarathi');
+
+    const results = {
+      deleted: 0,
+      failed: 0,
+      loans: 0,
+      insurance: 0,
+      consultancy: 0,
+    };
+
+    for (const appId of applicationIds) {
+      // Try to delete from loan applications
+      const loanResult = await db.collection(LOAN_APPLICATIONS_COLLECTION).deleteOne({ applicationId: appId });
+      if (loanResult.deletedCount > 0) {
+        results.deleted++;
+        results.loans++;
+        continue;
+      }
+
+      // Try to delete from insurance applications
+      const insuranceResult = await db.collection(INSURANCE_APPLICATIONS_COLLECTION).deleteOne({ applicationId: appId });
+      if (insuranceResult.deletedCount > 0) {
+        results.deleted++;
+        results.insurance++;
+        continue;
+      }
+
+      // Try to delete from consultancy requests
+      const consultancyResult = await db.collection(CONSULTANCY_REQUESTS_COLLECTION).deleteOne({ requestId: appId });
+      if (consultancyResult.deletedCount > 0) {
+        results.deleted++;
+        results.consultancy++;
+        continue;
+      }
+
+      results.failed++;
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Deleted ${results.deleted} application(s)`,
+      results,
+    });
+  } catch (error) {
+    console.error('Error deleting applications:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
