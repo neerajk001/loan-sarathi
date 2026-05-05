@@ -404,108 +404,109 @@ export default function ApplicationsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {loading ? (
+              {loading && (
                 <tr>
                   <td colSpan={9} className="px-6 py-12 text-center">
                     <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto" />
                     <p className="text-gray-500 mt-2">Loading applications...</p>
                   </td>
                 </tr>
-              ) : applications.length === 0 ? (
+              )}
+              {!loading && applications.length === 0 && (
                 <tr>
                   <td colSpan={9} className="px-6 py-12 text-center">
                     <p className="text-gray-500">No applications found</p>
                   </td>
                 </tr>
-              ) : (
-                applications.map((app) => {
-                  const appId = app.applicationId || app.id;
-                  const isSelected = selectedApps.has(appId);
-                  return (
-                  <tr key={appId} className={`hover:bg-gray-50/50 transition-colors ${isSelected ? 'bg-blue-50/30' : ''}`}>
-                    <td className="px-4 py-4">
-                      <button onClick={() => toggleSelect(appId)} className="p-1 hover:bg-gray-200 rounded">
-                        {isSelected ? (
-                          <CheckSquare className="w-4 h-4 text-blue-600" />
-                        ) : (
-                          <Square className="w-4 h-4 text-gray-400" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-600">
-                          {app.name && app.name !== 'N/A' ? app.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'N/A'}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900">{app.name || 'N/A'}</p>
-                          <p className="text-sm text-gray-500">{app.applicationId || app.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      {getSourceBadge(app.source)}
-                    </td>
-                    <td className="px-4 py-4">
-                      {app.type === 'consultancy' ? (
-                        <>
-                          <p className="font-semibold text-gray-900">Consultancy Request</p>
-                          <p className="text-sm text-gray-500">{getTypeLabel(app)}</p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="font-semibold text-gray-900">{formatAmount(app)}</p>
-                          <p className="text-sm text-gray-500">{getTypeLabel(app)}</p>
-                        </>
-                      )}
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm text-gray-900">{app.email || 'N/A'}</p>
-                      <p className="text-sm text-gray-500">{app.phone || 'N/A'}</p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className="text-sm text-gray-500">-</span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm text-gray-900 font-medium">{formatDateTime(app.createdAt)}</p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusStyle(app.status)}`}>
-                        {app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('-', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center justify-end gap-1">
-                        <button 
-                          onClick={() => handleView(app)}
-                          className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-colors" 
-                          title="View"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        {app.status !== 'approved' && app.status !== 'disbursed' && (
-                          <button 
-                            onClick={() => handleStatusUpdate(app, 'approved')}
-                            className="p-2 hover:bg-green-100 rounded-lg text-gray-500 hover:text-green-600 transition-colors" 
-                            title="Approve"
-                          >
-                            <Check className="w-4 h-4" />
-                          </button>
-                        )}
-                        {app.status !== 'rejected' && (
-                          <button 
-                            onClick={() => handleStatusUpdate(app, 'rejected')}
-                            className="p-2 hover:bg-red-100 rounded-lg text-gray-500 hover:text-red-600 transition-colors" 
-                            title="Reject"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )})}
               )}
+              {!loading && applications.length > 0 && applications.map((app) => {
+                const appId = app.applicationId || app.id;
+                const isSelected = selectedApps.has(appId);
+                return (
+                <tr key={appId} className={`hover:bg-gray-50/50 transition-colors ${isSelected ? 'bg-blue-50/30' : ''}`}>
+                  <td className="px-4 py-4">
+                    <button onClick={() => toggleSelect(appId)} className="p-1 hover:bg-gray-200 rounded">
+                      {isSelected ? (
+                        <CheckSquare className="w-4 h-4 text-blue-600" />
+                      ) : (
+                        <Square className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-600">
+                        {app.name && app.name !== 'N/A' ? app.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'N/A'}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{app.name || 'N/A'}</p>
+                        <p className="text-sm text-gray-500">{app.applicationId || app.id}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    {getSourceBadge(app.source)}
+                  </td>
+                  <td className="px-4 py-4">
+                    {app.type === 'consultancy' ? (
+                      <>
+                        <p className="font-semibold text-gray-900">Consultancy Request</p>
+                        <p className="text-sm text-gray-500">{getTypeLabel(app)}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold text-gray-900">{formatAmount(app)}</p>
+                        <p className="text-sm text-gray-500">{getTypeLabel(app)}</p>
+                      </>
+                    )}
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="text-sm text-gray-900">{app.email || 'N/A'}</p>
+                    <p className="text-sm text-gray-500">{app.phone || 'N/A'}</p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-gray-500">-</span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="text-sm text-gray-900 font-medium">{formatDateTime(app.createdAt)}</p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusStyle(app.status)}`}>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('-', ' ')}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-end gap-1">
+                      <button 
+                        onClick={() => handleView(app)}
+                        className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-colors" 
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      {app.status !== 'approved' && app.status !== 'disbursed' && (
+                        <button 
+                          onClick={() => handleStatusUpdate(app, 'approved')}
+                          className="p-2 hover:bg-green-100 rounded-lg text-gray-500 hover:text-green-600 transition-colors" 
+                          title="Approve"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                      )}
+                      {app.status !== 'rejected' && (
+                        <button 
+                          onClick={() => handleStatusUpdate(app, 'rejected')}
+                          className="p-2 hover:bg-red-100 rounded-lg text-gray-500 hover:text-red-600 transition-colors" 
+                          title="Reject"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+              })}
             </tbody>
           </table>
         </div>
