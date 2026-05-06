@@ -79,22 +79,33 @@ function normalizeLoanApplicationBody(raw: any) {
   if (!body.employmentInfo) {
     const employmentType =
       body.employmentType ?? body.employment_type ?? body.jobType ?? body.job_type;
+    const monthlyIncome = body.monthlyIncome ?? body.monthly_income;
     const annualIncome = body.annualIncome ?? body.annual_income ?? body.income;
 
-    if (employmentType || annualIncome !== undefined) {
+    if (employmentType || annualIncome !== undefined || monthlyIncome !== undefined) {
+      const parsedMonthly = toNumber(monthlyIncome);
+      const parsedAnnual = toNumber(annualIncome);
       body.employmentInfo = {
         employmentType: normalizeEmploymentType(employmentType),
-        annualIncome: toNumber(annualIncome),
+        ...(parsedMonthly !== undefined ? { monthlyIncome: parsedMonthly } : {}),
+        annualIncome: parsedAnnual !== undefined ? parsedAnnual : (parsedMonthly !== undefined ? parsedMonthly * 12 : undefined),
       };
     }
   } else {
+    const parsedMonthly =
+      typeof body.employmentInfo.monthlyIncome === 'number'
+        ? body.employmentInfo.monthlyIncome
+        : toNumber(body.employmentInfo.monthlyIncome);
+    const parsedAnnual =
+      typeof body.employmentInfo.annualIncome === 'number'
+        ? body.employmentInfo.annualIncome
+        : toNumber(body.employmentInfo.annualIncome);
+
     body.employmentInfo = {
       ...body.employmentInfo,
       employmentType: normalizeEmploymentType(body.employmentInfo.employmentType),
-      annualIncome:
-        typeof body.employmentInfo.annualIncome === 'number'
-          ? body.employmentInfo.annualIncome
-          : toNumber(body.employmentInfo.annualIncome),
+      ...(parsedMonthly !== undefined ? { monthlyIncome: parsedMonthly } : {}),
+      annualIncome: parsedAnnual !== undefined ? parsedAnnual : (parsedMonthly !== undefined ? parsedMonthly * 12 : undefined),
     };
   }
 
@@ -208,7 +219,15 @@ export async function POST(request: NextRequest) {
           email: body.personalInfo.email,
           loanType: body.loanType,
           loanAmount: body.loanRequirement?.loanAmount,
+          monthlyIncome: body.employmentInfo?.monthlyIncome,
+          annualIncome: body.employmentInfo?.annualIncome,
           employmentType: body.employmentInfo?.employmentType,
+          payload: {
+            applicationId,
+            source,
+            submittedAt: new Date().toISOString(),
+            submittedData: rawBody,
+          },
         }
       );
       await sendEmail(formNotification);

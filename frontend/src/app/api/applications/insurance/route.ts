@@ -93,6 +93,13 @@ export async function POST(request: NextRequest) {
           mobileNumber: body.basicInfo.mobileNumber,
           email: body.basicInfo.email,
           insuranceType: body.insuranceType,
+          sumInsured: body.sumInsured,
+          payload: {
+            applicationId,
+            source,
+            submittedAt: new Date().toISOString(),
+            submittedData: body,
+          },
         }
       );
       await sendEmail(formNotification);

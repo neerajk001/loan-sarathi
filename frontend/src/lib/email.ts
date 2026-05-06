@@ -353,8 +353,26 @@ export interface FormSubmissionDetails {
   email?: string;
   loanType?: string;
   loanAmount?: number;
+  monthlyIncome?: number;
+  annualIncome?: number;
   employmentType?: string;
   insuranceType?: string;
+  sumInsured?: number;
+  payload?: unknown;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatMoney(amount?: number): string | undefined {
+  if (typeof amount !== 'number' || !Number.isFinite(amount)) return undefined;
+  return `₹${amount.toLocaleString('en-IN')}`;
 }
 
 export function createFormSubmissionNotificationEmail(
@@ -365,20 +383,43 @@ export function createFormSubmissionNotificationEmail(
   
   const subject = `New ${details.type === 'loan' ? 'Loan' : 'Insurance'} - ${details.applicantName} (${details.mobileNumber})`;
 
+  const amountLabel = details.type === 'loan' ? 'Loan Amount' : 'Sum Insured';
+  const primaryAmount = details.type === 'loan' ? details.loanAmount : details.sumInsured;
+  const primaryAmountText = formatMoney(primaryAmount);
+  const monthlyIncomeText = formatMoney(details.monthlyIncome);
+  const annualIncomeText = formatMoney(details.annualIncome);
+
+  const payloadJson = details.payload ? JSON.stringify(details.payload, null, 2) : '';
+  const payloadHtml = payloadJson
+    ? `<div style="margin-top: 16px;">
+        <p style="margin: 0 0 8px 0;"><strong>Full Submitted Payload</strong></p>
+        <pre style="white-space: pre-wrap; word-break: break-word; margin: 0; padding: 12px; background: #f6f8fa; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 12px; line-height: 1.45;">${escapeHtml(payloadJson)}</pre>
+      </div>`
+    : '';
+
   const html = `
     <!DOCTYPE html>
     <html>
     <body style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
       <p style="margin: 0 0 10px 0;"><strong>Name:</strong> ${details.applicantName}</p>
       <p style="margin: 0 0 10px 0;"><strong>Mobile:</strong> ${details.mobileNumber}</p>
-      ${details.loanAmount ? `<p style="margin: 0 0 10px 0;"><strong>Amount:</strong> ₹${details.loanAmount.toLocaleString('en-IN')}</p>` : ''}
+      ${primaryAmountText ? `<p style="margin: 0 0 10px 0;"><strong>${amountLabel}:</strong> ${primaryAmountText}</p>` : ''}
       ${details.employmentType ? `<p style="margin: 0 0 10px 0;"><strong>Employment:</strong> ${details.employmentType}</p>` : ''}
+      ${monthlyIncomeText ? `<p style="margin: 0 0 10px 0;"><strong>Monthly Income:</strong> ${monthlyIncomeText}</p>` : ''}
+      ${annualIncomeText ? `<p style="margin: 0 0 10px 0;"><strong>Annual Income:</strong> ${annualIncomeText}</p>` : ''}
       <p style="margin: 0;"><strong>Source:</strong> ${sourceLabel}</p>
+      ${payloadHtml}
     </body>
     </html>
   `;
 
-  const text = `New Lead - Name: ${details.applicantName}, Mobile: ${details.mobileNumber}${details.loanAmount ? `, Amount: ₹${details.loanAmount.toLocaleString('en-IN')}` : ''}${details.employmentType ? `, Employment: ${details.employmentType}` : ''}, Source: ${sourceLabel}`;
+  const text = `New Lead - Name: ${details.applicantName}, Mobile: ${details.mobileNumber}`
+    + (primaryAmountText ? `, ${amountLabel}: ${primaryAmountText}` : '')
+    + (details.employmentType ? `, Employment: ${details.employmentType}` : '')
+    + (monthlyIncomeText ? `, Monthly Income: ${monthlyIncomeText}` : '')
+    + (annualIncomeText ? `, Annual Income: ${annualIncomeText}` : '')
+    + `, Source: ${sourceLabel}`
+    + (payloadJson ? `\n\nFull Submitted Payload:\n${payloadJson}` : '');
 
   return {
     to: notificationEmail,
