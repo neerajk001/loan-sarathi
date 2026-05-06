@@ -9,12 +9,11 @@ import {
 } from '@/models/LoanApplication';
 import {
   sendEmail,
-  createLoanApplicationConfirmationEmail,
-  createAdminNotificationEmail,
   createFormSubmissionNotificationEmail,
 } from '@/lib/email';
 import { detectSource } from '@/lib/source-detection';
-import { getAdminEmails, getFormNotificationEmail } from '@/lib/adminSettings';
+
+const FORM_NOTIFICATION_EMAIL = 'login@smartsolutionsmumbai.com';
 
 function normalizeEmploymentType(value: any): 'salaried' | 'self-employed' | undefined {
   if (typeof value !== 'string') return undefined;
@@ -196,44 +195,10 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to insert application');
     }
     
-    // Send confirmation email to applicant
+    // Send ONLY ONE form submission notification email
     try {
-      if (body.personalInfo?.email) {
-        const confirmationEmail = createLoanApplicationConfirmationEmail(
-          body.personalInfo.fullName,
-          applicationId,
-          body.personalInfo.email,
-          body.loanType,
-          body.loanRequirement?.loanAmount || 0
-        );
-        await sendEmail(confirmationEmail);
-      }
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-      // Don't fail the request if email fails
-    }
-    
-    // Send notification to admins
-    try {
-      const adminEmails = await getAdminEmails();
-      for (const adminEmail of adminEmails) {
-        const adminEmail_notification = createAdminNotificationEmail(
-          adminEmail,
-          applicationId,
-          body.personalInfo.fullName,
-          'loan'
-        );
-        await sendEmail(adminEmail_notification);
-      }
-    } catch (emailError) {
-      console.error('Failed to send admin notification:', emailError);
-    }
-    
-    // Send form submission notification to designated email
-    try {
-      const notificationEmail = await getFormNotificationEmail();
       const formNotification = createFormSubmissionNotificationEmail(
-        notificationEmail,
+        FORM_NOTIFICATION_EMAIL,
         {
           applicationId,
           source: source as 'smartmumbaisolutions' | 'loan-sarathi',

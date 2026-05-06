@@ -9,12 +9,11 @@ import {
 } from '@/models/InsuranceApplication';
 import {
   sendEmail,
-  createInsuranceApplicationConfirmationEmail,
-  createAdminNotificationEmail,
   createFormSubmissionNotificationEmail,
 } from '@/lib/email';
 import { detectSource } from '@/lib/source-detection';
-import { getAdminEmails, getFormNotificationEmail } from '@/lib/adminSettings';
+
+const FORM_NOTIFICATION_EMAIL = 'login@smartsolutionsmumbai.com';
 
 // POST /api/applications/insurance - Submit a new insurance application
 export async function POST(request: NextRequest) {
@@ -82,43 +81,10 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to insert application');
     }
     
-    // Send confirmation email (if email available)
+    // Send ONLY ONE form submission notification email
     try {
-      const email = body.basicInfo.email;
-      if (email) {
-        const confirmationEmail = createInsuranceApplicationConfirmationEmail(
-          body.basicInfo.fullName,
-          applicationId,
-          email,
-          body.insuranceType
-        );
-        await sendEmail(confirmationEmail);
-      }
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-    }
-    
-    // Send notification to admins
-    try {
-      const adminEmails = await getAdminEmails();
-      for (const adminEmail of adminEmails) {
-        const adminNotification = createAdminNotificationEmail(
-          adminEmail,
-          applicationId,
-          body.basicInfo.fullName,
-          'insurance'
-        );
-        await sendEmail(adminNotification);
-      }
-    } catch (emailError) {
-      console.error('Failed to send admin notification:', emailError);
-    }
-    
-    // Send form submission notification to designated email
-    try {
-      const notificationEmail = await getFormNotificationEmail();
       const formNotification = createFormSubmissionNotificationEmail(
-        notificationEmail,
+        FORM_NOTIFICATION_EMAIL,
         {
           applicationId,
           source: source as 'smartmumbaisolutions' | 'loan-sarathi',
