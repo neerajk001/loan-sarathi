@@ -110,7 +110,20 @@ function normalizeLoanApplicationBody(raw: any) {
   }
 
   // Defaults for lightweight lead forms
-  if (!body.loanType) body.loanType = 'personal';
+  if (!body.loanType) {
+    body.loanType = 'personal';
+  } else if (typeof body.loanType === 'string') {
+    // Normalize loanType (e.g. 'personal-loan' -> 'personal', 'Personal Loan' -> 'personal')
+    const normalizedLoanType = body.loanType.toLowerCase().replace(/\s+/g, '-');
+    if (normalizedLoanType.includes('personal')) body.loanType = 'personal';
+    else if (normalizedLoanType.includes('business')) body.loanType = 'business';
+    else if (normalizedLoanType.includes('home')) body.loanType = 'home';
+    else if (normalizedLoanType.includes('car')) body.loanType = 'car';
+    else if (normalizedLoanType.includes('education')) body.loanType = 'education';
+    else if (normalizedLoanType.includes('property') || normalizedLoanType.includes('lap')) body.loanType = 'lap';
+    else body.loanType = normalizedLoanType.replace('-loan', '');
+  }
+
   // Normalize loanRequirement
   if (!body.loanRequirement) {
     const loanAmount = body.loanAmount ?? body.loan_amount ?? body.amount;
