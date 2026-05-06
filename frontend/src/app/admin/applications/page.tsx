@@ -277,7 +277,7 @@ export default function ApplicationsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Applications</h1>
-          <p className="text-gray-500 mt-1">Manage and review loan applications</p>
+          <p className="text-gray-500 mt-1">Manage and review applications</p>
         </div>
         <div className="flex items-center gap-3">
           {selectedApps.size > 0 && (
@@ -395,7 +395,7 @@ export default function ApplicationsPage() {
                 </th>
                 <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Applicant</th>
                 <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Source</th>
-                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Loan Details</th>
+                <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Details</th>
                 <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
                 <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Documents</th>
                 <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>

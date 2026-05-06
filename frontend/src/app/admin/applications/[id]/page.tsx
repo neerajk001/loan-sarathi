@@ -35,11 +35,11 @@ interface ApplicationDetail {
   personalInfo?: {
     fullName: string;
     mobileNumber: string;
-    email: string;
     pincode: string;
+    email?: string;
     dob?: Date | string;
-    city: string;
-    panCard: string;
+    city?: string;
+    panCard?: string;
   };
   basicInfo?: {
     fullName: string;
@@ -49,9 +49,10 @@ interface ApplicationDetail {
   };
   employmentInfo?: {
     employmentType: string;
-    monthlyIncome: number;
-    employerName: string;
-    existingEmi: number;
+    monthlyIncome?: number;
+    annualIncome?: number;
+    employerName?: string;
+    existingEmi?: number;
   };
   businessDetails?: {
     businessType: string;
@@ -69,9 +70,9 @@ interface ApplicationDetail {
     occupancyStatus?: string;
   };
   loanRequirement?: {
-    loanAmount: number;
-    tenure: number;
-    loanPurpose: string;
+    loanAmount?: number;
+    tenure?: number;
+    loanPurpose?: string;
   };
   loanType?: string;
   insuranceType?: string;
@@ -327,6 +328,9 @@ export default function ApplicationDetailPage() {
   const isLoan = application.type === 'loan';
   const isConsultancy = application.type === 'consultancy';
   const personalInfo = isLoan ? application.personalInfo : application.basicInfo;
+  const loanPersonalInfo = application.personalInfo;
+  const loanEmploymentInfo = application.employmentInfo;
+  const loanRequirement = application.loanRequirement;
 
   return (
     <div className="space-y-6">
@@ -469,12 +473,12 @@ export default function ApplicationDetailPage() {
             <div className="space-y-4">
               <DetailField label="Full Name" value={personalInfo?.fullName} />
               <DetailField label="Mobile Number" value={personalInfo?.mobileNumber} icon={<Phone className="w-4 h-4" />} />
-              {isLoan && <DetailField label="Email" value={application.personalInfo?.email} icon={<Mail className="w-4 h-4" />} />}
-              {isLoan && <DetailField label="Date of Birth" value={formatDate(application.personalInfo?.dob)} icon={<Calendar className="w-4 h-4" />} />}
+              {isLoan && loanPersonalInfo?.pincode && <DetailField label="Pincode" value={loanPersonalInfo.pincode} />}
+              {isLoan && loanPersonalInfo?.email && <DetailField label="Email" value={loanPersonalInfo.email} icon={<Mail className="w-4 h-4" />} />}
+              {isLoan && loanPersonalInfo?.dob && <DetailField label="Date of Birth" value={formatDate(loanPersonalInfo.dob)} icon={<Calendar className="w-4 h-4" />} />}
               {!isLoan && application.basicInfo?.age && <DetailField label="Age" value={application.basicInfo.age.toString()} />}
-              {isLoan && <DetailField label="City" value={application.personalInfo?.city} icon={<MapPin className="w-4 h-4" />} />}
-              {isLoan && <DetailField label="Pincode" value={application.personalInfo?.pincode} />}
-              {isLoan && <DetailField label="PAN Card" value={application.personalInfo?.panCard} />}
+              {isLoan && loanPersonalInfo?.city && <DetailField label="City" value={loanPersonalInfo.city} icon={<MapPin className="w-4 h-4" />} />}
+              {isLoan && loanPersonalInfo?.panCard && <DetailField label="PAN Card" value={loanPersonalInfo.panCard} />}
             </div>
           </div>
         )}
@@ -487,10 +491,19 @@ export default function ApplicationDetailPage() {
               Employment Information
             </h2>
             <div className="space-y-4">
-              <DetailField label="Employment Type" value={application.employmentInfo.employmentType} />
-              <DetailField label="Monthly Income" value={formatCurrency(application.employmentInfo.monthlyIncome)} />
-              <DetailField label="Employer Name" value={application.employmentInfo.employerName} />
-              <DetailField label="Existing EMI" value={formatCurrency(application.employmentInfo.existingEmi)} />
+              <DetailField label="Employment Type" value={loanEmploymentInfo?.employmentType} />
+              {typeof loanEmploymentInfo?.monthlyIncome === 'number' && (
+                <DetailField label="Monthly Income" value={formatCurrency(loanEmploymentInfo.monthlyIncome)} />
+              )}
+              {typeof loanEmploymentInfo?.annualIncome === 'number' && (
+                <DetailField label="Annual Income" value={formatCurrency(loanEmploymentInfo.annualIncome)} />
+              )}
+              {loanEmploymentInfo?.employerName && (
+                <DetailField label="Employer Name" value={loanEmploymentInfo.employerName} />
+              )}
+              {typeof loanEmploymentInfo?.existingEmi === 'number' && (
+                <DetailField label="Existing EMI" value={formatCurrency(loanEmploymentInfo.existingEmi)} />
+              )}
             </div>
           </div>
         )}
@@ -550,9 +563,15 @@ export default function ApplicationDetailPage() {
               Loan Requirement
             </h2>
             <div className="space-y-4">
-              <DetailField label="Loan Amount" value={formatCurrency(application.loanRequirement.loanAmount)} />
-              <DetailField label="Tenure" value={`${application.loanRequirement.tenure} Years`} />
-              <DetailField label="Purpose" value={application.loanRequirement.loanPurpose} />
+              {typeof loanRequirement?.loanAmount === 'number' && (
+                <DetailField label="Loan Amount" value={formatCurrency(loanRequirement.loanAmount)} />
+              )}
+              {typeof loanRequirement?.tenure === 'number' && (
+                <DetailField label="Tenure" value={`${loanRequirement.tenure} Years`} />
+              )}
+              {loanRequirement?.loanPurpose && (
+                <DetailField label="Purpose" value={loanRequirement.loanPurpose} />
+              )}
             </div>
           </div>
         )}

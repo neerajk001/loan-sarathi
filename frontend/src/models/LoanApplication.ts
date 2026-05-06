@@ -50,7 +50,7 @@ export interface StatusHistoryEntry {
 }
 
 export type ApplicationStatus = 'pending' | 'reviewing' | 'verified' | 'approved' | 'rejected' | 'disbursed';
-export type LoanType = 'personal' | 'business' | 'home' | 'lap';
+export type LoanType = 'personal' | 'business' | 'home' | 'lap' | 'car' | 'education';
 
 export interface LoanApplication {
   _id?: ObjectId;
@@ -102,7 +102,7 @@ export function validateLoanApplication(data: any): { valid: boolean; errors: Re
   const errors: Record<string, string> = {};
 
   // Loan type validation (defaulted by API route if missing)
-  const validLoanTypes: LoanType[] = ['personal', 'business', 'home', 'lap'];
+  const validLoanTypes: LoanType[] = ['personal', 'business', 'home', 'lap', 'car', 'education'];
   if (!data.loanType || !validLoanTypes.includes(data.loanType)) {
     errors.loanType = 'Valid loan type is required';
   }
