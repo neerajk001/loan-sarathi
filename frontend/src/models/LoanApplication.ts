@@ -138,6 +138,10 @@ export function validateLoanApplication(data: any): { valid: boolean; errors: Re
     errors.annualIncome = 'Valid annual income is required';
   }
   
+  if (typeof data.loanRequirement?.loanAmount !== 'number' || !Number.isFinite(data.loanRequirement.loanAmount) || data.loanRequirement.loanAmount <= 0) {
+    errors.loanAmount = 'Valid loan amount is required';
+  }
+  
   return { valid: Object.keys(errors).length === 0, errors };
 }
 

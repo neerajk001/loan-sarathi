@@ -353,6 +353,7 @@ export interface FormSubmissionDetails {
   email?: string;
   loanType?: string;
   loanAmount?: number;
+  employmentType?: string;
   insuranceType?: string;
 }
 
@@ -360,95 +361,24 @@ export function createFormSubmissionNotificationEmail(
   notificationEmail: string,
   details: FormSubmissionDetails
 ): EmailTemplate {
-  const sourceLabel = details.source === 'smartmumbaisolutions' 
-    ? 'Smart Mumbai Solutions' 
-    : 'Loan Sarathi (Direct)';
+  const sourceLabel = details.source === 'smartmumbaisolutions' ? 'Smart Mumbai' : 'Loan Sarathi';
   
-  const sourceColor = details.source === 'smartmumbaisolutions' ? '#e11d48' : '#2563eb';
-  
-  const subject = `📝 New ${details.type === 'loan' ? 'Loan' : 'Insurance'} Form - ${details.source}`;
+  const subject = `New ${details.type === 'loan' ? 'Loan' : 'Insurance'} - ${details.applicantName} (${details.mobileNumber})`;
 
   const html = `
     <!DOCTYPE html>
     <html>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-          <h2 style="margin: 0;">📝 New Form Submission</h2>
-        </div>
-        <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px;">
-          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${sourceColor};">
-            <p style="margin: 0;"><strong>Source:</strong> <span style="color: ${sourceColor}; font-weight: bold;">${sourceLabel}</span></p>
-          </div>
-          
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Application ID</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.applicationId}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Type</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.type === 'loan' ? 'Loan Application' : 'Insurance Quote Request'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Applicant Name</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.applicantName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Mobile Number</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.mobileNumber}</td>
-            </tr>
-            ${details.email ? `
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Email</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.email}</td>
-            </tr>` : ''}
-            ${details.loanType ? `
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Loan Type</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.loanType}</td>
-            </tr>` : ''}
-            ${details.loanAmount ? `
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Loan Amount</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">₹${details.loanAmount.toLocaleString('en-IN')}</td>
-            </tr>` : ''}
-            ${details.insuranceType ? `
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Insurance Type</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${details.insuranceType}</td>
-            </tr>` : ''}
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Submitted At</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${new Date().toLocaleString('en-IN')}</td>
-            </tr>
-          </table>
-          
-          <div style="margin-top: 20px; text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin/applications" style="display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">View in Admin Panel</a>
-          </div>
-        </div>
-      </div>
+    <body style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+      <p style="margin: 0 0 10px 0;"><strong>Name:</strong> ${details.applicantName}</p>
+      <p style="margin: 0 0 10px 0;"><strong>Mobile:</strong> ${details.mobileNumber}</p>
+      ${details.loanAmount ? `<p style="margin: 0 0 10px 0;"><strong>Amount:</strong> ₹${details.loanAmount.toLocaleString('en-IN')}</p>` : ''}
+      ${details.employmentType ? `<p style="margin: 0 0 10px 0;"><strong>Employment:</strong> ${details.employmentType}</p>` : ''}
+      <p style="margin: 0;"><strong>Source:</strong> ${sourceLabel}</p>
     </body>
     </html>
   `;
 
-  const text = `
-New Form Submission
-
-Source: ${sourceLabel}
-Application ID: ${details.applicationId}
-Type: ${details.type === 'loan' ? 'Loan Application' : 'Insurance Quote Request'}
-Applicant Name: ${details.applicantName}
-Mobile Number: ${details.mobileNumber}
-${details.email ? `Email: ${details.email}` : ''}
-${details.loanType ? `Loan Type: ${details.loanType}` : ''}
-${details.loanAmount ? `Loan Amount: ₹${details.loanAmount.toLocaleString('en-IN')}` : ''}
-${details.insuranceType ? `Insurance Type: ${details.insuranceType}` : ''}
-Submitted At: ${new Date().toLocaleString('en-IN')}
-
-View in Admin Panel: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin/applications
-  `;
+  const text = `New Lead - Name: ${details.applicantName}, Mobile: ${details.mobileNumber}${details.loanAmount ? `, Amount: ₹${details.loanAmount.toLocaleString('en-IN')}` : ''}${details.employmentType ? `, Employment: ${details.employmentType}` : ''}, Source: ${sourceLabel}`;
 
   return {
     to: notificationEmail,

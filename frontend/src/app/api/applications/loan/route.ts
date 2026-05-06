@@ -101,7 +101,29 @@ function normalizeLoanApplicationBody(raw: any) {
 
   // Defaults for lightweight lead forms
   if (!body.loanType) body.loanType = 'personal';
-  if (!body.loanRequirement) body.loanRequirement = {};
+  // Normalize loanRequirement
+  if (!body.loanRequirement) {
+    const loanAmount = body.loanAmount ?? body.loan_amount ?? body.amount;
+    const tenure = body.tenure ?? body.loanTenure ?? body.loan_tenure;
+    const loanPurpose = body.loanPurpose ?? body.loan_purpose ?? body.purpose;
+
+    if (loanAmount !== undefined || tenure !== undefined || loanPurpose !== undefined) {
+      body.loanRequirement = {
+        loanAmount: toNumber(loanAmount),
+        tenure: toNumber(tenure),
+        loanPurpose: toCleanString(loanPurpose),
+      };
+    } else {
+      body.loanRequirement = {};
+    }
+  } else {
+    body.loanRequirement = {
+      ...body.loanRequirement,
+      loanAmount: toNumber(body.loanRequirement.loanAmount),
+      tenure: toNumber(body.loanRequirement.tenure),
+      loanPurpose: toCleanString(body.loanRequirement.loanPurpose),
+    };
+  }
 
   return body;
 }
@@ -221,6 +243,7 @@ export async function POST(request: NextRequest) {
           email: body.personalInfo.email,
           loanType: body.loanType,
           loanAmount: body.loanRequirement?.loanAmount,
+          employmentType: body.employmentInfo?.employmentType,
         }
       );
       await sendEmail(formNotification);

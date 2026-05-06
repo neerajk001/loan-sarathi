@@ -14,6 +14,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     mobileNumber: '',
     employmentType: 'salaried',
     annualIncome: '',
+    loanAmount: '',
     pincode: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,6 +33,7 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
       formData.mobileNumber.trim() && formData.mobileNumber.length === 10 &&
       (formData.employmentType === 'salaried' || formData.employmentType === 'self-employed') &&
       formData.annualIncome.trim() && !isNaN(parseFloat(formData.annualIncome)) &&
+      formData.loanAmount.trim() && !isNaN(parseFloat(formData.loanAmount)) &&
       formData.pincode.trim() && formData.pincode.length === 6
     );
   };
@@ -46,6 +48,9 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
     employmentInfo: {
       employmentType: formData.employmentType,
       annualIncome: parseFloat(formData.annualIncome) || 0
+    },
+    loanRequirement: {
+      loanAmount: parseFloat(formData.loanAmount) || 0
     }
   });
 
@@ -122,6 +127,14 @@ const ApplicationForm = ({ loanType = 'personal' }: ApplicationFormProps) => {
               <div className="relative">
                 <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input type="number" name="annualIncome" value={formData.annualIncome} onChange={handleInputChange} className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" placeholder="Annual income" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Loan amount <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input type="number" name="loanAmount" value={formData.loanAmount} onChange={handleInputChange} className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium" placeholder="Required loan amount" />
               </div>
             </div>
 
