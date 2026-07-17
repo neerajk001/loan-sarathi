@@ -1,13 +1,30 @@
 {
-    "name": "loan-sarathi",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-        "dev": "npm run dev --prefix frontend",
-        "build": "npm run build --prefix frontend",
-        "start": "npm run start --prefix frontend",
-        "install:all": "npm install && npm install --prefix frontend",
-        "postinstall": "npm install --prefix frontend"
-    },
-    "devDependencies": {}
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
+    "lucide-react": "^0.555.0",
+    "mongodb": "^7.0.0",
+    "next": "16.0.5",
+    "next-auth": "^4.24.13",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "recharts": "^3.5.0",
+    "resend": "^6.12.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5"
+  }
 }
