@@ -85,26 +85,34 @@ export function generateGalleryEventId(sequenceNumber: number): string {
   return `LS-GE-${new Date().getFullYear()}-${paddedNumber}`;
 }
 
-// Convert MongoDB document to API response format
-export function formatGalleryEventForResponse(event: GalleryEvent): any {
+function toISOStringSafe(value: any, dateOnly = false): string | null {
+  if (value == null) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  if (isNaN(d.getTime())) return null;
+  const str = d.toISOString();
+  return dateOnly ? str.split('T')[0] : str;
+}
+
+export function formatGalleryEventForResponse(event: any): any {
+  if (!event || typeof event !== 'object') return null;
   return {
-    id: event._id?.toString(),
-    title: event.title,
-    description: event.description,
-    eventDate: event.eventDate.toISOString().split('T')[0], // YYYY-MM-DD
-    location: event.location,
-    isFeatured: event.isFeatured,
-    isPublished: event.isPublished,
-    source: event.source, // Include source in response
-    images: event.images.map((img, index) => ({
-      id: img._id?.toString() || index.toString(),
-      imageUrl: img.imageUrl,
-      altText: img.altText,
-      displayOrder: img.displayOrder,
-      isFeatured: img.isFeatured,
-    })),
-    createdAt: event.createdAt.toISOString(),
-    updatedAt: event.updatedAt.toISOString(),
+    id: event._id?.toString?.() ?? event._id ?? null,
+    title: event.title ?? '',
+    description: event.description ?? '',
+    eventDate: toISOStringSafe(event.eventDate, true) ?? '',
+    location: event.location ?? '',
+    isFeatured: Boolean(event.isFeatured),
+    isPublished: Boolean(event.isPublished),
+    source: event.source ?? null,
+    images: Array.isArray(event.images) ? event.images.map((img: any, index: number) => ({
+      id: (img && (img._id?.toString?.() ?? img._id)) || String(index),
+      imageUrl: img?.imageUrl ?? '',
+      altText: img?.altText ?? '',
+      displayOrder: img?.displayOrder ?? index,
+      isFeatured: Boolean(img?.isFeatured),
+    })) : [],
+    createdAt: toISOStringSafe(event.createdAt) ?? null,
+    updatedAt: toISOStringSafe(event.updatedAt) ?? null,
   };
 }
 

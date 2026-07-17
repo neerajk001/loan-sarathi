@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
     if (cachedData) {
       const response = NextResponse.json(cachedData);
       response.headers.set('X-Cache', 'HIT');
+      response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
       return response;
     }
 
@@ -115,6 +116,7 @@ export async function GET(request: NextRequest) {
 
       const response = NextResponse.json(responseData);
       response.headers.set('X-Cache', 'MISS');
+      response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
       return response;
     } else {
       // Get all loan products
@@ -141,6 +143,7 @@ export async function GET(request: NextRequest) {
 
       const response = NextResponse.json(responseData);
       response.headers.set('X-Cache', 'MISS');
+      response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
       return response;
     }
   } catch (error) {

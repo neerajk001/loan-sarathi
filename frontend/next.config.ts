@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  compress: true,
   experimental: {
     serverActions: {
-      bodySizeLimit: '50mb', // Allow large gallery event uploads (up to 15 images)
+      bodySizeLimit: '50mb',
     },
   },
   images: {
@@ -14,24 +16,19 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-    // Allow local images from uploads directory
-    unoptimized: false, // Keep optimization enabled
-  },
-  async rewrites() {
-    // Use environment variable for backend URL, fallback to localhost for development
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
-    
-    return [
-      {
-        source: '/api/gallery/:path*',
-        destination: `${backendUrl}/api/gallery/:path*`,
-      },
-      // Routes that are not yet migrated will be handled by Next.js automatically
-      // because the rewrite only captures what we define here.
-    ];
+    unoptimized: false,
   },
   async headers() {
     return [
+      {
+        source: '/uploads/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: [

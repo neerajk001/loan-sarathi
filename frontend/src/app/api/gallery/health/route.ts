@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { detectSource } from '@/lib/source-detection';
 
-/**
- * Health check endpoint for gallery API 
- * GET /api/gallery/health
- * 
- * Use this to verify:
- * 1. The gallery API routes are deployed
- * 2. Source detection is working
- * 3. Server is responding with JSON
- */
 export async function GET(request: NextRequest) {
   try {
     const source = detectSource(request);
@@ -31,18 +22,19 @@ export async function GET(request: NextRequest) {
         getFeaturedEvents: '/api/gallery/events?featured=true',
         getSingleEvent: '/api/gallery/events/:id',
       },
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
     });
   } catch (error) {
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Health check failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
   }
 }
-
-
-
